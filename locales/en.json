@@ -1,0 +1,83 @@
+{
+  "common": {
+    "welcome": "Welcome",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "loading": "Loading...",
+    "selectDate": "Select Date"
+  },
+  "form": {
+    "email": {
+      "label": "Email",
+      "placeholder": "Please enter your email address"
+    },
+    "password": {
+      "label": "Password",
+      "placeholder": "Please enter your password"
+    },
+    "confirmPassword": {
+      "label": "Confirm Password",
+      "placeholder": "Please confirm your password",
+      "required": "Please confirm your password",
+      "match": "Passwords do not match"
+    },
+    "submit": {
+      "login": "Login",
+      "register": "Register"
+    },
+    "verify": {
+      "title": "Enter the verification code",
+      "subtitle": "Please enter the verification code sent to <0>{{email}}</0>",
+      "error": "The verification code is incorrect, please re-enter",
+      "success": "Registration Successful",
+      "successSubtitle": "Login Now",
+      "successButton": "Login Now",
+      "password": "Password Reset Successful"
+    },
+    "login": {
+      "tab": "Login",
+      "subtitle": "Start your journey of the mind",
+      "forgotPassword": "Forgot password?", 
+      "agreement": "Agree to the <0>{{agreement}}</0>",   
+      "agreementRequired": "Please agree to the login agreement",
+      "agreementLink": "login agreement",
+      "otherMethods": "Other login methods"
+    },
+    "register": {
+      "tab": "Register",
+      "subtitle": "Create your account"
+    }
+  },
+  "auth": {
+    "username": "Username",
+    "password": "Password",
+    "email": "Email",
+    "forgotPassword": "Forgot Password",
+    "loginSuccess": "Login Successful",
+    "loginFailed": "Login Failed",
+    "registerSuccess": "Registration Successful",
+    "registerFailed": "Registration Failed"
+  },
+  "error": {
+    "networkError": "Network Error",
+    "timeout": "Request Timeout",
+    "serverError": "Server Error",
+    "unauthorized": "Unauthorized Access"
+  },
+  "validation": {
+    "email": {
+      "invalid": "Please enter a valid email address, e.g., example@domain.com",
+      "required": "Email is required"
+    },
+    "password": {
+      "minLength": "Password must be at least {{count}} characters",
+      "requireAll": "Password must be at least 8 characters and contain both letters and numbers"
+    }
+  }
+} 

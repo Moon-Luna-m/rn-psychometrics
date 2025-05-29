@@ -1,0 +1,83 @@
+{
+  "common": {
+    "welcome": "欢迎",
+    "login": "登录",
+    "register": "注册",
+    "logout": "退出登录",
+    "cancel": "取消",
+    "confirm": "确认",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "loading": "加载中...",
+    "selectDate": "选择日期"
+  },
+  "form": {
+    "email": {
+      "label": "邮箱",
+      "placeholder": "请输入邮箱地址"
+    },
+    "password": {
+      "label": "密码",
+      "placeholder": "请输入密码"
+    },
+    "confirmPassword": {
+      "label": "确认密码",
+      "placeholder": "请确认密码",
+      "required": "请确认密码",
+      "match": "两次输入的密码不一致"
+    },
+    "submit": {
+      "login": "登 录",
+      "register": "注 册"
+    },
+    "verify": {
+      "title": "输入验证码",
+      "subtitle": "请输入发送至<0>{{email}}</0>的验证码",
+      "error": "验证码不正确，请重新输入",
+      "success": "注册成功",
+      "successSubtitle": "立即登录",
+      "successButton": "前往登录",
+      "password": "密码重置成功"
+    },
+    "login": {
+      "tab": "登录",
+      "subtitle": "开启你的心灵之旅",
+      "forgotPassword": "忘记密码？",
+      "agreement": "同意 <0>{{agreement}}</0>",
+      "agreementRequired": "请同意登录协议",
+      "agreementLink": "登录协议",
+      "otherMethods": "其他登录方式"
+    },
+    "register": {
+      "tab": "注册",
+      "subtitle": "创建你的账号"
+    }
+  },
+  "auth": {
+    "username": "用户名",
+    "password": "密码",
+    "email": "邮箱",
+    "forgotPassword": "忘记密码",
+    "loginSuccess": "登录成功",
+    "loginFailed": "登录失败",
+    "registerSuccess": "注册成功",
+    "registerFailed": "注册失败"
+  },
+  "error": {
+    "networkError": "网络错误",
+    "timeout": "请求超时",
+    "serverError": "服务器错误",
+    "unauthorized": "未授权访问"
+  },
+  "validation": {
+    "email": {
+      "invalid": "请输入正确的邮箱格式，如：example@domain.com",
+      "required": "邮箱不能为空"
+    },
+    "password": {
+      "minLength": "密码至少需要{{count}}个字符",
+      "requireAll": "密码至少需要8个字符，且必须包含字母和数字"
+    }
+  }
+}

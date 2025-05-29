@@ -1,0 +1,5 @@
+# 这个文件列出了需要从 Git 历史中删除的敏感信息
+GOOGLE_CLIENT_ID=*
+GOOGLE_CLIENT_SECRET=*
+clientId=*
+clientSecret=* 

@@ -1,0 +1,140 @@
+import { useGoogleAuth } from "@/hooks/useGoogleAuth";
+import { px2hp } from "@/utils/common";
+import { Image } from "expo-image";
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator } from "react-native-paper";
+
+export default function SocialLogin() {
+  const { t } = useTranslation();
+  const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
+  const { login: googleLogin, loading: googleLoading, error: googleError } = useGoogleAuth();
+
+  const socialButtons = [
+    {
+      id: "facebook",
+      icon: require("@/assets/images/social/facebook.png"),
+      onPress: () => handleSocialLogin("facebook"),
+    },
+    {
+      id: "google",
+      icon: require("@/assets/images/social/google.png"),
+      onPress: () => handleSocialLogin("google"),
+    },
+    {
+      id: "apple",
+      icon: require("@/assets/images/social/apple.png"),
+      onPress: () => handleSocialLogin("apple"),
+    },
+  ];
+
+  const handleSocialLogin = async (type: string) => {
+    try {
+      setLoadingStates(prev => ({ ...prev, [type]: true }));
+      
+      switch (type) {
+        case "google":
+          await googleLogin();
+          break;
+        case "facebook":
+          // TODO: 实现 Facebook 登录
+          console.log("Facebook login not implemented");
+          break;
+        case "apple":
+          // TODO: 实现 Apple 登录
+          console.log("Apple login not implemented");
+          break;
+      }
+    } catch (error) {
+      console.error(`${type} login failed:`, error);
+    } finally {
+      setLoadingStates(prev => ({ ...prev, [type]: false }));
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.dividerContainer}>
+        <View style={styles.divider} />
+        <Text style={styles.dividerText}>{t("form.login.otherMethods")}</Text>
+        <View style={styles.divider} />
+      </View>
+      <View style={styles.buttonContainer}>
+        {socialButtons.map((button) => {
+          const isLoading = loadingStates[button.id] || (button.id === "google" && googleLoading);
+          
+          return (
+            <TouchableOpacity
+              key={button.id}
+              style={[
+                styles.socialButton,
+                isLoading && styles.socialButtonDisabled
+              ]}
+              onPress={button.onPress}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <ActivityIndicator size={24} color="#19DBF2" />
+              ) : (
+                <Image
+                  source={button.icon}
+                  style={styles.socialIcon}
+                  contentFit="contain"
+                />
+              )}
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    marginTop: px2hp(32),
+    gap: px2hp(32),
+  },
+  dividerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: px2hp(10),
+  },
+  divider: {
+    width: px2hp(24),
+    height: 1,
+    backgroundColor: "#A9B0B8",
+  },
+  dividerText: {
+    fontFamily: "Outfit",
+    fontSize: 12,
+    fontWeight: "500",
+    color: "#A9B0B8",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: px2hp(24),
+    paddingHorizontal: px2hp(24),
+  },
+  socialButton: {
+    width: px2hp(52),
+    height: px2hp(52),
+    borderRadius: px2hp(75.64),
+    backgroundColor: "#FFFFFF",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1.18,
+    borderColor: "rgba(0, 0, 0, 0.05)",
+  },
+  socialButtonDisabled: {
+    opacity: 0.7,
+  },
+  socialIcon: {
+    width: px2hp(28.36),
+    height: px2hp(28.36),
+  },
+});
