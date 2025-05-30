@@ -1,22 +1,22 @@
 import { px2hp } from "@/utils/common";
 import React, { useCallback, useEffect, useState } from "react";
 import {
-    LayoutChangeEvent,
-    StyleProp,
-    StyleSheet,
-    Text,
-    TextStyle,
-    TouchableOpacity,
-    View,
-    ViewStyle,
+  LayoutChangeEvent,
+  StyleProp,
+  StyleSheet,
+  Text,
+  TextStyle,
+  TouchableOpacity,
+  View,
+  ViewStyle,
 } from "react-native";
 import Animated, {
-    interpolate,
-    runOnJS,
-    useAnimatedStyle,
-    useDerivedValue,
-    useSharedValue,
-    withSpring,
+  interpolate,
+  runOnJS,
+  useAnimatedStyle,
+  useDerivedValue,
+  useSharedValue,
+  withSpring,
 } from "react-native-reanimated";
 
 export interface TabItem {

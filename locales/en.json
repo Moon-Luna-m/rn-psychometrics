@@ -1,6 +1,6 @@
 {
   "common": {
-    "welcome": "Welcome",
+    "welcome": "Welcome to {{name}}",
     "login": "Login",
     "register": "Register",
     "logout": "Logout",

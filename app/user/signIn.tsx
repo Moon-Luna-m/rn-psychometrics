@@ -37,7 +37,9 @@ export default function LoginScreen() {
       />
       <SafeAreaView style={styles.content}>
         <View style={styles.header}>
-          <Text style={styles.title}>Welcome to {appJson.expo.name}</Text>
+          <Text style={styles.title}>
+            {t("common.welcome", { name: appJson.expo.name })}
+          </Text>
           <Text style={styles.subtitle}>{t("form.login.subtitle")}</Text>
         </View>
 
@@ -101,4 +103,4 @@ const styles = StyleSheet.create({
     marginHorizontal: px2hp(24),
     marginBottom: px2hp(32),
   },
-}); 
+});

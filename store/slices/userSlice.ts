@@ -3,7 +3,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 import { eventBus } from "../../utils/eventBus";
-import { HTTP_EVENTS, HttpRequest, setToken } from "../../utils/http/request";
+import { clearToken, HTTP_EVENTS, HttpRequest } from "../../utils/http/request";
 
 interface UserInfo {
   avatar: string;
@@ -98,7 +98,7 @@ const userSlice = createSlice({
     logout: (state) => {
       state.userInfo = null;
       state.isAuthenticated = false;
-      setToken("");
+      clearToken()
     },
   },
   extraReducers: (builder) => {

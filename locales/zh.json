@@ -1,6 +1,6 @@
 {
   "common": {
-    "welcome": "欢迎",
+    "welcome": "欢迎来到{{name}}",
     "login": "登录",
     "register": "注册",
     "logout": "退出登录",
