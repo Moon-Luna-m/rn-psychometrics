@@ -1,15 +1,28 @@
 import { useGoogleAuth } from "@/hooks/useGoogleAuth";
+import { userService } from "@/services/userService";
+import { setUserInfo } from "@/store/slices/userSlice";
 import { px2hp } from "@/utils/common";
+import { setToken } from "@/utils/http/request";
 import { Image } from "expo-image";
-import { useState } from "react";
+import { router } from "expo-router";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { ActivityIndicator } from "react-native-paper";
+import { useDispatch } from "react-redux";
 
 export default function SocialLogin() {
   const { t } = useTranslation();
-  const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
-  const { login: googleLogin, loading: googleLoading, error: googleError } = useGoogleAuth();
+  const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>(
+    {}
+  );
+  const {
+    login: googleLogin,
+    loading: googleLoading,
+    error: googleError,
+    userInfo,
+  } = useGoogleAuth();
+  const dispatch = useDispatch();
 
   const socialButtons = [
     {
@@ -31,8 +44,8 @@ export default function SocialLogin() {
 
   const handleSocialLogin = async (type: string) => {
     try {
-      setLoadingStates(prev => ({ ...prev, [type]: true }));
-      
+      setLoadingStates((prev) => ({ ...prev, [type]: true }));
+
       switch (type) {
         case "google":
           await googleLogin();
@@ -49,9 +62,30 @@ export default function SocialLogin() {
     } catch (error) {
       console.error(`${type} login failed:`, error);
     } finally {
-      setLoadingStates(prev => ({ ...prev, [type]: false }));
+      setLoadingStates((prev) => ({ ...prev, [type]: false }));
     }
   };
+
+  useEffect(() => {
+    const res = async () => {
+      if (!userInfo) return;
+      const res = await userService.googleLogin({
+        avatar_url: userInfo?.picture,
+        email: userInfo?.email,
+        google_id: userInfo?.id,
+        name: userInfo?.name,
+      });
+      if (res.code === 200) {
+        await setToken(res.data.token);
+        const info = await userService.getUserInfo();
+        if (info.code === 200) {
+          dispatch(setUserInfo(info.data));
+          router.replace("/");
+        }
+      }
+    };
+    res();
+  }, [userInfo]);
 
   return (
     <View style={styles.container}>
@@ -62,14 +96,16 @@ export default function SocialLogin() {
       </View>
       <View style={styles.buttonContainer}>
         {socialButtons.map((button) => {
-          const isLoading = loadingStates[button.id] || (button.id === "google" && googleLoading);
-          
+          const isLoading =
+            loadingStates[button.id] ||
+            (button.id === "google" && googleLoading);
+
           return (
             <TouchableOpacity
               key={button.id}
               style={[
                 styles.socialButton,
-                isLoading && styles.socialButtonDisabled
+                isLoading && styles.socialButtonDisabled,
               ]}
               onPress={button.onPress}
               disabled={isLoading}

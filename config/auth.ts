@@ -1,18 +1,13 @@
-import { Platform } from "react-native";
-
 export const AUTH_CONFIG = {
   google: {
-    clientId: process.env.GOOGLE_CLIENT_ID || "",
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-    redirectUrl: Platform.select({
-      ios: "com.googleusercontent.apps.[YOUR_CLIENT_ID]:/oauth2redirect",
-      android: "com.googleusercontent.apps.[YOUR_CLIENT_ID]:/oauth2redirect",
-    }),
+    // 在 Google Cloud Console 中获取
+    appClientId: process.env.GOOGLE_APP_CLIENT_ID || "",
+    webClientId: process.env.GOOGLE_WEB_CLIENT_ID || "",
+    // clientId: "204762997801-pnlmu8l3akspfebcvdua8furtine204n.apps.googleusercontent.com",
+    appClientSecret: process.env.GOOGLE_APP_CLIENT_SECRET || "",
+    webClientSecret: process.env.GOOGLE_WEB_CLIENT_SECRET || "",
   },
-};
+} as const;
 
-export const SCOPES = [
-  "openid",
-  "profile",
-  "email"
-] as const; 
+// 配置 Google OAuth 2.0 scope
+export const GOOGLE_SCOPES = ["profile", "email"] as const;

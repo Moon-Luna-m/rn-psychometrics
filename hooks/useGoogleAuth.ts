@@ -49,8 +49,8 @@ export function useGoogleAuth() {
   const redirectUri = getOAuthRedirectUri();
   
   const [request, response, promptAsync] = Google.useAuthRequest({
-    androidClientId: AUTH_CONFIG.google.otherClientId,
-    iosClientId: AUTH_CONFIG.google.otherClientId,
+    androidClientId: AUTH_CONFIG.google.appClientId,
+    iosClientId: AUTH_CONFIG.google.appClientId,
     webClientId: AUTH_CONFIG.google.webClientId,
     scopes: [...GOOGLE_SCOPES] as string[],
     redirectUri,
@@ -79,8 +79,8 @@ export function useGoogleAuth() {
       } else {
         params = new URLSearchParams({
           code,
-          client_id: AUTH_CONFIG.google.otherClientId,
-          client_secret: AUTH_CONFIG.google.othnerClientSecret,
+          client_id: AUTH_CONFIG.google.appClientId,
+          client_secret: AUTH_CONFIG.google.appClientSecret,
           redirect_uri: redirectUri,
           grant_type: "authorization_code",
           code_verifier: request?.codeVerifier || "",
