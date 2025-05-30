@@ -52,6 +52,18 @@
     "register": {
       "tab": "Register",
       "subtitle": "Create your account"
+    },
+    "forgot": {
+      "title": "Forgot Password",
+      "subtitle": "Please enter your email to receive a verification code",
+      "button": "Send Verification Code"
+    },
+    "reset": {
+      "title": "Set New Password",
+      "subtitle": "Please re-set your password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm Password",
+      "button": "Complete"
     }
   },
   "auth": {

@@ -52,6 +52,18 @@
     "register": {
       "tab": "注册",
       "subtitle": "创建你的账号"
+    },
+    "forgot": {
+      "title": "找回密码",
+      "subtitle": "请输入您的邮箱接收验证码",
+      "button": "获取验证码"
+    },
+    "reset": {
+      "title": "设置新密码",
+      "subtitle": "请重新设置您的密码",
+      "newPassword": "新密码",
+      "confirmPassword": "确认密码",
+      "button": "完成"
     }
   },
   "auth": {

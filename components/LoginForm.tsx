@@ -173,7 +173,9 @@ export default function LoginForm() {
         />
         <TouchableOpacity
           style={styles.forgotPassword}
-          onPress={() => {}}
+          onPress={() => {
+            router.push("/user/forgot");
+          }}
           activeOpacity={0.5}
         >
           <Text style={styles.forgotPasswordText}>

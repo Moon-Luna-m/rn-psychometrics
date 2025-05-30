@@ -3,7 +3,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 import { eventBus } from "../../utils/eventBus";
-import { HTTP_EVENTS, HttpRequest } from "../../utils/http/request";
+import { HTTP_EVENTS, HttpRequest, setToken } from "../../utils/http/request";
 
 interface UserInfo {
   avatar: string;
@@ -98,6 +98,7 @@ const userSlice = createSlice({
     logout: (state) => {
       state.userInfo = null;
       state.isAuthenticated = false;
+      setToken("");
     },
   },
   extraReducers: (builder) => {
@@ -149,7 +150,7 @@ export const selectIsInitialized = (state: { user: UserState }) =>
 
 // 监听未授权事件
 eventBus.on(HTTP_EVENTS.UNAUTHORIZED, () => {
-  const store = require('../index').default;
+  const store = require("../index").default;
   store.dispatch(logout());
 });
 

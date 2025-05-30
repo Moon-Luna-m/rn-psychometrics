@@ -108,7 +108,9 @@ export const userService = {
     email: string;
     password: string;
   }): Promise<ApiResponse<EmptyResponse>> {
-    return httpClient.post<EmptyResponse>(path.REGISTER, params);
+    return httpClient.post<EmptyResponse>(path.REGISTER, params, {
+      interceptError: false,
+    });
   },
 
   async logout(): Promise<ApiResponse<EmptyResponse>> {
@@ -117,10 +119,9 @@ export const userService = {
 
   async getCaptcha(params: {
     email: string;
+    type: "register" | "reset" | "password";
   }): Promise<ApiResponse<GetCaptchaResponse>> {
-    return httpClient.post<GetCaptchaResponse>(path.GET_CAPTCHA, params, {
-      interceptError: false,
-    });
+    return httpClient.post<GetCaptchaResponse>(path.GET_CAPTCHA, params);
   },
 
   async updateInfo(params: {
@@ -138,8 +139,14 @@ export const userService = {
     return httpClient.put<EmptyResponse>(path.UPDATE_PASSWORD, params);
   },
 
-  async reset(params: { email: string }): Promise<ApiResponse<EmptyResponse>> {
-    return httpClient.put<EmptyResponse>(path.RESET, params);
+  async reset(params: {
+    email: string;
+    code: string;
+    new_password: string;
+  }): Promise<ApiResponse<EmptyResponse>> {
+    return httpClient.put<EmptyResponse>(path.RESET, params, {
+      interceptError: false,
+    });
   },
 
   async resetPassword(params: {

@@ -68,6 +68,8 @@ export default function SocialLogin() {
 
   useEffect(() => {
     const res = async () => {
+      console.log(userInfo);
+      
       if (!userInfo) return;
       const res = await userService.googleLogin({
         avatar_url: userInfo?.picture,

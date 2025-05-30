@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: "row",
     alignItems: "center",
-    height: px2hp(24),
+    minHeight: px2hp(40),
     overflow: "hidden",
   },
   text: {

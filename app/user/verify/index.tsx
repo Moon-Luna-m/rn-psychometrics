@@ -3,12 +3,14 @@ import { userService } from "@/services/userService";
 import {
   clearLocalCache,
   decrypt,
+  encrypt,
   getLocalCache,
   px2hp,
   px2wp,
+  setLocalCache,
 } from "@/utils/common";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import {
@@ -33,7 +35,8 @@ export default function VerifyScreen() {
   const [code, setCode] = useState<string[]>(Array(6).fill(""));
   const [focusIndex, setFocusIndex] = useState<number>(0);
   const inputRef = useRef<TextInput>(null);
-  const [error, setError] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+  const { from } = useLocalSearchParams();
 
   // 点击某个输入框
   const handleBoxPress = (index: number) => {
@@ -74,21 +77,39 @@ export default function VerifyScreen() {
   // 验证验证码
   const verifyCode = async () => {
     const verifyCode = code.join("");
-    const info = await getLocalCache("user_register_info");
-    if (info) {
-      const { email, password } = JSON.parse(decrypt(info));
-      const res = await userService.register({
-        code: verifyCode,
-        email,
-        password,
-      });
-      if (res.code === 200) {
-        await clearLocalCache("user_register_info");
-        router.replace({
-          pathname: "/user/verify/[params]",
-          params: { params: "register" },
+    if (from !== "forgot") {
+      const info = await getLocalCache("user_register_info");
+      if (info) {
+        const { email, password } = JSON.parse(decrypt(info));
+        const res = await userService.register({
+          code: verifyCode,
+          email,
+          password,
         });
+        if (res.code === 200) {
+          setError("");
+          await clearLocalCache("user_register_info");
+          router.replace({
+            pathname: "/user/verify/[params]",
+            params: { params: "register" },
+          });
+        } else {
+          setError(res.message);
+        }
       }
+    } else {
+      await setLocalCache(
+        "user_forgot_captcha",
+        encrypt(
+          JSON.stringify({
+            code: verifyCode,
+          })
+        )
+      );
+      router.push({
+        pathname: "/user/verify/[params]",
+        params: { params: "reset" },
+      });
     }
   };
 
@@ -101,14 +122,25 @@ export default function VerifyScreen() {
   }, []);
 
   useEffect(() => {
-    const getEmail = async () => {
-      const info = await getLocalCache("user_register_info");
-      if (info) {
-        const { email } = JSON.parse(decrypt(info));
-        setEmail(email);
-      }
-    };
-    getEmail();
+    if (from === "forgot") {
+      const getEmail = async () => {
+        const info = await getLocalCache("user_forgot_info");
+        if (info) {
+          const { email } = JSON.parse(decrypt(info));
+          setEmail(email);
+        }
+      };
+      getEmail();
+    } else {
+      const getEmail = async () => {
+        const info = await getLocalCache("user_register_info");
+        if (info) {
+          const { email } = JSON.parse(decrypt(info));
+          setEmail(email);
+        }
+      };
+      getEmail();
+    }
   }, []);
 
   useEffect(() => {
@@ -213,7 +245,7 @@ export default function VerifyScreen() {
             />
           </View>
           <View style={styles.errorContainer}>
-            <ErrorMessage visible={error} message={t("form.verify.error")} />
+            <ErrorMessage visible={!!error} message={t("form.verify.error")} />
           </View>
         </View>
       </SafeAreaView>

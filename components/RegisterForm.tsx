@@ -51,7 +51,10 @@ export default function RegisterForm() {
     try {
       setIsLoading(true);
       setError("");
-      const res = await userService.getCaptcha({ email: data.email });
+      const res = await userService.getCaptcha({
+        email: data.email,
+        type: "register",
+      });
       if (res.code === 200) {
         await setLocalCache(
           "user_register_info",

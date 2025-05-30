@@ -15,9 +15,9 @@ const getOAuthRedirectUri = () => {
   if (__DEV__) {
     // 使用 ngrok URL 作为回调地址
     if (Platform.OS === "web") {
-      return "http://localhost:8081/oauth2/callback/google";
+      return process.env.EXPO_PUBLIC_GOOGLE_AUTH_CALLBACK || "";
     } else {
-      const ngrokUrl = "https://508e-103-151-172-47.ngrok-free.app";
+      const ngrokUrl = process.env.EXPO_PUBLIC_NGROK_URL;
       const redirectUri = `${ngrokUrl}/oauth2/callback/google`;
       console.log("开发环境重定向 URI:", redirectUri);
       return redirectUri;

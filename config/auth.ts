@@ -1,11 +1,11 @@
 export const AUTH_CONFIG = {
   google: {
     // 在 Google Cloud Console 中获取
-    appClientId: process.env.GOOGLE_APP_CLIENT_ID || "",
-    webClientId: process.env.GOOGLE_WEB_CLIENT_ID || "",
+    appClientId: process.env.EXPO_PUBLIC_GOOGLE_APP_CLIENTID || "",
+    webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENTID || "",
     // clientId: "204762997801-pnlmu8l3akspfebcvdua8furtine204n.apps.googleusercontent.com",
-    appClientSecret: process.env.GOOGLE_APP_CLIENT_SECRET || "",
-    webClientSecret: process.env.GOOGLE_WEB_CLIENT_SECRET || "",
+    appClientSecret: process.env.EXPO_PUBLIC_GOOGLE_APP_SECRET || "",
+    webClientSecret: process.env.EXPO_PUBLIC_GOOGLE_WEB_SECRET || "",
   },
 } as const;
 
