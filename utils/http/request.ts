@@ -48,7 +48,7 @@ export class HttpRequest {
     baseURL: process.env.EXPO_PUBLIC_API_URL,
     interceptBusinessError: true,
     successCode: 200,
-    timeout: 10000,
+    timeout: 20000,
     onError: (error: ErrorDetail) => {
       eventBus.emit(HTTP_EVENTS.ERROR, error);
     },

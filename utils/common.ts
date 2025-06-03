@@ -147,3 +147,15 @@ export async function clearLocalCache(key: string): Promise<void> {
     console.error("Failed to clear auth token:", error);
   }
 }
+
+
+/**
+ * 图片代理地址
+ * @param url
+ * @returns
+ */
+export const imgProxy = (url?: string) => {
+  if (!url) return "";
+  if (/http/.test(url)) return url;
+  return process.env.EXPO_PUBLIC_IMG_HOST + url;
+};

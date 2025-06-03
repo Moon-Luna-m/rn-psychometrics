@@ -12,6 +12,28 @@
     "loading": "Loading...",
     "selectDate": "Select Date"
   },
+  "profile": {
+    "edit": "Edit",
+    "testCard": {
+      "title": "My Test Questions",
+      "completed": "Completed",
+      "notCompleted": "Not Completed"
+    },
+    "popularServices": {
+      "title": "Popular Services",
+      "vip": {
+        "title": "VIP",
+        "expires": "Expires"
+      },
+      "wallet": "My Wallet",
+      "favorites": "My Favorites"
+    },
+    "otherServices": {
+      "title": "Other Services",
+      "faq": "FAQ",
+      "settings": "Settings"
+    }
+  },
   "form": {
     "email": {
       "label": "Email",

@@ -1,12 +1,14 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import notificationReducer from './slices/notificationSlice';
+import tabIconsReducer from './slices/tabIconsSlice';
 import userReducer from './slices/userSlice';
 
 // 创建根 reducer
 const rootReducer = combineReducers({
   notification: notificationReducer,
   user: userReducer,
+  tabIcons: tabIconsReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

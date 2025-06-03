@@ -12,6 +12,28 @@
     "loading": "加载中...",
     "selectDate": "选择日期"
   },
+  "profile": {
+    "edit": "编辑",
+    "testCard": {
+      "title": "我的测试题",
+      "completed": "已完成",
+      "notCompleted": "未完成"
+    },
+    "popularServices": {
+      "title": "热门服务",
+      "vip": {
+        "title": "VIP会员",
+        "expires": "到期时间"
+      },
+      "wallet": "我的钱包",
+      "favorites": "我的收藏"
+    },
+    "otherServices": {
+      "title": "其他服务",
+      "faq": "常见问题",
+      "settings": "设置"
+    }
+  },
   "form": {
     "email": {
       "label": "邮箱",

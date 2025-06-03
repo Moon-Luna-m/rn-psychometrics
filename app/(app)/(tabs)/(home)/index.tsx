@@ -1,6 +1,5 @@
 import { logout, selectUserInfo } from "@/store/slices/userSlice";
-import { Text } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Text, View } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 
 export default function () {
@@ -8,7 +7,7 @@ export default function () {
   const dispatch = useDispatch();
 
   return (
-    <SafeAreaView>
+    <View style={{ flex: 1 }}>
       <Text
         style={{ color: "red" }}
         onPress={async () => {
@@ -17,6 +16,7 @@ export default function () {
       >
         {JSON.stringify(userInfo)}
       </Text>
-    </SafeAreaView>
+    </View>
   );
 }
+
