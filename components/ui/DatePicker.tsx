@@ -365,7 +365,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           onPress={onClose}
           contentStyle={styles.submitButtonContent}
           labelStyle={styles.cancelButtonText}
-          rippleColor="rgba(0,0,0,0.05)"
+          rippleColor="rgba(0,0,0,0.03)"
         >
           {t("common.cancel")}
         </Button>

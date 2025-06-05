@@ -2,10 +2,9 @@ import React, { useCallback, useEffect, useRef } from "react";
 import {
   Dimensions,
   Platform,
-  StatusBar,
   StyleSheet,
   Text,
-  View,
+  View
 } from "react-native";
 import Animated, {
   runOnJS,
@@ -22,7 +21,6 @@ import {
 import NotificationIcon from "./NotificationIcon";
 
 const { width } = Dimensions.get("window");
-const STATUSBAR_HEIGHT = Platform.OS === "ios" ? 44 : StatusBar.currentHeight || 0;
 
 const NotificationToast: React.FC = () => {
   const notification = useSelector((state: RootState) => selectNotification(state));

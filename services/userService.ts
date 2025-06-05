@@ -43,6 +43,7 @@ export interface UserInfo {
   username: string;
   sex: number;
   balance: number;
+  birthday: string;
 }
 
 // 谷歌登录返回信息

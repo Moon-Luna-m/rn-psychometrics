@@ -190,5 +190,37 @@
       "others": "Others",
       "attachment": "Love Attachment Test"
     }
+  },
+  "settings": {
+    "title": "Settings",
+    "account": "Account Settings",
+    "customerService": "Contact Customer Service",
+    "userAgreement": "User Agreement",
+    "privacyPolicy": "Privacy Policy",
+    "disclaimer": "Disclaimer",
+    "language": "Language Switch",
+    "checkUpdate": "Check for Updates",
+    "clearCache": "Clear Cache",
+    "logout": {
+      "button": "Log Out",
+      "title": "Are you sure you want to log out?",
+      "description": "You will not be able to submit test proposals after logging out.",
+      "cancel": "Cancel",
+      "confirm": "Confirm"
+    },
+    "clearCacheSuccess": "Cache cleared successfully",
+    "clearCacheFailed": "Cache clearing failed"
+  },
+  "privacy": {
+    "terms": {
+      "title": "Terms",
+      "content1": "We are committed to protecting your privacy and personal information. This Privacy Policy explains how we collect, use, and safeguard your data when you use our services.",
+      "content2": "We collect only necessary information to provide and improve our services. This may include basic profile information, usage data, and any additional information you choose to provide."
+    },
+    "changes": {
+      "title": "Changes to the Service and/or Terms",
+      "content1": "We reserve the right to modify or update our Privacy Policy at any time. Any significant changes will be notified to users through appropriate channels.",
+      "content2": "By continuing to use our services after such modifications, you agree to be bound by the updated Privacy Policy."
+    }
   }
 }

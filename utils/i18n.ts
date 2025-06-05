@@ -1,7 +1,7 @@
 import * as Localization from "expo-localization";
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
-import { I18nManager } from "react-native";
+import { I18nManager, ImageSourcePropType } from "react-native";
 
 // 导入翻译资源
 import en from "../locales/en.json";
@@ -15,6 +15,7 @@ type LanguageConfig = {
   label: string;
   value: string;
   isRTL: boolean;
+  flag: ImageSourcePropType;
 };
 
 type Languages = {
@@ -23,8 +24,18 @@ type Languages = {
 
 // 支持的语言列表
 export const LANGUAGES: Languages = {
-  en: { label: "English", value: "en", isRTL: false },
-  zh: { label: "简体中文", value: "zh", isRTL: false },
+  en: {
+    label: "English",
+    value: "en",
+    isRTL: false,
+    flag: require("@/assets/images/language/en.png"),
+  },
+  zh: {
+    label: "简体中文",
+    value: "zh",
+    isRTL: false,
+    flag: require("@/assets/images/language/zh.png"),
+  },
 };
 
 // 检查语言是否在支持列表中
@@ -49,12 +60,11 @@ const getDeviceLanguage = () => {
   return "en";
 };
 
-
 // 获取存储的语言设置
 export const getStoredLanguage = async () => {
   try {
     const language = await getLocalCache(LANGUAGE_KEY);
-    
+
     // 如果有存储的语言且在支持列表中，则使用该语言
     if (language && isLanguageSupported(language)) {
       return language;
@@ -67,7 +77,7 @@ export const getStoredLanguage = async () => {
 
     // 使用系统语言
     const systemLanguage = getDeviceLanguage();
-    
+
     // 将系统语言保存到 AsyncStorage
     await setLocalCache(LANGUAGE_KEY, systemLanguage);
     return systemLanguage;

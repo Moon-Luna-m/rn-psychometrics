@@ -190,5 +190,37 @@
       "others": "其他",
       "attachment": "依恋测试"
     }
+  },
+  "settings": {
+    "title": "设置",
+    "account": "账号设置",
+    "customerService": "联系客服",
+    "userAgreement": "用户协议",
+    "privacyPolicy": "隐私政策",
+    "disclaimer": "免责声明",
+    "language": "语言切换",
+    "checkUpdate": "检查更新",
+    "clearCache": "清除缓存",
+    "logout": {
+      "button": "退出登录",
+      "title": "确定要退出登录吗？",
+      "description": "退出登录后将无法提交测试提案。",
+      "cancel": "取消",
+      "confirm": "确认"
+    },
+    "clearCacheSuccess": "清除缓存成功",
+    "clearCacheFailed": "清除缓存失败"
+  },
+  "privacy": {
+    "terms": {
+      "title": "条款",
+      "content1": "我们致力于保护您的隐私和个人信息。本隐私政策说明了我们在您使用我们的服务时如何收集、使用和保护您的数据。",
+      "content2": "我们只收集提供和改进服务所必需的信息。这可能包括基本的个人资料、使用数据以及您选择提供的任何其他信息。"
+    },
+    "changes": {
+      "title": "服务和条款变更",
+      "content1": "我们保留随时修改或更新隐私政策的权利。任何重大变更都将通过适当的渠道通知用户。",
+      "content2": "在此类修改后继续使用我们的服务，即表示您同意受更新后的隐私政策约束。"
+    }
   }
 } 

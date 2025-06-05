@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import CryptoJS from "crypto-js";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import * as FileSystem from "expo-file-system";
 import { deleteItemAsync, getItemAsync, setItemAsync } from "expo-secure-store";
 import { Platform } from "react-native";
 import {
@@ -220,4 +221,100 @@ export const parseDate = (dateStr: string, format?: string): Date | null => {
 export const getRelativeTime = (date?: Date | string | number | null): string => {
   if (!date) return "";
   return dayjs(date).fromNow();
+};
+
+/**
+ * 获取缓存大小
+ * @returns Promise<string> 格式化后的缓存大小，如 "1.5MB"
+ */
+export const getCacheSize = async (): Promise<string> => {
+  try {
+    if (Platform.OS === "web") {
+      // Web平台暂不支持获取缓存大小
+      return "0B";
+    }
+
+    const cacheDir = FileSystem.cacheDirectory;
+    if (!cacheDir) return "0B";
+
+    // 递归获取目录大小
+    const getDirSize = async (dirUri: string): Promise<number> => {
+      const items = await FileSystem.readDirectoryAsync(dirUri);
+      let size = 0;
+
+      for (const item of items) {
+        const uri = `${dirUri}${item}`;
+        const info = await FileSystem.getInfoAsync(uri);
+
+        if (info.exists) {
+          if (info.isDirectory) {
+            size += await getDirSize(uri + "/");
+          } else {
+            size += info.size || 0;
+          }
+        }
+      }
+
+      return size;
+    };
+
+    const totalSize = await getDirSize(cacheDir);
+
+    // 格式化大小
+    const units = ["B", "KB", "MB", "GB"];
+    let size = totalSize;
+    let unitIndex = 0;
+
+    while (size >= 1024 && unitIndex < units.length - 1) {
+      size /= 1024;
+      unitIndex++;
+    }
+
+    return `${size.toFixed(2)}${units[unitIndex]}`;
+  } catch (error) {
+    console.error("获取缓存大小失败:", error);
+    return "0B";
+  }
+};
+
+/**
+ * 清理缓存
+ * @returns Promise<void>
+ */
+export const clearCache = async (): Promise<boolean> => {
+  try {
+    if (Platform.OS === "web") {
+      // Web平台清理localStorage
+      await AsyncStorage.clear();
+      return true;
+    }
+
+    const cacheDir = FileSystem.cacheDirectory;
+    if (!cacheDir) return false;
+
+    // 递归删除目录内容
+    const clearDir = async (dirUri: string) => {
+      const items = await FileSystem.readDirectoryAsync(dirUri);
+
+      for (const item of items) {
+        const uri = `${dirUri}${item}`;
+        const info = await FileSystem.getInfoAsync(uri);
+
+        if (info.exists) {
+          if (info.isDirectory) {
+            await clearDir(uri + "/");
+            await FileSystem.deleteAsync(uri, { idempotent: true });
+          } else {
+            await FileSystem.deleteAsync(uri, { idempotent: true });
+          }
+        }
+      }
+    };
+
+    await clearDir(cacheDir);
+    return true;
+  } catch (error) {
+    console.error("error", error);
+    return false;
+  }
 };

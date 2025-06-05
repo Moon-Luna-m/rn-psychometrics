@@ -155,7 +155,7 @@ export default function Profile() {
         id: "settings",
         icon: require("@/assets/images/profile/settings.png"),
         title: t("profile.otherServices.settings"),
-        onPress: () => {},
+        onPress: () => router.push("/profile/setting"),
       },
     ],
     [t]

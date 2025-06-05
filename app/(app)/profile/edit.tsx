@@ -436,7 +436,7 @@ export default function Edit() {
               contentStyle={styles.submitButtonContent}
               labelStyle={styles.cancelButtonText}
               onPress={() => setShowAvatarModal(false)}
-              rippleColor="rgba(0,0,0,0.05)"
+              rippleColor="rgba(0,0,0,0.03)"
             >
               {t("common.cancel")}
             </Button>
