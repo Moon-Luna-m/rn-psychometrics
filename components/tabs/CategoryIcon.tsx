@@ -1,7 +1,7 @@
 import { selectActiveTab, setActiveTab } from "@/store/slices/tabIconsSlice";
 import { useFocusEffect } from "@react-navigation/native";
 import React, { useCallback, useEffect } from "react";
-import { View } from "react-native";
+import { Image, Platform, View } from "react-native";
 import Animated, {
   cancelAnimation,
   useAnimatedProps,
@@ -13,8 +13,33 @@ import { Path, Svg } from "react-native-svg";
 import { useDispatch, useSelector } from "react-redux";
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
-
 export default function CategoryIcon() {
+  const dispatch = useDispatch();
+  const activeTab = useSelector(selectActiveTab);
+  const isActive = activeTab === "category";
+
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(setActiveTab("category"));
+    }, [])
+  );
+  if (Platform.OS === "web") {
+    return isActive ? (
+      <Image
+        source={require("@/assets/images/tabs/category-active.png")}
+        style={{ width: 24, height: 24 }}
+      />
+    ) : (
+      <Image
+        source={require("@/assets/images/tabs/category.png")}
+        style={{ width: 24, height: 24 }}
+      />
+    );
+  }
+  return <CategoryIconInner />;
+}
+
+function CategoryIconInner() {
   const strokeDashoffset = useSharedValue(0);
   const fillColor = useSharedValue("transparent");
   const innerFillColor = useSharedValue("#0C0A09");

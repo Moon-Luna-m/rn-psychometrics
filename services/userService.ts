@@ -26,6 +26,8 @@ const path = {
   RESET_PASSWORD: "/api/users/reset-password",
   // 获取头像列表
   GET_AVATAR_LIST: "/api/users/avatars",
+  // 上传头像
+  UPLOAD_AVATAR: "/api/users/avatar/upload",
 } as const;
 
 // 基础响应类型
@@ -71,6 +73,11 @@ export interface GetCaptchaResponse {
 export interface GetAvatarListResponse {
   count: number;
   list: Array<{ id: number; url: string; is_default: boolean }>;
+}
+
+// 上传头像返回信息
+export interface UploadAvatarResponse {
+  url: string;
 }
 
 // 通用无信息返回
@@ -128,6 +135,7 @@ export const userService = {
     avatar: string;
     sex: number;
     username: string;
+    birthday: string;
   }): Promise<ApiResponse<UserInfo>> {
     return httpClient.put<UserInfo>(path.UPDATE_INFO, params);
   },
@@ -161,5 +169,9 @@ export const userService = {
     size: number;
   }): Promise<ApiResponse<GetAvatarListResponse>> {
     return httpClient.get<GetAvatarListResponse>(path.GET_AVATAR_LIST, params);
+  },
+
+  async uploadAvatar(file: FormData): Promise<ApiResponse<UploadAvatarResponse>> {
+    return httpClient.post<UploadAvatarResponse>(path.UPLOAD_AVATAR, file);
   },
 };

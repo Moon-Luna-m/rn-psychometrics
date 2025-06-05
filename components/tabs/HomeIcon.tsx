@@ -1,7 +1,7 @@
 import { selectActiveTab, setActiveTab } from "@/store/slices/tabIconsSlice";
 import { useFocusEffect } from "@react-navigation/native";
 import React, { useCallback, useEffect } from "react";
-import { View } from "react-native";
+import { Image, Platform, View } from "react-native";
 import Animated, {
   cancelAnimation,
   useAnimatedProps,
@@ -15,6 +15,33 @@ import { useDispatch, useSelector } from "react-redux";
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
 export default function HomeIcon() {
+  const dispatch = useDispatch();
+  const activeTab = useSelector(selectActiveTab);
+  const isActive = activeTab === "home";
+
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(setActiveTab("home"));
+    }, [])
+  );
+
+  if (Platform.OS === "web") {
+    return isActive ? (
+      <Image
+        source={require("@/assets/images/tabs/home-active.png")}
+        style={{ width: 24, height: 24 }}
+      />
+    ) : (
+      <Image
+        source={require("@/assets/images/tabs/home.png")}
+        style={{ width: 24, height: 24 }}
+      />
+    );
+  }
+  return <HomeIconInner />;
+}
+
+function HomeIconInner() {
   const strokeDashoffset = useSharedValue(0);
   const fillColor = useSharedValue("transparent");
   const innerFillColor = useSharedValue("#0C0A09");

@@ -11,6 +11,7 @@ interface UserInfo {
   username: string;
   sex: number;
   balance: number;
+  birthday: string;
 }
 
 interface UserState {

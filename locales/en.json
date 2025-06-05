@@ -10,10 +10,49 @@
     "delete": "Delete",
     "edit": "Edit",
     "loading": "Loading...",
-    "selectDate": "Select Date"
+    "selectDate": "Select Date",
+    "dataEditing": "Data Editing",
+    "settings": "Settings",
+    "datePicker": {
+      "year": "Year",
+      "month": "Month",
+      "day": "Day"
+    },
+    "avatar": {
+      "title": "Select Avatar",
+      "camera": "Take Photo",
+      "gallery": "Choose from Gallery"
+    },
+    "camera": {
+      "switchCamera": "Switch Camera",
+      "flash": {
+        "on": "Flash On",
+        "off": "Flash Off",
+        "auto": "Flash Auto"
+      },
+      "capture": "Capture",
+      "retake": "Retake",
+      "confirm": "Confirm",
+      "cancel": "Cancel",
+      "permissionDenied": "Camera Permission Required",
+      "permissionMessage": "Please allow camera access in settings",
+      "processing": "Processing...",
+      "guide": "Place your face in the circle",
+      "tips": "Tap to take photo, hold to record"
+    },
+    "gallery": {
+      "permissionDenied": "Gallery Permission Required",
+      "permissionMessage": "Please allow gallery access in settings"
+    }
   },
   "profile": {
     "edit": "Edit",
+    "changeName": "Change Name",
+    "genderSelection": "Gender Selection",
+    "selectGender": "Select Gender",
+    "birthday": "Your Birthday",
+    "selectBirthday": "Select Birthday",
+    "birthdayPlaceholder": "YYYY.MM.DD",
     "testCard": {
       "title": "My Test Questions",
       "completed": "Completed",
@@ -33,6 +72,11 @@
       "faq": "FAQ",
       "settings": "Settings"
     }
+  },
+  "gender": {
+    "male": "Male",
+    "female": "Female",
+    "placeholder": "Select Gender"
   },
   "form": {
     "email": {

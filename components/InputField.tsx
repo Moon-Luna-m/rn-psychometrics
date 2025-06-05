@@ -33,6 +33,7 @@ interface InputFieldProps {
   blurOnSubmit?: boolean;
   containerStyle?: StyleProp<ViewStyle>;
   inputStyle?: StyleProp<TextStyle>;
+  disabled?: boolean;
 }
 
 const InputField: React.FC<InputFieldProps> = ({
@@ -49,6 +50,7 @@ const InputField: React.FC<InputFieldProps> = ({
   blurOnSubmit = false,
   containerStyle,
   inputStyle,
+  disabled = false,
 }) => {
   const [showPassword, setShowPassword] = React.useState(!secureTextEntry);
   const [isFocused, setIsFocused] = React.useState(false);
@@ -76,7 +78,9 @@ const InputField: React.FC<InputFieldProps> = ({
                 setIsFocused(false);
                 onBlur();
               }}
-              onFocus={() => setIsFocused(true)}
+              onFocus={() => {
+                !disabled && setIsFocused(true);
+              }}
               secureTextEntry={!showPassword}
               style={[
                 styles.input,
@@ -96,6 +100,7 @@ const InputField: React.FC<InputFieldProps> = ({
                   ? "password"
                   : "off"
               }
+              editable={!disabled}
               autoCorrect={false}
             />
           )}

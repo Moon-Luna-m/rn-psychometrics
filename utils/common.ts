@@ -1,11 +1,16 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import CryptoJS from "crypto-js";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
 import { deleteItemAsync, getItemAsync, setItemAsync } from "expo-secure-store";
 import { Platform } from "react-native";
 import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from "react-native-responsive-screen";
+
+// 扩展 dayjs
+dayjs.extend(relativeTime);
 
 export const widthPercentageToDP = wp;
 export const heightPercentageToDP = hp;
@@ -46,7 +51,7 @@ export const encrypt = (text: string): string => {
     const encrypted = CryptoJS.AES.encrypt(text, key, {
       iv: IV,
       mode: CryptoJS.mode.CBC,
-      padding: CryptoJS.pad.Pkcs7
+      padding: CryptoJS.pad.Pkcs7,
     });
 
     // 返回base64编码的加密字符串
@@ -71,7 +76,7 @@ export const decrypt = (encryptedText: string): string => {
     const decrypted = CryptoJS.AES.decrypt(encryptedText, key, {
       iv: IV,
       mode: CryptoJS.mode.CBC,
-      padding: CryptoJS.pad.Pkcs7
+      padding: CryptoJS.pad.Pkcs7,
     });
 
     // 返回解密后的字符串
@@ -148,7 +153,6 @@ export async function clearLocalCache(key: string): Promise<void> {
   }
 }
 
-
 /**
  * 图片代理地址
  * @param url
@@ -158,4 +162,62 @@ export const imgProxy = (url?: string) => {
   if (!url) return "";
   if (/http/.test(url)) return url;
   return process.env.EXPO_PUBLIC_IMG_HOST + url;
+};
+
+/**
+ * 生成模糊哈希值
+ * @param url 图片URL
+ * @returns 模糊哈希值
+ */
+export const generateBlurhash = (): string => {
+  return "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
+};
+
+/**
+ * 格式化日期
+ * @param date 日期对象或字符串或时间戳
+ * @param format 格式化模板，默认为 YYYY.MM.DD
+ * @returns 格式化后的日期字符串
+ */
+export const formatDate = (
+  date?: Date | string | number | null,
+  format: string = "YYYY.MM.DD"
+): string => {
+  if (!date) return "";
+  return dayjs(date).format(format);
+};
+
+/**
+ * 格式化日期时间
+ * @param date 日期对象或字符串或时间戳
+ * @param format 格式化模板，默认为 YYYY.MM.DD HH:mm
+ * @returns 格式化后的日期时间字符串
+ */
+export const formatDateTime = (
+  date?: Date | string | number | null,
+  format: string = "YYYY.MM.DD HH:mm"
+): string => {
+  if (!date) return "";
+  return dayjs(date).format(format);
+};
+
+/**
+ * 解析日期字符串
+ * @param dateStr 日期字符串
+ * @param format 日期字符串的格式，可选
+ * @returns Date对象，如果解析失败则返回null
+ */
+export const parseDate = (dateStr: string, format?: string): Date | null => {
+  const parsed = format ? dayjs(dateStr, format) : dayjs(dateStr);
+  return parsed.isValid() ? parsed.toDate() : null;
+};
+
+/**
+ * 获取相对时间
+ * @param date 日期对象或字符串或时间戳
+ * @returns 相对时间字符串，如"3分钟前"、"2小时前"等
+ */
+export const getRelativeTime = (date?: Date | string | number | null): string => {
+  if (!date) return "";
+  return dayjs(date).fromNow();
 };

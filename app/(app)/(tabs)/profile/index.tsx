@@ -1,8 +1,9 @@
 import { selectUserInfo } from "@/store/slices/userSlice";
-import { imgProxy, px2hp, px2wp } from "@/utils/common";
+import { generateBlurhash, imgProxy, px2hp, px2wp } from "@/utils/common";
 import { Ionicons } from "@expo/vector-icons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
+import { Image as ExpoImage } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { memo, useMemo } from "react";
@@ -33,43 +34,49 @@ interface ServiceSectionProps {
 }
 
 // 缓存服务项组件
-const ServiceItemComponent = memo(({ service, index, itemsLength }: { 
-  service: ServiceItem; 
-  index: number;
-  itemsLength: number;
-}) => (
-  <TouchableHighlight
-    key={service.id}
-    style={[
-      styles.serviceItem,
-      index < itemsLength - 1 && styles.serviceItemBorder,
-    ]}
-    onPress={() => {}}
-    underlayColor="#F5F7FA"
-  >
-    <View style={styles.serviceContent}>
-      <View style={styles.serviceMain}>
-        <View style={styles.serviceIconContainer}>
-          <Image
-            source={service.icon}
-            style={styles.serviceIcon}
-            resizeMode="contain"
-            fadeDuration={0}
-          />
+const ServiceItemComponent = memo(
+  ({
+    service,
+    index,
+    itemsLength,
+  }: {
+    service: ServiceItem;
+    index: number;
+    itemsLength: number;
+  }) => (
+    <TouchableHighlight
+      key={service.id}
+      style={[
+        styles.serviceItem,
+        index < itemsLength - 1 && styles.serviceItemBorder,
+      ]}
+      onPress={() => {}}
+      underlayColor="#F5F7FA"
+    >
+      <View style={styles.serviceContent}>
+        <View style={styles.serviceMain}>
+          <View style={styles.serviceIconContainer}>
+            <Image
+              source={service.icon}
+              style={styles.serviceIcon}
+              resizeMode="contain"
+              fadeDuration={0}
+            />
+          </View>
+          <Text numberOfLines={1} style={styles.serviceTitle}>
+            {service.title}
+          </Text>
         </View>
-        <Text numberOfLines={1} style={styles.serviceTitle}>
-          {service.title}
-        </Text>
-      </View>
-      <View style={styles.serviceExtra}>
-        {service.extra}
-        <View style={styles.serviceArrow}>
-          <AntDesign name="arrowright" size={16} color="#333333" />
+        <View style={styles.serviceExtra}>
+          {service.extra}
+          <View style={styles.serviceArrow}>
+            <AntDesign name="arrowright" size={16} color="#333333" />
+          </View>
         </View>
       </View>
-    </View>
-  </TouchableHighlight>
-));
+    </TouchableHighlight>
+  )
+);
 
 // 缓存服务区块组件
 const ServiceSection = memo(({ title, items }: ServiceSectionProps) => (
@@ -77,9 +84,9 @@ const ServiceSection = memo(({ title, items }: ServiceSectionProps) => (
     <Text style={styles.sectionTitle}>{title}</Text>
     <View style={styles.servicesCard}>
       {items.map((service, index) => (
-        <ServiceItemComponent 
-          key={service.id} 
-          service={service} 
+        <ServiceItemComponent
+          key={service.id}
+          service={service}
           index={index}
           itemsLength={items.length}
         />
@@ -93,51 +100,57 @@ export default function Profile() {
   const { t } = useTranslation();
 
   // 使用 useMemo 缓存服务数组
-  const services = useMemo(() => [
-    {
-      id: "vip",
-      icon: require("@/assets/images/profile/vip-service.png"),
-      title: t("profile.popularServices.vip.title"),
-      extra: (
-        <View style={styles.vipExtra}>
-          <LinearGradient
-            colors={["#FFBA01", "#FFBA01", "#FF3201"]}
-            start={{ x: 0, y: 0.5 }}
-            end={{ x: 1, y: 0.5 }}
-            style={styles.vipDate}
-          >
-            <Text numberOfLines={1} style={styles.vipDateText}>
-              {t("profile.popularServices.vip.expires")}: 2025.05.20
-            </Text>
-          </LinearGradient>
-        </View>
-      ),
-    },
-    {
-      id: "wallet",
-      icon: require("@/assets/images/profile/wallet.png"),
-      title: t("profile.popularServices.wallet"),
-    },
-    {
-      id: "favorites",
-      icon: require("@/assets/images/profile/favorites.png"),
-      title: t("profile.popularServices.favorites"),
-    },
-  ], [t]);
+  const services = useMemo(
+    () => [
+      {
+        id: "vip",
+        icon: require("@/assets/images/profile/vip-service.png"),
+        title: t("profile.popularServices.vip.title"),
+        extra: (
+          <View style={styles.vipExtra}>
+            <LinearGradient
+              colors={["#FFBA01", "#FFBA01", "#FF3201"]}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 0.5 }}
+              style={styles.vipDate}
+            >
+              <Text numberOfLines={1} style={styles.vipDateText}>
+                {t("profile.popularServices.vip.expires")}: 2025.05.20
+              </Text>
+            </LinearGradient>
+          </View>
+        ),
+      },
+      {
+        id: "wallet",
+        icon: require("@/assets/images/profile/wallet.png"),
+        title: t("profile.popularServices.wallet"),
+      },
+      {
+        id: "favorites",
+        icon: require("@/assets/images/profile/favorites.png"),
+        title: t("profile.popularServices.favorites"),
+      },
+    ],
+    [t]
+  );
 
   // 使用 useMemo 缓存其他服务数组
-  const otherServices = useMemo(() => [
-    {
-      id: "faq",
-      icon: require("@/assets/images/profile/faq.png"),
-      title: t("profile.otherServices.faq"),
-    },
-    {
-      id: "settings",
-      icon: require("@/assets/images/profile/settings.png"),
-      title: t("profile.otherServices.settings"),
-    },
-  ], [t]);
+  const otherServices = useMemo(
+    () => [
+      {
+        id: "faq",
+        icon: require("@/assets/images/profile/faq.png"),
+        title: t("profile.otherServices.faq"),
+      },
+      {
+        id: "settings",
+        icon: require("@/assets/images/profile/settings.png"),
+        title: t("profile.otherServices.settings"),
+      },
+    ],
+    [t]
+  );
 
   return (
     <View style={styles.container}>
@@ -165,10 +178,11 @@ export default function Profile() {
           <View style={styles.avatarContainer}>
             {/* 头像容器 */}
             <View style={styles.avatarWrapper}>
-              <Image
+              <ExpoImage
                 source={{ uri: imgProxy(userInfo?.avatar) }}
                 style={styles.avatar}
-                fadeDuration={0}
+                placeholder={{ blurhash: generateBlurhash() }}
+                contentFit="cover"
               />
               <View style={styles.editButton}>
                 <Image

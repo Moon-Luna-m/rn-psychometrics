@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from "react";
 import {
-    Modal,
-    Platform,
-    StyleSheet,
-    TouchableOpacity,
-    ViewStyle
+  Modal,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  ViewStyle
 } from "react-native";
 import Animated, {
-    runOnJS,
-    useAnimatedStyle,
-    useSharedValue,
-    withTiming,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
 } from "react-native-reanimated";
 
 interface BottomSheetProps {
@@ -18,6 +18,7 @@ interface BottomSheetProps {
   onClose: () => void;
   children: React.ReactNode;
   containerStyle?: ViewStyle;
+  initialY?: number;
 }
 
 export const BottomSheet: React.FC<BottomSheetProps> = ({
@@ -25,10 +26,11 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   onClose,
   children,
   containerStyle,
+  initialY = 1000,
 }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const opacity = useSharedValue(0);
-  const translateY = useSharedValue(1000);
+  const translateY = useSharedValue(initialY);
 
   const overlayStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
@@ -49,7 +51,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   const animateOut = (callback?: () => void) => {
     opacity.value = withTiming(0, { duration: 200 });
     translateY.value = withTiming(
-      1000,
+      initialY,
       {
         duration: 200,
       },
@@ -65,6 +67,8 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   useEffect(() => {
     if (visible) {
       animateIn();
+    } else {
+      handleClose();
     }
   }, [visible]);
 

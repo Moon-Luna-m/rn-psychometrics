@@ -10,10 +10,49 @@
     "delete": "删除",
     "edit": "编辑",
     "loading": "加载中...",
-    "selectDate": "选择日期"
+    "selectDate": "选择日期",
+    "dataEditing": "资料编辑",
+    "settings": "去设置",
+    "datePicker": {
+      "year": "年",
+      "month": "月",
+      "day": "日"
+    },
+    "avatar": {
+      "title": "选择头像",
+      "camera": "拍照",
+      "gallery": "从相册选择"
+    },
+    "camera": {
+      "switchCamera": "切换摄像头",
+      "flash": {
+        "on": "闪光灯开启",
+        "off": "闪光灯关闭",
+        "auto": "闪光灯自动"
+      },
+      "capture": "拍照",
+      "retake": "重拍",
+      "confirm": "确认",
+      "cancel": "取消",
+      "permissionDenied": "需要相机权限",
+      "permissionMessage": "请在设置中允许访问相机",
+      "processing": "处理中...",
+      "guide": "请将头像置于圆圈内",
+      "tips": "轻触拍照，长按录像"
+    },
+    "gallery": {
+      "permissionDenied": "需要图库权限",
+      "permissionMessage": "请在设置中允许访问图库"
+    }
   },
   "profile": {
     "edit": "编辑",
+    "changeName": "修改昵称",
+    "genderSelection": "性别选择",
+    "selectGender": "选择性别",
+    "birthday": "你的生日",
+    "selectBirthday": "选择生日",
+    "birthdayPlaceholder": "YYYY.MM.DD",
     "testCard": {
       "title": "我的测试题",
       "completed": "已完成",
@@ -33,6 +72,11 @@
       "faq": "常见问题",
       "settings": "设置"
     }
+  },
+  "gender": {
+    "male": "男",
+    "female": "女",
+    "placeholder": "请选择性别"
   },
   "form": {
     "email": {
@@ -114,4 +158,4 @@
       "requireAll": "密码至少需要8个字符，且必须包含字母和数字"
     }
   }
-}
+} 

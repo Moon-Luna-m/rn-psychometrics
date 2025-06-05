@@ -1,3 +1,5 @@
+import { px2hp } from "@/utils/common";
+import { LinearGradient } from "expo-linear-gradient";
 import React, {
   useCallback,
   useEffect,
@@ -14,8 +16,9 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
+import { Button } from "react-native-paper";
 import { BottomSheet } from "./BottomSheet";
 
 interface DatePickerProps {
@@ -30,8 +33,7 @@ interface DatePickerProps {
 }
 
 const ITEM_HEIGHT = 44;
-const VISIBLE_ITEMS = 5;
-const PICKER_HEIGHT = ITEM_HEIGHT * VISIBLE_ITEMS;
+const VISIBLE_RANGE = 10; // 上下各25个项目
 
 // 默认最小日期：1970年
 const DEFAULT_MIN_DATE = new Date(1970, 0, 1);
@@ -49,56 +51,132 @@ const PickerScrollView: React.FC<{
   const scrollViewRef = useRef<ScrollView>(null);
   const [scrollValue, setScrollValue] = useState(currentValue);
   const [isScrolling, setIsScrolling] = useState(false);
+  const [visibleRange, setVisibleRange] = useState(() => {
+    const currentIndex = items.findIndex((item) => item === currentValue);
+    const start = Math.max(0, currentIndex - VISIBLE_RANGE);
+    const end = Math.min(items.length, currentIndex + VISIBLE_RANGE);
+    return { start, end };
+  });
 
   // 滚动到指定索引
-  const scrollToIndex = (index: number, animated = true) => {
+  const scrollToIndex = useCallback((index: number, animated = true) => {
     if (index !== -1) {
       const y = index * ITEM_HEIGHT;
       scrollViewRef.current?.scrollTo({
+        x: 0,
         y,
         animated: Platform.OS !== "web" && animated,
       });
     }
-  };
+  }, []);
 
   // 当外部currentValue改变时，更新scrollValue和滚动位置
   useEffect(() => {
-    if (!isScrolling) {
-      if (items.includes(currentValue)) {
-        setScrollValue(currentValue);
-        const index = items.findIndex((item) => item === currentValue);
-        scrollToIndex(index, false);
-      } else {
-        const nearestValue = items[items.length - 1];
-        setScrollValue(nearestValue);
-        const index = items.findIndex((item) => item === nearestValue);
-        scrollToIndex(index, false);
-        onValueChange(nearestValue);
-      }
+    if (!isScrolling && items.includes(currentValue)) {
+      setScrollValue(currentValue);
+      const index = items.findIndex((item) => item === currentValue);
+      scrollToIndex(index, false);
     }
-  }, [currentValue, items]);
+  }, [currentValue, items, isScrolling, scrollToIndex]);
+
+  // 处理滚动
+  const handleScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const y = event.nativeEvent.contentOffset.y;
+      const index = Math.round(y / ITEM_HEIGHT);
+
+      if (Platform.OS !== "web") {
+        // 仅在移动端更新可见范围
+        setVisibleRange({
+          start: Math.max(0, index - VISIBLE_RANGE),
+          end: Math.min(items.length, index + VISIBLE_RANGE),
+        });
+      }
+
+      // 如果不在滚动中，更新选中值
+      if (!isScrolling) {
+        const value = items[index];
+        if (value !== undefined && value !== scrollValue) {
+          setScrollValue(value);
+          onValueChange(value);
+        }
+      }
+    },
+    [isScrolling, items, onValueChange, scrollValue]
+  );
 
   // 处理滚动开始
-  const handleScrollBegin = () => {
+  const handleScrollBegin = useCallback(() => {
     setIsScrolling(true);
-  };
+  }, []);
 
   // 处理滚动结束
-  const handleScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    setIsScrolling(false);
-    const y = event.nativeEvent.contentOffset.y;
-    const index = Math.round(y / ITEM_HEIGHT);
-    const value = items[index];
+  const handleScrollEnd = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      setIsScrolling(false);
+      const y = event.nativeEvent.contentOffset.y;
+      const index = Math.round(y / ITEM_HEIGHT);
+      const value = items[index];
 
-    if (value !== undefined) {
-      setScrollValue(value);
-      onValueChange(value);
-    }
-  };
+      if (value !== undefined) {
+        setScrollValue(value);
+        onValueChange(value);
+      }
+    },
+    [items, onValueChange]
+  );
+
+  // 渲染列表项
+  const renderItems = useCallback(() => {
+    return items.map((item, index) => {
+      // 在web端全量渲染，在移动端只渲染可见范围内的项
+      if (
+        Platform.OS !== "web" &&
+        (index < visibleRange.start || index > visibleRange.end)
+      ) {
+        return <View key={item} style={{ height: ITEM_HEIGHT }} />;
+      }
+
+      return (
+        <TouchableOpacity
+          key={item}
+          style={[
+            styles.pickerItem,
+            item === scrollValue && styles.selectedItem,
+          ]}
+          onPress={() => {
+            setScrollValue(item);
+            onValueChange(item);
+            scrollToIndex(index);
+          }}
+        >
+          <Text
+            style={[
+              styles.pickerItemText,
+              item === scrollValue && styles.selectedText,
+            ]}
+          >
+            {item.toString().padStart(2, "0")}
+          </Text>
+        </TouchableOpacity>
+      );
+    });
+  }, [items, onValueChange, scrollToIndex, scrollValue, visibleRange]);
 
   return (
     <View style={styles.pickerColumn}>
-      <View style={styles.pickerMask} pointerEvents="none" />
+      <LinearGradient
+        colors={[
+          'rgba(245, 247, 250, 1)',
+          'rgba(245, 247, 250, 0.8)',
+          'rgba(245, 247, 250, 0)',
+          'rgba(245, 247, 250, 0.8)',
+          'rgba(245, 247, 250, 1)',
+        ]}
+        locations={[0, 0.2, 0.5, 0.8, 1]}
+        style={styles.pickerMaskContainer}
+        pointerEvents="none"
+      />
       <ScrollView
         ref={scrollViewRef}
         showsVerticalScrollIndicator={false}
@@ -106,36 +184,14 @@ const PickerScrollView: React.FC<{
         decelerationRate="fast"
         style={styles.scrollView}
         contentContainerStyle={styles.scrollViewContent}
+        onScroll={handleScroll}
         onScrollBeginDrag={handleScrollBegin}
         onMomentumScrollEnd={handleScrollEnd}
-        scrollEventThrottle={16}
+        scrollEventThrottle={Platform.OS === "web" ? 0 : 8}
         snapToAlignment="center"
         overScrollMode="never"
       >
-        {items.map((item) => (
-          <TouchableOpacity
-            key={item}
-            style={[
-              styles.pickerItem,
-              item === scrollValue && styles.selectedItem,
-            ]}
-            onPress={() => {
-              setScrollValue(item);
-              onValueChange(item);
-              const index = items.findIndex((i) => i === item);
-              scrollToIndex(index);
-            }}
-          >
-            <Text
-              style={[
-                styles.pickerItemText,
-                item === scrollValue && styles.selectedText,
-              ]}
-            >
-              {item.toString().padStart(2, "0")}
-            </Text>
-          </TouchableOpacity>
-        ))}
+        {renderItems()}
       </ScrollView>
     </View>
   );
@@ -201,10 +257,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   const years = useMemo(() => {
     const minYear = minimumDate.getFullYear();
     const maxYear = maximumDate.getFullYear();
-    return Array.from(
-      { length: maxYear - minYear + 1 },
-      (_, i) => minYear + i
-    );
+    return Array.from({ length: maxYear - minYear + 1 }, (_, i) => minYear + i);
   }, [minimumDate, maximumDate]);
 
   const months = useMemo(() => {
@@ -253,51 +306,78 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   }, [tempDate.getFullYear(), tempDate.getMonth(), minimumDate, maximumDate]);
 
   return (
-    <BottomSheet visible={visible} onClose={onClose}>
+    <BottomSheet visible={visible} onClose={onClose} initialY={600}>
       <View style={styles.modalHeader}>
         <View style={styles.headerDivider} />
-        <Text style={styles.modalTitle}>{title || t('common.selectDate')}</Text>
+        <Text style={styles.modalTitle}>{title || t("common.selectDate")}</Text>
       </View>
 
-      <View style={styles.pickerContainer}>
-        <PickerScrollView
-          items={years}
-          type="year"
-          currentValue={tempDate.getFullYear()}
-          currentDate={tempDate}
-          onValueChange={(value) => handleDateChange("year", value)}
-        />
-        <View style={styles.pickerDivider} />
-        <PickerScrollView
-          items={months}
-          type="month"
-          currentValue={tempDate.getMonth() + 1}
-          currentDate={tempDate}
-          onValueChange={(value) => handleDateChange("month", value)}
-        />
-        <View style={styles.pickerDivider} />
-        <PickerScrollView
-          items={days}
-          type="day"
-          currentValue={tempDate.getDate()}
-          currentDate={tempDate}
-          onValueChange={(value) => handleDateChange("day", value)}
-        />
+      <View style={styles.pickerWrapper}>
+        <View style={styles.pickerHeader}>
+          <View style={styles.pickerHeaderColumn}>
+            <Text style={styles.pickerHeaderText}>
+              {t("common.datePicker.year")}
+            </Text>
+          </View>
+          <View style={styles.pickerHeaderColumn}>
+            <Text style={styles.pickerHeaderText}>
+              {t("common.datePicker.month")}
+            </Text>
+          </View>
+          <View style={styles.pickerHeaderColumn}>
+            <Text style={styles.pickerHeaderText}>
+              {t("common.datePicker.day")}
+            </Text>
+          </View>
+        </View>
+
+        <View style={styles.pickerContainer}>
+          <PickerScrollView
+            items={years}
+            type="year"
+            currentValue={tempDate.getFullYear()}
+            currentDate={tempDate}
+            onValueChange={(value) => handleDateChange("year", value)}
+          />
+          <View style={styles.pickerDivider} />
+          <PickerScrollView
+            items={months}
+            type="month"
+            currentValue={tempDate.getMonth() + 1}
+            currentDate={tempDate}
+            onValueChange={(value) => handleDateChange("month", value)}
+          />
+          <View style={styles.pickerDivider} />
+          <PickerScrollView
+            items={days}
+            type="day"
+            currentValue={tempDate.getDate()}
+            currentDate={tempDate}
+            onValueChange={(value) => handleDateChange("day", value)}
+          />
+        </View>
       </View>
 
       <View style={styles.modalFooter}>
-        <TouchableOpacity
+        <Button
+          mode="outlined"
           style={styles.cancelButton}
           onPress={onClose}
+          contentStyle={styles.submitButtonContent}
+          labelStyle={styles.cancelButtonText}
+          rippleColor="rgba(0,0,0,0.05)"
         >
-          <Text style={styles.cancelButtonText}>{t('common.cancel')}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
+          {t("common.cancel")}
+        </Button>
+        <Button
+          mode="contained"
           style={styles.confirmButton}
+          contentStyle={styles.submitButtonContent}
+          labelStyle={styles.confirmButtonText}
           onPress={handleConfirm}
         >
-          <Text style={styles.confirmButtonText}>{t('common.confirm')}</Text>
-        </TouchableOpacity>
+          {t("common.confirm")}
+        </Button>
       </View>
     </BottomSheet>
   );
@@ -306,7 +386,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
 const styles = StyleSheet.create({
   modalHeader: {
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 32,
   },
   headerDivider: {
     width: 48,
@@ -316,21 +396,29 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#272829",
+    fontFamily: "Urbanist",
+    fontSize: 16,
+    fontWeight: "700",
+    lineHeight: 19.2,
+    letterSpacing: 0.16,
+    color: "#0C0A09",
+    textAlign: "center",
+  },
+  pickerWrapper: {
+    backgroundColor: "#F5F7FA",
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#F3F4F6",
   },
   pickerContainer: {
     flexDirection: "row",
-    height: PICKER_HEIGHT,
-    marginVertical: 16,
-    backgroundColor: "#F5F7FA",
-    borderRadius: 16,
+    height: 220,
+    marginBottom: 12,
     overflow: "hidden",
   },
   pickerColumn: {
     flex: 1,
-    height: PICKER_HEIGHT,
+    height: 220,
   },
   scrollView: {
     flex: 1,
@@ -349,6 +437,8 @@ const styles = StyleSheet.create({
     height: ITEM_HEIGHT,
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     ...(Platform.OS === "web"
       ? {
           scrollSnapAlign: "center",
@@ -363,40 +453,42 @@ const styles = StyleSheet.create({
     // 移除背景色样式
   },
   pickerItemText: {
-    fontSize: 16,
-    color: "#272829",
-    opacity: 0.5, // 未选中项文字透明度降低
+    fontFamily: "Outfit",
+    fontSize: 20,
+    fontWeight: "600",
+    lineHeight: 25.2,
+    color: "#0C0A09",
+    // opacity: 0.3,
+    textAlign: "center",
   },
   selectedText: {
     color: "#19DBF2",
-    fontWeight: "600",
-    opacity: 1, // 选中项文字不透明
+    opacity: 1,
   },
   pickerDivider: {
     width: 1,
-    backgroundColor: "#E5E7EB",
+    // backgroundColor: "#E5E7EB",
   },
   modalFooter: {
     flexDirection: "row",
     justifyContent: "space-between",
     gap: 12,
+    marginTop: 12,
   },
   cancelButton: {
     flex: 1,
-    height: 48,
+    height: px2hp(48),
     borderRadius: 78,
-    borderWidth: 1,
     borderColor: "#19DBF2",
-    justifyContent: "center",
-    alignItems: "center",
   },
   confirmButton: {
     flex: 1,
-    height: 48,
+    height: px2hp(48),
     borderRadius: 78,
     backgroundColor: "#19DBF2",
-    justifyContent: "center",
-    alignItems: "center",
+  },
+  submitButtonContent: {
+    height: px2hp(48),
   },
   cancelButtonText: {
     fontSize: 16,
@@ -408,18 +500,30 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "white",
   },
-  pickerMask: {
+  pickerMaskContainer: {
     position: "absolute",
-    top: ITEM_HEIGHT * 2,
+    top: 0,
     left: 0,
     right: 0,
-    height: ITEM_HEIGHT,
+    bottom: 0,
     zIndex: 1,
   },
-  disabledItem: {
-    opacity: 0.3,
+  pickerHeader: {
+    flexDirection: "row",
+    alignSelf: "stretch",
   },
-  disabledText: {
-    color: "#999",
+  pickerHeaderColumn: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 10,
+  },
+  pickerHeaderText: {
+    fontFamily: "Outfit",
+    fontSize: 14,
+    fontWeight: "500",
+    lineHeight: 17.64,
+    color: "#0C0A09",
+    textAlign: "center",
   },
 });

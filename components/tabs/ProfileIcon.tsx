@@ -2,7 +2,7 @@ import { selectActiveTab, setActiveTab } from "@/store/slices/tabIconsSlice";
 import { useIsFocused } from "@react-navigation/native";
 import { useFocusEffect } from "expo-router";
 import React, { useCallback, useEffect } from "react";
-import { View } from "react-native";
+import { Image, Platform, View } from "react-native";
 import Animated, {
   useAnimatedProps,
   useSharedValue,
@@ -20,6 +20,33 @@ const ACTIVE_PATH =
   "M12.5 13C16.366 13 19.5 14.7909 19.5 17C19.5 19.2091 16.366 21 12.5 21C8.63401 21 5.5 19.2091 5.5 17C5.5 14.7909 8.63401 13 12.5 13ZM12.5 3C14.7091 3 16.5 4.79086 16.5 7C16.5 9.20914 14.7091 11 12.5 11C10.2909 11 8.5 9.20914 8.5 7C8.5 4.79086 10.2909 3 12.5 3Z";
 
 export default function ProfileIcon() {
+  const dispatch = useDispatch();
+  const activeTab = useSelector(selectActiveTab);
+  const isActive = activeTab === "profile";
+
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(setActiveTab("profile"));
+    }, [])
+  );
+
+  if (Platform.OS === "web") {
+    return isActive ? (
+      <Image
+        source={require("@/assets/images/tabs/profile-active.png")}
+        style={{ width: 24, height: 24 }}
+      />
+    ) : (
+      <Image
+        source={require("@/assets/images/tabs/profile.png")}
+        style={{ width: 24, height: 24 }}
+      />
+    );
+  }
+  return <ProfileIconInner />;
+}
+
+function ProfileIconInner() {
   const isFocused = useIsFocused();
   const dispatch = useDispatch();
   const activeTab = useSelector(selectActiveTab);

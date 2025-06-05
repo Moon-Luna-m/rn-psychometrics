@@ -56,7 +56,21 @@
           "faceIDPermission": "Allow $(Echo) to access your Face ID biometric data."
         }
       ],
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow $(Echo) to access your camera",
+          "microphonePermission": "Allow $(Echo) to access your microphone",
+          "recordAudioAndroid": true
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow $(Echo) to access your photos"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

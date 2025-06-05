@@ -310,13 +310,25 @@ export class HttpRequest {
     config: RequestConfig = {}
   ): Promise<ApiResponse<T>> {
     try {
-      // 验证请求数据
-      const validatedData = this.sanitizeRequestData(data);
+      let processedData;
+      let requestConfig = { ...config };
+
+      // 处理 FormData
+      if (data instanceof FormData) {
+        processedData = data;
+        requestConfig.headers = {
+          ...requestConfig.headers,
+          'Content-Type': 'multipart/form-data',
+        };
+      } else {
+        // 处理普通 JSON 数据
+        processedData = this.sanitizeRequestData(data);
+      }
 
       const response = await this.axiosInstance.post<ApiResponse<T>>(
         url,
-        validatedData,
-        config
+        processedData,
+        requestConfig
       );
 
       if (!this.isValidResponse(response.data)) {
@@ -336,12 +348,25 @@ export class HttpRequest {
     config: RequestConfig = {}
   ): Promise<ApiResponse<T>> {
     try {
-      const validatedData = this.sanitizeRequestData(data);
+      let processedData;
+      let requestConfig = { ...config };
+
+      // 处理 FormData
+      if (data instanceof FormData) {
+        processedData = data;
+        requestConfig.headers = {
+          ...requestConfig.headers,
+          'Content-Type': 'multipart/form-data',
+        };
+      } else {
+        // 处理普通 JSON 数据
+        processedData = this.sanitizeRequestData(data);
+      }
 
       const response = await this.axiosInstance.put<ApiResponse<T>>(
         url,
-        validatedData,
-        config
+        processedData,
+        requestConfig
       );
 
       if (!this.isValidResponse(response.data)) {
@@ -391,6 +416,7 @@ export class HttpRequest {
   // 清理和验证请求数据
   private sanitizeRequestData(data: any): any {
     if (!data) return data;
+    if (data instanceof FormData) return data;
 
     try {
       // 移除 undefined 值
