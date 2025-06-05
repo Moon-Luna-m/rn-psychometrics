@@ -26,6 +26,7 @@ interface ServiceItem {
   icon: ImageSourcePropType;
   title: string;
   extra?: React.ReactNode;
+  onPress: () => void;
 }
 
 interface ServiceSectionProps {
@@ -39,10 +40,12 @@ const ServiceItemComponent = memo(
     service,
     index,
     itemsLength,
+    onPress,
   }: {
     service: ServiceItem;
     index: number;
     itemsLength: number;
+    onPress: () => void;
   }) => (
     <TouchableHighlight
       key={service.id}
@@ -50,7 +53,7 @@ const ServiceItemComponent = memo(
         styles.serviceItem,
         index < itemsLength - 1 && styles.serviceItemBorder,
       ]}
-      onPress={() => {}}
+      onPress={onPress}
       underlayColor="#F5F7FA"
     >
       <View style={styles.serviceContent}>
@@ -88,6 +91,7 @@ const ServiceSection = memo(({ title, items }: ServiceSectionProps) => (
           key={service.id}
           service={service}
           index={index}
+          onPress={service.onPress}
           itemsLength={items.length}
         />
       ))}
@@ -120,16 +124,19 @@ export default function Profile() {
             </LinearGradient>
           </View>
         ),
+        onPress: () => {},
       },
       {
         id: "wallet",
         icon: require("@/assets/images/profile/wallet.png"),
         title: t("profile.popularServices.wallet"),
+        onPress: () => {},
       },
       {
         id: "favorites",
         icon: require("@/assets/images/profile/favorites.png"),
         title: t("profile.popularServices.favorites"),
+        onPress: () => router.push("/profile/favorites"),
       },
     ],
     [t]
@@ -142,11 +149,13 @@ export default function Profile() {
         id: "faq",
         icon: require("@/assets/images/profile/faq.png"),
         title: t("profile.otherServices.faq"),
+        onPress: () => router.push("/profile/faq"),
       },
       {
         id: "settings",
         icon: require("@/assets/images/profile/settings.png"),
         title: t("profile.otherServices.settings"),
+        onPress: () => {},
       },
     ],
     [t]
@@ -215,7 +224,7 @@ export default function Profile() {
           {/* 测试题选项卡 */}
           <TouchableHighlight
             style={styles.testCard}
-            onPress={() => {}}
+            onPress={() => router.push("/profile/review")}
             underlayColor="#F5F7FA"
           >
             <View style={styles.testCardContent}>

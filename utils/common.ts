@@ -122,7 +122,7 @@ export async function setLocalCache(key: string, value: string): Promise<void> {
       await setItemAsync(key, value);
     }
   } catch (error) {
-    console.error("Failed to save auth token:", error);
+    // console.error("Failed to save auth token:", error);
   }
 }
 
@@ -135,7 +135,7 @@ export async function getLocalCache(key: string): Promise<string | null> {
       return await getItemAsync(key);
     }
   } catch (error) {
-    console.error("Failed to get auth token:", error);
+    // console.error("Failed to get auth token:", error);
     return null;
   }
 }
@@ -149,7 +149,7 @@ export async function clearLocalCache(key: string): Promise<void> {
       await deleteItemAsync(key);
     }
   } catch (error) {
-    console.error("Failed to clear auth token:", error);
+    // console.error("Failed to clear auth token:", error);
   }
 }
 

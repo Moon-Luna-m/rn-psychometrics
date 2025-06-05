@@ -1,0 +1,370 @@
+import { px2hp, px2wp } from "@/utils/common";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
+import {
+    ActivityIndicator,
+    NativeScrollEvent,
+    NativeSyntheticEvent,
+    Platform,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+interface FavoriteItem {
+  id: string;
+  title: string;
+  description: string;
+  questionCount: number;
+  timeTaken: string;
+  currentPrice: number;
+  originalPrice: number;
+}
+
+// 模拟获取数据的函数
+const fetchFavorites = async (page: number): Promise<FavoriteItem[]> => {
+  // 模拟API请求延迟
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
+  return Array(5)
+    .fill(0)
+    .map((_, index) => ({
+      id: `${page}-${index}`,
+      title: "Five Elements Personality Test",
+      description:
+        "Metal, Wood, Water, Fire, Earth: Which type of personality do you belong to?",
+      questionCount: 100,
+      timeTaken: "52 minutes",
+      currentPrice: 32,
+      originalPrice: 42,
+    }));
+};
+
+// 自定义 hook 用于管理列表数据和加载状态
+const useFavoritesList = () => {
+  const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(1);
+  const [data, setData] = useState<FavoriteItem[]>([
+    {
+      id: `1`,
+      title: "Five Elements Personality Test",
+      description:
+        "Metal, Wood, Water, Fire, Earth: Which type of personality do you belong to?",
+      questionCount: 100,
+      timeTaken: "52 minutes",
+      currentPrice: 32,
+      originalPrice: 42,
+    },
+  ]);
+
+  // 刷新数据
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      const newData = await fetchFavorites(1);
+      setData(newData);
+      setPage(1);
+      setHasMore(true);
+    } catch (error) {
+      console.error("Refresh error:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
+
+  // 加载更多
+  const onLoadMore = useCallback(async () => {
+    if (loading || !hasMore) return;
+
+    setLoading(true);
+    try {
+      const newData = await fetchFavorites(page + 1);
+      if (newData.length < 5) {
+        setHasMore(false);
+      }
+      setData((prev) => [...prev, ...newData]);
+      setPage((prev) => prev + 1);
+    } catch (error) {
+      console.error("Load more error:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, [loading, hasMore, page]);
+
+  return {
+    data,
+    refreshing,
+    loading,
+    hasMore,
+    onRefresh,
+    onLoadMore,
+  };
+};
+
+function FavoriteCard({ item }: { item: FavoriteItem }) {
+  const { t } = useTranslation();
+
+  return (
+    <View style={styles.card}>
+      <View style={styles.cardHeader}>
+        <View style={styles.cardInfo}>
+          <Text style={styles.cardTitle} numberOfLines={1}>
+            {item.title}
+          </Text>
+          <Text style={styles.cardDescription} numberOfLines={2}>
+            {item.description}
+          </Text>
+          <View style={styles.cardStats}>
+            <View style={styles.statItem}>
+              <Text style={styles.statLabel}>
+                {t("favorites.card.questionCount")}:
+              </Text>
+              <Text style={styles.statValue}>{item.questionCount}</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statLabel}>
+                {t("favorites.card.timeTaken")}:
+              </Text>
+              <Text style={styles.statValue}>{item.timeTaken}</Text>
+            </View>
+          </View>
+        </View>
+        <TouchableOpacity style={styles.deleteButton} activeOpacity={0.5}>
+          <Ionicons name="bookmarks" size={16} color="#EB5735" />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.cardFooter}>
+        <View style={styles.priceContainer}>
+          <Text style={styles.currentPrice}>${item.currentPrice}</Text>
+          <Text style={styles.originalPrice}>${item.originalPrice}</Text>
+        </View>
+        <TouchableOpacity style={styles.startButton} activeOpacity={0.5}>
+          <AntDesign name="arrowright" size={16} color="#19DBF2" />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
+export default function Favorites() {
+  const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
+  const { data, refreshing, loading, hasMore, onRefresh, onLoadMore } =
+    useFavoritesList();
+
+  // 处理滚动事件
+  const handleScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const { layoutMeasurement, contentOffset, contentSize } =
+        event.nativeEvent;
+
+      // 只有当内容高度大于视图高度时才检查是否需要加载更多
+      if (contentSize.height <= layoutMeasurement.height) {
+        return;
+      }
+
+      const distanceFromBottom =
+        contentSize.height - layoutMeasurement.height - contentOffset.y;
+
+      if (distanceFromBottom < 50 && !loading && hasMore) {
+        onLoadMore();
+      }
+    },
+    [loading, hasMore, onLoadMore]
+  );
+
+  return (
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <TouchableOpacity
+        style={styles.backContainer}
+        onPress={() => {
+          router.back();
+        }}
+      >
+        <Ionicons name="arrow-back-outline" size={24} color="black" />
+        <Text style={styles.backText}>{t("favorites.title")}</Text>
+      </TouchableOpacity>
+      <View style={styles.content}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            Platform.OS !== "web" ? (
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={["#19DBF2"]}
+                tintColor="#19DBF2"
+                title={t("common.loading")}
+                titleColor="#19DBF2"
+              />
+            ) : undefined
+          }
+          onScroll={handleScroll}
+          scrollEventThrottle={16}
+        >
+          {data.map((item) => (
+            <FavoriteCard key={item.id} item={item} />
+          ))}
+          {loading && (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator color="#19DBF2" />
+              <Text style={styles.loadingText}>{t("common.loading")}</Text>
+            </View>
+          )}
+          {!hasMore && data.length > 0 && (
+            <Text style={styles.noMoreText}>{t("common.noMoreData")}</Text>
+          )}
+          <View style={{ height: insets.bottom + 0 }} />
+        </ScrollView>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#F5F7FA",
+  },
+  backContainer: {
+    position: "relative",
+    height: px2hp(44),
+    width: "100%",
+    paddingHorizontal: px2wp(16),
+    justifyContent: "center",
+  },
+  backText: {
+    position: "absolute",
+    inset: 0,
+    textAlign: "center",
+    paddingVertical: px2hp(10),
+    fontSize: 18,
+    color: "#0C0A09",
+    fontWeight: "700",
+  },
+  content: {
+    flex: 1,
+    marginHorizontal: px2wp(16),
+    marginTop: px2hp(12),
+  },
+  card: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: px2wp(20),
+    padding: px2wp(12),
+    marginBottom: px2hp(20),
+  },
+  cardHeader: {
+    flexDirection: "row",
+    gap: px2wp(12),
+  },
+  cardInfo: {
+    flex: 1,
+    gap: px2hp(8),
+  },
+  cardTitle: {
+    fontFamily: "Outfit",
+    fontSize: 14,
+    lineHeight: 18,
+    fontWeight: "600",
+    color: "#0C0A09",
+  },
+  cardDescription: {
+    fontFamily: "Outfit",
+    fontSize: 12,
+    lineHeight: 15,
+    color: "#7F909F",
+  },
+  cardStats: {
+    flexDirection: "row",
+    gap: px2wp(24),
+    marginTop: px2hp(8),
+  },
+  statItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: px2wp(5),
+  },
+  statLabel: {
+    fontFamily: "Outfit",
+    fontSize: 10,
+    lineHeight: 13,
+    color: "rgba(12, 10, 9, 0.16)",
+    fontWeight: "500",
+  },
+  statValue: {
+    fontFamily: "Outfit",
+    fontSize: 12,
+    lineHeight: 15,
+    color: "#7F909F",
+    fontWeight: "500",
+  },
+  deleteButton: {
+    width: px2wp(32),
+    height: px2hp(32),
+    borderRadius: px2wp(100),
+    backgroundColor: "#F5F7FA",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  cardFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: px2hp(12),
+  },
+  priceContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: px2wp(4),
+  },
+  currentPrice: {
+    fontFamily: "Outfit",
+    fontSize: 18,
+    lineHeight: 23,
+    color: "#FF6F00",
+    fontWeight: "700",
+  },
+  originalPrice: {
+    fontFamily: "Outfit",
+    fontSize: 10,
+    lineHeight: 13,
+    color: "rgba(12, 10, 9, 0.16)",
+    fontWeight: "400",
+    textDecorationLine: "line-through",
+  },
+  startButton: {
+    width: px2wp(24),
+    height: px2hp(24),
+    borderRadius: px2wp(100),
+    backgroundColor: "#F5F7FA",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: px2hp(12),
+    gap: px2wp(8),
+  },
+  loadingText: {
+    fontSize: 14,
+    color: "#7F909F",
+    fontFamily: "Outfit",
+  },
+  noMoreText: {
+    textAlign: "center",
+    fontSize: 14,
+    color: "#7F909F",
+    fontFamily: "Outfit",
+    padding: px2hp(12),
+  },
+});

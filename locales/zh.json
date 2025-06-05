@@ -10,6 +10,7 @@
     "delete": "删除",
     "edit": "编辑",
     "loading": "加载中...",
+    "noMoreData": "没有更多数据了",
     "selectDate": "选择日期",
     "dataEditing": "资料编辑",
     "settings": "去设置",
@@ -156,6 +157,38 @@
     "password": {
       "minLength": "密码至少需要{{count}}个字符",
       "requireAll": "密码至少需要8个字符，且必须包含字母和数字"
+    }
+  },
+  "review": {
+    "title": "我的测评",
+    "tabs": {
+      "completed": "已完成({{count}})",
+      "incomplete": "未完成({{count}})"
+    },
+    "card": {
+      "details": "详情",
+      "generateReport": "生成报告",
+      "testAgain": "再测一次",
+      "progress": "进度",
+      "continue": "继续"
+    }
+  },
+  "favorites": {
+    "title": "我的收藏",
+    "card": {
+      "questionCount": "题目数量",
+      "timeTaken": "测试时长"
+    }
+  },
+  "faq": {
+    "title": "常见问题",
+    "tabs": {
+      "reviews": "测评相关",
+      "privacy": "数据隐私",
+      "account": "账号安全",
+      "payments": "支付相关",
+      "others": "其他",
+      "attachment": "依恋测试"
     }
   }
 } 

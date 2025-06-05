@@ -43,7 +43,8 @@
     "gallery": {
       "permissionDenied": "Gallery Permission Required",
       "permissionMessage": "Please allow gallery access in settings"
-    }
+    },
+    "noMoreData": "No more data"
   },
   "profile": {
     "edit": "Edit",
@@ -109,8 +110,8 @@
     "login": {
       "tab": "Login",
       "subtitle": "Start your journey of the mind",
-      "forgotPassword": "Forgot password?", 
-      "agreement": "Agree to the <0>{{agreement}}</0>",   
+      "forgotPassword": "Forgot password?",
+      "agreement": "Agree to the <0>{{agreement}}</0>",
       "agreementRequired": "Please agree to the login agreement",
       "agreementLink": "login agreement",
       "otherMethods": "Other login methods"
@@ -157,5 +158,37 @@
       "minLength": "Password must be at least {{count}} characters",
       "requireAll": "Password must be at least 8 characters and contain both letters and numbers"
     }
+  },
+  "review": {
+    "title": "My Review",
+    "tabs": {
+      "completed": "Completed({{count}})",
+      "incomplete": "Incomplete({{count}})"
+    },
+    "card": {
+      "details": "Details",
+      "generateReport": "Generate Report",
+      "testAgain": "Test Again",
+      "progress": "Progress",
+      "continue": "Continue"
+    }
+  },
+  "favorites": {
+    "title": "Favorites",
+    "card": {
+      "questionCount": "Question Count",
+      "timeTaken": "Time Taken"
+    }
+  },
+  "faq": {
+    "title": "FAQ",
+    "tabs": {
+      "reviews": "Related to Reviews",
+      "privacy": "Data Privacy",
+      "account": "Account and Security",
+      "payments": "Related to Payments",
+      "others": "Others",
+      "attachment": "Love Attachment Test"
+    }
   }
-} 
+}

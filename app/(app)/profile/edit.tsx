@@ -21,6 +21,7 @@ import { useTranslation } from "react-i18next";
 import {
   Alert,
   Image,
+  Keyboard,
   Linking,
   Platform,
   StyleSheet,
@@ -65,7 +66,9 @@ export default function Edit() {
   const [isFocused, setIsFocused] = useState(false);
   const [showGenderModal, setShowGenderModal] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [tempGender, setTempGender] = useState<Gender>("female");
+  const [tempGender, setTempGender] = useState<Gender>(
+    sexToGender(userInfo?.sex)
+  );
   const [birthday, setBirthday] = useState<Date | undefined>(
     userInfo?.birthday ? new Date(userInfo.birthday) : undefined
   );
@@ -299,6 +302,13 @@ export default function Edit() {
     setShowAvatarModal(false);
   }, [t]);
 
+  // 处理点击外部
+  const handlePressOutside = () => {
+    if (Platform.OS !== "web") {
+      Keyboard.dismiss();
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <TouchableOpacity
@@ -316,66 +326,68 @@ export default function Edit() {
           onCapture={handleCapture}
         />
       )}
-      <View style={styles.content}>
-        <View style={styles.avatarContainer}>
-          <TouchableOpacity
-            style={styles.avatarWrapper}
-            activeOpacity={0.8}
-            onPress={handleAvatarSelect}
-          >
-            <ImageExpo
-              source={imgProxy(userInfo?.avatar)}
-              style={styles.avatar}
-              contentFit="cover"
-              placeholder={{ blurhash: generateBlurhash() }}
-            />
-            <View style={styles.editButton}>
-              <Image
-                source={require("@/assets/images/profile/edit/photo.png")}
-                fadeDuration={0}
-                style={styles.editIcon}
+      <TouchableWithoutFeedback onPress={handlePressOutside}>
+        <View style={styles.content}>
+          <View style={styles.avatarContainer}>
+            <TouchableOpacity
+              style={styles.avatarWrapper}
+              activeOpacity={0.8}
+              onPress={handleAvatarSelect}
+            >
+              <ImageExpo
+                source={imgProxy(userInfo?.avatar)}
+                style={styles.avatar}
+                contentFit="cover"
+                placeholder={{ blurhash: generateBlurhash() }}
               />
-            </View>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.formSection}>
-          <Text style={styles.formLabel}>{t("profile.changeName")}</Text>
-          <Controller
-            control={control}
-            name="username"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <View style={styles.inputContainer}>
-                <TextInput
-                  style={[styles.input, isFocused && styles.inputFocused]}
-                  onBlur={handleBlur(onBlur, value)}
-                  onFocus={() => setIsFocused(true)}
-                  onChangeText={onChange}
-                  value={value}
-                  placeholder={userInfo?.username}
-                  placeholderTextColor="rgba(12, 10, 9, 0.16)"
+              <View style={styles.editButton}>
+                <Image
+                  source={require("@/assets/images/profile/edit/photo.png")}
+                  fadeDuration={0}
+                  style={styles.editIcon}
                 />
               </View>
-            )}
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.formSection}>
+            <Text style={styles.formLabel}>{t("profile.changeName")}</Text>
+            <Controller
+              control={control}
+              name="username"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <View style={styles.inputContainer}>
+                  <TextInput
+                    style={[styles.input, isFocused && styles.inputFocused]}
+                    onBlur={handleBlur(onBlur, value)}
+                    onFocus={() => setIsFocused(true)}
+                    onChangeText={onChange}
+                    value={value}
+                    placeholder={userInfo?.username}
+                    placeholderTextColor="rgba(12, 10, 9, 0.16)"
+                  />
+                </View>
+              )}
+            />
+          </View>
+
+          <GenderSelector
+            selectedGender={selectedGender}
+            tempGender={tempGender}
+            showGenderModal={showGenderModal}
+            setShowGenderModal={setShowGenderModal}
+            handleGenderSelect={handleGenderSelect}
+            handleGenderConfirm={handleGenderConfirm}
+          />
+
+          <BirthdaySelector
+            birthday={birthday}
+            showDatePicker={showDatePicker}
+            setShowDatePicker={setShowDatePicker}
+            handleDateChange={handleDateChange}
           />
         </View>
-
-        <GenderSelector
-          selectedGender={selectedGender}
-          tempGender={tempGender}
-          showGenderModal={showGenderModal}
-          setShowGenderModal={setShowGenderModal}
-          handleGenderSelect={handleGenderSelect}
-          handleGenderConfirm={handleGenderConfirm}
-        />
-
-        <BirthdaySelector
-          birthday={birthday}
-          showDatePicker={showDatePicker}
-          setShowDatePicker={setShowDatePicker}
-          handleDateChange={handleDateChange}
-        />
-      </View>
+      </TouchableWithoutFeedback>
 
       {/* 头像选择模态框 */}
       {Platform.OS !== "web" && (
@@ -395,7 +407,7 @@ export default function Edit() {
 
               <View style={styles.avatarOptionsContainer}>
                 <TouchableOpacity
-                  activeOpacity={0.8}
+                  activeOpacity={0.6}
                   style={styles.avatarOption}
                   onPress={handleOpenCamera}
                 >
@@ -406,7 +418,7 @@ export default function Edit() {
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  activeOpacity={0.8}
+                  activeOpacity={0.6}
                   style={styles.avatarOption}
                   onPress={handleOpenGallery}
                 >
@@ -451,12 +463,17 @@ function GenderSelector({
   handleGenderConfirm: () => void;
 }) {
   const { t } = useTranslation();
-
+  const userInfo = useSelector(selectUserInfo);
   return (
     <>
       <View style={styles.formSection}>
         <Text style={styles.formLabel}>{t("profile.genderSelection")}</Text>
-        <TouchableWithoutFeedback onPress={() => setShowGenderModal(true)}>
+        <TouchableWithoutFeedback
+          onPress={() => {
+            handleGenderSelect(sexToGender(userInfo?.sex));
+            setShowGenderModal(true);
+          }}
+        >
           <View style={styles.genderSelector}>
             <Text style={[styles.genderText]}>
               {selectedGender
