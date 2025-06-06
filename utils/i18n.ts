@@ -28,13 +28,13 @@ export const LANGUAGES: Languages = {
     label: "English",
     value: "en",
     isRTL: false,
-    flag: require("@/assets/images/language/en.png"),
+    flag: require("@/assets/images/flags/en.png"),
   },
   zh: {
     label: "简体中文",
     value: "zh",
     isRTL: false,
-    flag: require("@/assets/images/language/zh.png"),
+    flag: require("@/assets/images/flags/zh.png"),
   },
 };
 

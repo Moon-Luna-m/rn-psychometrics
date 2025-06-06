@@ -365,6 +365,7 @@ export default function Edit() {
                     value={value}
                     placeholder={userInfo?.username}
                     placeholderTextColor="rgba(12, 10, 9, 0.16)"
+                    returnKeyType="done"
                   />
                 </View>
               )}

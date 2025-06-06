@@ -222,5 +222,38 @@
       "content1": "我们保留随时修改或更新隐私政策的权利。任何重大变更都将通过适当的渠道通知用户。",
       "content2": "在此类修改后继续使用我们的服务，即表示您同意受更新后的隐私政策约束。"
     }
+  },
+  "home": {
+    "digitalAssistant": {
+      "greeting": "你好，我是AI数字人",
+      "question": "有什么我能帮你的吗？",
+      "askButton": "提问"
+    },
+    "search": {
+      "placeholder": "搜索测试题",
+      "history": "搜索历史",
+      "button": "搜索",
+      "noContent": "暂无内容",
+      "tryDifferentTerm": "换个关键词试试"
+    },
+    "recommend": {
+      "title": "今日推荐",
+      "free": "免费",
+      "test1": {
+        "title": "荣格八维度测试",
+        "subtitle": "专业评估"
+      },
+      "test2": {
+        "title": "性格密码解析",
+        "subtitle": "发现真实的你"
+      },
+      "test3": {
+        "title": "心理韧性评估",
+        "subtitle": "识别和疗愈创伤"
+      }
+    },
+    "popular": {
+      "title": "热门测试"
+    }
   }
-} 
+}

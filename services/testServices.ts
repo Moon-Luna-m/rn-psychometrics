@@ -20,6 +20,8 @@ const path = {
   GET_USER_TEST_DETAIL: "/api/psychology/user/test/detail",
   // 获取用户心理测试历史
   GET_USER_TEST_HISTORY: "/api/psychology/user/tests",
+  // 搜索心理测试
+  SEARCH_TEST: "/api/psychology/search",
 } as const;
 
 // 基础响应类型
@@ -83,6 +85,9 @@ export interface GetTestListByTypeResponse {
     discount_price: number;
     question_count: number;
     answer_time: number;
+    star: number;
+    user_avatars: Array<string>;
+    total: number;
   }>;
 }
 
@@ -181,27 +186,37 @@ export const testService = {
       question_id: number;
     }>;
   }): Promise<ApiResponse<SubmitTestAnswerResponse>> {
-    return httpClient.post<SubmitTestAnswerResponse>(path.SUBMIT_TEST_ANSWER, params);
+    return httpClient.post<SubmitTestAnswerResponse>(
+      path.SUBMIT_TEST_ANSWER,
+      params
+    );
   },
 
   // 获取某类型下的测试列表
   async getTestListByType(params: {
-    type_id: number;
-    rec: boolean;
-    free: boolean;
-    pay: boolean;
-    quick: boolean;
+    type_id?: number;
+    rec?: boolean;
+    free?: boolean;
+    pay?: boolean;
+    quick?: boolean;
     page: number;
     size: number;
+    popular?: boolean;
   }): Promise<ApiResponse<GetTestListByTypeResponse>> {
-    return httpClient.get<GetTestListByTypeResponse>(path.GET_TEST_LIST_BY_TYPE, params);
+    return httpClient.get<GetTestListByTypeResponse>(
+      path.GET_TEST_LIST_BY_TYPE,
+      params
+    );
   },
 
   // 获取心里测试类型详情
   async getTestTypeDetail(params: {
     id: number;
   }): Promise<ApiResponse<GetTestTypeDetailResponse>> {
-    return httpClient.get<GetTestTypeDetailResponse>(path.GET_TEST_TYPE_DETAIL, params);
+    return httpClient.get<GetTestTypeDetailResponse>(
+      path.GET_TEST_TYPE_DETAIL,
+      params
+    );
   },
 
   // 获取心里测试类型列表
@@ -209,14 +224,20 @@ export const testService = {
     page: number;
     size: number;
   }): Promise<ApiResponse<GetTestTypeListResponse>> {
-    return httpClient.get<GetTestTypeListResponse>(path.GET_TEST_TYPE_LIST, params);
+    return httpClient.get<GetTestTypeListResponse>(
+      path.GET_TEST_TYPE_LIST,
+      params
+    );
   },
 
   // 获取用户心里测试详情
   async getUserTestDetail(params: {
     id: number;
   }): Promise<ApiResponse<GetUserTestDetailResponse>> {
-    return httpClient.get<GetUserTestDetailResponse>(path.GET_USER_TEST_DETAIL, params);
+    return httpClient.get<GetUserTestDetailResponse>(
+      path.GET_USER_TEST_DETAIL,
+      params
+    );
   },
 
   // 获取用户心理测试历史
@@ -225,6 +246,18 @@ export const testService = {
     page: number;
     size: number;
   }): Promise<ApiResponse<GetUserTestHistoryResponse>> {
-    return httpClient.get<GetUserTestHistoryResponse>(path.GET_USER_TEST_HISTORY, params);
+    return httpClient.get<GetUserTestHistoryResponse>(
+      path.GET_USER_TEST_HISTORY,
+      params
+    );
+  },  
+
+  // 搜索心理测试
+  async searchTest(params: {
+    keyword: string;
+    page: number;
+    size: number;
+  }): Promise<ApiResponse<GetTestListByTypeResponse>> {
+    return httpClient.get<GetTestListByTypeResponse>(path.SEARCH_TEST, params);
   },
 };

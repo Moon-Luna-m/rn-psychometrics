@@ -47,7 +47,7 @@ export default function Setting() {
   const { t } = useTranslation();
   const [logoutVisible, setLogoutVisible] = useState(false);
   const [cacheSize, setCacheSize] = useState<string>("0.00M");
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const handleLogout = useCallback(() => {
     setLogoutVisible(true);
@@ -74,10 +74,12 @@ export default function Setting() {
         // 处理账号设置
         break;
       case "customer_service":
+        router.push("/profile/setting/privacy");
         // 处理客服联系
         break;
       case "agreement":
         // 处理用户协议
+        router.push("/profile/setting/privacy");
         break;
       case "privacy":
         // 处理隐私政策
@@ -85,6 +87,7 @@ export default function Setting() {
         break;
       case "disclaimer":
         // 处理免责声明
+        router.push("/profile/setting/privacy");
         break;
       case "language":
         // 处理语言切换
@@ -97,16 +100,20 @@ export default function Setting() {
         // 处理清除缓存
         const isSuccess = await clearCache();
         if (isSuccess) {
-          dispatch(showNotification({
-            message: t("settings.clearCacheSuccess"),
-            type: "success",
-          }));
-          getCacheLocalCache()
+          dispatch(
+            showNotification({
+              message: t("settings.clearCacheSuccess"),
+              type: "success",
+            })
+          );
+          getCacheLocalCache();
         } else {
-          dispatch(showNotification({
-            message: t("settings.clearCacheFailed"),
-            type: "error",
-          }));
+          dispatch(
+            showNotification({
+              message: t("settings.clearCacheFailed"),
+              type: "error",
+            })
+          );
         }
         break;
     }

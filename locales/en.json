@@ -222,5 +222,38 @@
       "content1": "We reserve the right to modify or update our Privacy Policy at any time. Any significant changes will be notified to users through appropriate channels.",
       "content2": "By continuing to use our services after such modifications, you agree to be bound by the updated Privacy Policy."
     }
+  },
+  "home": {
+    "digitalAssistant": {
+      "greeting": "HI, I am an AI digital person",
+      "question": "How can I assist you?",
+      "askButton": "Ask a question"
+    },
+    "search": {
+      "placeholder": "Search for test questions",
+      "history": "Search History",
+      "button": "Search",
+      "noContent": "No Content Found",
+      "tryDifferentTerm": "Try a different search term"
+    },
+    "recommend": {
+      "title": "Today's Recommendations",
+      "free": "Free",
+      "test1": {
+        "title": "Jung's Eight Dimensions Test",
+        "subtitle": "Professionally assess"
+      },
+      "test2": {
+        "title": "The Secrets of Personality Codes",
+        "subtitle": "Discover the real you"
+      },
+      "test3": {
+        "title": "Psychological Resilience Assessment",
+        "subtitle": "Identify and heal trauma"
+      }
+    },
+    "popular": {
+      "title": "Popular Tests"
+    }
   }
 }

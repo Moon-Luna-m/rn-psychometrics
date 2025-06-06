@@ -4,6 +4,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import * as FileSystem from "expo-file-system";
 import { deleteItemAsync, getItemAsync, setItemAsync } from "expo-secure-store";
+import numeral from "numeral";
 import { Platform } from "react-native";
 import {
   heightPercentageToDP as hp,
@@ -317,4 +318,132 @@ export const clearCache = async (): Promise<boolean> => {
     console.error("error", error);
     return false;
   }
+};
+
+/**
+ * 格式化数字为千分位
+ * @param number 要格式化的数字
+ * @returns 格式化后的字符串，如 "1,234,567"
+ */
+export const formatNumber = (number?: number | null): string => {
+  if (number == null) return "0";
+  return numeral(number).format("0,0");
+};
+
+/**
+ * 格式化数字为带小数点的千分位
+ * @param number 要格式化的数字
+ * @param decimals 小数位数，默认为2
+ * @returns 格式化后的字符串，如 "1,234,567.89"
+ */
+export const formatDecimal = (number?: number | null, decimals: number = 2): string => {
+  if (number == null) return "0.00";
+  return numeral(number).format(`0,0.${"0".repeat(decimals)}`);
+};
+
+/**
+ * 格式化数字为带单位的简写
+ * @param number 要格式化的数字
+ * @returns 格式化后的字符串，如 "1.2k+"、"1.5m+"
+ */
+export const formatCompact = (number?: number | null): string => {
+  if (number == null) return "0";
+  if (number < 1000) return String(number);
+  const formatted = numeral(number).format("0.0a");
+  return `${formatted}+`;
+};
+
+/**
+ * 格式化金额
+ * @param amount 金额
+ * @param symbol 货币符号，默认为 "$"
+ * @returns 格式化后的字符串，如 "$1,234.56"
+ */
+export const formatCurrency = (amount?: number | null, symbol: string = "$"): string => {
+  if (amount == null) return `${symbol}0.00`;
+  return `${symbol}${numeral(amount).format("0,0.00")}`;
+};
+
+/**
+ * 格式化百分比
+ * @param number 要格式化的数字
+ * @param decimals 小数位数，默认为2
+ * @returns 格式化后的字符串，如 "12.34%"
+ */
+export const formatPercent = (number?: number | null, decimals: number = 2): string => {
+  if (number == null) return "0%";
+  return numeral(number / 100).format(`0.${"0".repeat(decimals)}%`);
+};
+
+/**
+ * 生成指定区间内的随机整数
+ * @param min 最小值（包含）
+ * @param max 最大值（包含）
+ * @returns 随机整数
+ * @example
+ * // 生成1到10之间的随机整数
+ * const random = randomInt(1, 10);
+ */
+export const randomInt = (min: number, max: number): number => {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+};
+
+/**
+ * 生成指定区间内的多个不重复随机整数
+ * @param min 最小值（包含）
+ * @param max 最大值（包含）
+ * @param count 需要生成的数量
+ * @returns 不重复的随机整数数组
+ * @example
+ * // 生成1到10之间的3个不重复随机整数
+ * const numbers = randomUniqueInts(1, 10, 3);
+ */
+export const randomUniqueInts = (min: number, max: number, count: number): number[] => {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  
+  // 如果要生成的数量大于可能的范围，返回全部数字的随机排序
+  if (count >= max - min + 1) {
+    return Array.from({ length: max - min + 1 }, (_, i) => min + i)
+      .sort(() => Math.random() - 0.5);
+  }
+
+  const result = new Set<number>();
+  while (result.size < count) {
+    result.add(Math.floor(Math.random() * (max - min + 1)) + min);
+  }
+  return Array.from(result);
+};
+
+/**
+ * 从数组中随机选择一个元素
+ * @param array 源数组
+ * @returns 随机选中的元素
+ * @example
+ * // 从数组中随机选择一个元素
+ * const item = randomPick(['a', 'b', 'c']);
+ */
+export const randomPick = <T>(array: T[]): T => {
+  if (array.length === 0) throw new Error("Array is empty");
+  return array[Math.floor(Math.random() * array.length)];
+};
+
+/**
+ * 从数组中随机选择多个不重复元素
+ * @param array 源数组
+ * @param count 需要选择的数量
+ * @returns 随机选中的元素数组
+ * @example
+ * // 从数组中随机选择2个不重复元素
+ * const items = randomPicks(['a', 'b', 'c'], 2);
+ */
+export const randomPicks = <T>(array: T[], count: number): T[] => {
+  if (count > array.length) {
+    return [...array].sort(() => Math.random() - 0.5);
+  }
+  
+  const shuffled = [...array].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, count);
 };

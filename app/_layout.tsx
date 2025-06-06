@@ -8,7 +8,6 @@ import { I18nContext } from "react-i18next";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PaperProvider } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import "../global.css";
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
