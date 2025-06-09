@@ -14,6 +14,10 @@
     "selectDate": "选择日期",
     "dataEditing": "资料编辑",
     "settings": "去设置",
+    "time": {
+      "minutes": "分钟",
+      "hours": "小时"
+    },
     "datePicker": {
       "year": "年",
       "month": "月",
@@ -221,6 +225,86 @@
       "title": "服务和条款变更",
       "content1": "我们保留随时修改或更新隐私政策的权利。任何重大变更都将通过适当的渠道通知用户。",
       "content2": "在此类修改后继续使用我们的服务，即表示您同意受更新后的隐私政策约束。"
+    }
+  },
+  "wallet": {
+    "title": "我的钱包",
+    "currentBalance": "当前余额",
+    "coinDetails": "金币明细",
+    "rechargeAmount": "充值金额",
+    "rechargeMethod": "充值方式",
+    "paymentMethods": {
+      "mastercard": "Mastercard",
+      "paypal": "PayPal"
+    },
+    "tags": {
+      "firstCharge": "首充",
+      "limitedTime": "限时"
+    },
+    "rechargeInstructions": "充值说明",
+    "instructions": {
+      "0": "充值永久有效",
+      "1": "充值比例：$1 = 1金币",
+      "2": "充值金额不可提现或找零",
+      "3": "充值金币仅限本APP内使用"
+    }
+  },
+  "coinDetail": {
+    "title": "金币明细"
+  },
+  "vip": {
+    "title": "会员",
+    "notActivated": "未激活",
+    "subscriptions": {
+      "monthly": {
+        "title": "月度会员",
+        "price": "9.9",
+        "perMonth": "¥9.9/月"
+      },
+      "quarterly": {
+        "title": "季度会员",
+        "price": "24.9",
+        "perMonth": "¥9.5/月"
+      },
+      "annual": {
+        "title": "年度会员",
+        "price": "60.9",
+        "perMonth": "¥8.5/月"
+      },
+      "lifetime": {
+        "title": "终身会员",
+        "price": "200",
+        "perMonth": "一次性付费"
+      }
+    },
+    "agreement": {
+      "autoRenewal": "自动续费，每月¥{{price}}，可随时取消",
+      "oneTimePayment": "一次性付费，终身使用",
+      "prefix": "成为会员即表示同意",
+      "membershipAgreement": "会员服务协议",
+      "and": "和",
+      "subscriptionAgreement": "连续订阅会员服务协议"
+    },
+    "benefits": {
+      "title": "会员权益",
+      "items": {
+        "unlimitedTests": {
+          "title": "高级测评解锁",
+          "desc": "更全面的测评数据"
+        },
+        "exclusiveContent": {
+          "title": "AI伴侣服务",
+          "desc": "大模型精准识别痛点"
+        },
+        "prioritySupport": {
+          "title": "专业报告PDF导出",
+          "desc": "报告可分享"
+        },
+        "noAds": {
+          "title": "免费测试解锁",
+          "desc": "大量会员专属测试"
+        }
+      }
     }
   },
   "home": {

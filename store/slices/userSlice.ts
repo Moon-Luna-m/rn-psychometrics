@@ -12,6 +12,9 @@ interface UserInfo {
   sex: number;
   balance: number;
   birthday: string;
+  is_vip_active: boolean;
+  vip_expire_at: string | null;
+  vip: number;
 }
 
 interface UserState {

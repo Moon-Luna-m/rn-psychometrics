@@ -1,6 +1,7 @@
 import appJson from "@/app.json";
 import LogoutModal from "@/components/modal/LogoutModal";
 import { showNotification } from "@/store/slices/notificationSlice";
+import { logout } from "@/store/slices/userSlice";
 import { clearCache, getCacheSize, px2hp, px2wp } from "@/utils/common";
 import i18n, { LANGUAGES } from "@/utils/i18n";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
@@ -56,6 +57,7 @@ export default function Setting() {
   const handleLogoutConfirm = useCallback(() => {
     setLogoutVisible(false);
     // TODO: 处理退出登录逻辑
+    dispatch(logout());
   }, []);
 
   const handleLogoutCancel = useCallback(() => {

@@ -1,50 +1,27 @@
-import { px2hp, px2wp } from "@/utils/common";
+import {
+  GetTestListByTypeResponse,
+  testService,
+} from "@/services/testServices";
+import { formatCurrency, formatDuration, px2hp, px2wp } from "@/utils/common";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-    ActivityIndicator,
-    NativeScrollEvent,
-    NativeSyntheticEvent,
-    Platform,
-    RefreshControl,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Platform,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-interface FavoriteItem {
-  id: string;
-  title: string;
-  description: string;
-  questionCount: number;
-  timeTaken: string;
-  currentPrice: number;
-  originalPrice: number;
-}
-
-// 模拟获取数据的函数
-const fetchFavorites = async (page: number): Promise<FavoriteItem[]> => {
-  // 模拟API请求延迟
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  return Array(5)
-    .fill(0)
-    .map((_, index) => ({
-      id: `${page}-${index}`,
-      title: "Five Elements Personality Test",
-      description:
-        "Metal, Wood, Water, Fire, Earth: Which type of personality do you belong to?",
-      questionCount: 100,
-      timeTaken: "52 minutes",
-      currentPrice: 32,
-      originalPrice: 42,
-    }));
-};
+type FavoriteItem = GetTestListByTypeResponse["list"][0];
 
 // 自定义 hook 用于管理列表数据和加载状态
 const useFavoritesList = () => {
@@ -52,27 +29,21 @@ const useFavoritesList = () => {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
-  const [data, setData] = useState<FavoriteItem[]>([
-    {
-      id: `1`,
-      title: "Five Elements Personality Test",
-      description:
-        "Metal, Wood, Water, Fire, Earth: Which type of personality do you belong to?",
-      questionCount: 100,
-      timeTaken: "52 minutes",
-      currentPrice: 32,
-      originalPrice: 42,
-    },
-  ]);
+  const [data, setData] = useState<FavoriteItem[]>([]);
 
   // 刷新数据
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     try {
-      const newData = await fetchFavorites(1);
-      setData(newData);
-      setPage(1);
-      setHasMore(true);
+      const res = await testService.getUserFavorite({
+        page: 1,
+        size: 20,
+      });
+      if (res.code === 200) {
+        setData(res.data.list || []);
+        setPage(1);
+        setHasMore(res.data.list?.length < res.data.count);
+      }
     } catch (error) {
       console.error("Refresh error:", error);
     } finally {
@@ -83,21 +54,29 @@ const useFavoritesList = () => {
   // 加载更多
   const onLoadMore = useCallback(async () => {
     if (loading || !hasMore) return;
-
     setLoading(true);
     try {
-      const newData = await fetchFavorites(page + 1);
-      if (newData.length < 5) {
-        setHasMore(false);
+      const res = await testService.getUserFavorite({
+        page: page + 1,
+        size: 20,
+      });
+      if (res.code === 200) {
+        const newData = res.data.list || [];
+        setData((prev) => [...prev, ...newData]);
+        setPage((prev) => prev + 1);
+        setHasMore(data.length + newData.length < res.data.count);
       }
-      setData((prev) => [...prev, ...newData]);
-      setPage((prev) => prev + 1);
     } catch (error) {
       console.error("Load more error:", error);
     } finally {
       setLoading(false);
     }
-  }, [loading, hasMore, page]);
+  }, [loading, hasMore, page, data.length]);
+
+  // 初始化加载
+  useEffect(() => {
+    onRefresh();
+  }, []);
 
   return {
     data,
@@ -109,7 +88,13 @@ const useFavoritesList = () => {
   };
 };
 
-function FavoriteCard({ item }: { item: FavoriteItem }) {
+function FavoriteCard({
+  item,
+  onRefresh,
+}: {
+  item: FavoriteItem;
+  onRefresh: () => void;
+}) {
   const { t } = useTranslation();
 
   return (
@@ -117,36 +102,64 @@ function FavoriteCard({ item }: { item: FavoriteItem }) {
       <View style={styles.cardHeader}>
         <View style={styles.cardInfo}>
           <Text style={styles.cardTitle} numberOfLines={1}>
-            {item.title}
+            {item.name}
           </Text>
           <Text style={styles.cardDescription} numberOfLines={2}>
-            {item.description}
+            {item.desc}
           </Text>
           <View style={styles.cardStats}>
             <View style={styles.statItem}>
               <Text style={styles.statLabel}>
                 {t("favorites.card.questionCount")}:
               </Text>
-              <Text style={styles.statValue}>{item.questionCount}</Text>
+              <Text style={styles.statValue}>{item.question_count}</Text>
             </View>
             <View style={styles.statItem}>
               <Text style={styles.statLabel}>
                 {t("favorites.card.timeTaken")}:
               </Text>
-              <Text style={styles.statValue}>{item.timeTaken}</Text>
+              <Text style={styles.statValue}>
+                {formatDuration(item.answer_time, "minutes")}
+              </Text>
             </View>
           </View>
         </View>
-        <TouchableOpacity style={styles.deleteButton} activeOpacity={0.5}>
+        <TouchableOpacity
+          style={styles.deleteButton}
+          activeOpacity={0.5}
+          onPress={() => {
+            testService
+              .deleteTestFromFavorite({ test_id: item.id })
+              .then((res) => {
+                if (res.code === 200) {
+                  onRefresh();
+                }
+              });
+          }}
+        >
           <Ionicons name="bookmarks" size={16} color="#EB5735" />
         </TouchableOpacity>
       </View>
       <View style={styles.cardFooter}>
         <View style={styles.priceContainer}>
-          <Text style={styles.currentPrice}>${item.currentPrice}</Text>
-          <Text style={styles.originalPrice}>${item.originalPrice}</Text>
+          <Text style={styles.currentPrice}>
+            {item.discount_price
+              ? formatCurrency(item.discount_price)
+              : t("home.recommend.free")}
+          </Text>
+          {item.discount_price !== 0 && (
+            <Text style={styles.originalPrice}>
+              {formatCurrency(item.price)}
+            </Text>
+          )}
         </View>
-        <TouchableOpacity style={styles.startButton} activeOpacity={0.5}>
+        <TouchableOpacity
+          style={styles.startButton}
+          activeOpacity={0.5}
+          onPress={() => {
+            console.log("跳转到测试详情页:", item.id);
+          }}
+        >
           <AntDesign name="arrowright" size={16} color="#19DBF2" />
         </TouchableOpacity>
       </View>
@@ -202,7 +215,6 @@ export default function Favorites() {
                 onRefresh={onRefresh}
                 colors={["#19DBF2"]}
                 tintColor="#19DBF2"
-                title={t("common.loading")}
                 titleColor="#19DBF2"
               />
             ) : undefined
@@ -211,7 +223,7 @@ export default function Favorites() {
           scrollEventThrottle={16}
         >
           {data.map((item) => (
-            <FavoriteCard key={item.id} item={item} />
+            <FavoriteCard key={item.id} item={item} onRefresh={onRefresh} />
           ))}
           {loading && (
             <View style={styles.loadingContainer}>
@@ -277,6 +289,7 @@ const styles = StyleSheet.create({
     color: "#0C0A09",
   },
   cardDescription: {
+    height: 30,
     fontFamily: "Outfit",
     fontSize: 12,
     lineHeight: 15,

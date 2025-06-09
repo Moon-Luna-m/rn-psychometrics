@@ -10,6 +10,7 @@ interface CustomCheckboxProps {
   inactiveColor?: string;
   label?: ReactNode;
   labelStyle?: object;
+  shape?: 'square' | 'circle';
 }
 
 export default function CustomCheckbox({
@@ -20,6 +21,7 @@ export default function CustomCheckbox({
   inactiveColor = '#A9B0B8',
   label,
   labelStyle,
+  shape = 'square',
 }: CustomCheckboxProps) {
   return (
     <TouchableOpacity
@@ -35,6 +37,7 @@ export default function CustomCheckbox({
             height: size,
             backgroundColor: checked ? activeColor : 'transparent',
             borderColor: checked ? activeColor : inactiveColor,
+            borderRadius: shape === 'circle' ? size / 2 : 6,
           },
         ]}
       >
@@ -65,7 +68,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 2,
-    borderRadius: 6,
   },
   label: {
     marginLeft: 8,

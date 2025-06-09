@@ -22,6 +22,14 @@ const path = {
   GET_USER_TEST_HISTORY: "/api/psychology/user/tests",
   // 搜索心理测试
   SEARCH_TEST: "/api/psychology/search",
+  // 添加测试到收藏夹
+  ADD_TEST_TO_FAVORITE: "/api/psychology/favorite/add",
+  // 删除测试从收藏夹
+  DELETE_TEST_FROM_FAVORITE: "/api/psychology/favorite/remove",
+  // 获取用户的收藏夹
+  GET_USER_FAVORITE: "/api/psychology/favorites",
+  // 保存用户测试进度
+  SAVE_USER_TEST_PROGRESS: "/api/psychology/test/save",
 } as const;
 
 // 基础响应类型
@@ -157,7 +165,22 @@ export interface GetUserTestDetailResponse {
 // 获取用户心理测试历史
 export interface GetUserTestHistoryResponse {
   count: number;
-  list: string;
+  list: Array<{
+    id: number;
+    test_id: number;
+    test_name: string;
+    type_name: string;
+    start_time: string;
+    end_time: string;
+    status: number;
+    price: number;
+    discount_price: number;
+    score: number;
+    result_key: string;
+    test_desc: string;
+    progress: number;
+    question_count: number;
+  }>;
 }
 
 // 通用无信息返回
@@ -242,7 +265,7 @@ export const testService = {
 
   // 获取用户心理测试历史
   async getUserTestHistory(params: {
-    user_id: number;
+    status: number;
     page: number;
     size: number;
   }): Promise<ApiResponse<GetUserTestHistoryResponse>> {
@@ -250,7 +273,7 @@ export const testService = {
       path.GET_USER_TEST_HISTORY,
       params
     );
-  },  
+  },
 
   // 搜索心理测试
   async searchTest(params: {
@@ -259,5 +282,41 @@ export const testService = {
     size: number;
   }): Promise<ApiResponse<GetTestListByTypeResponse>> {
     return httpClient.get<GetTestListByTypeResponse>(path.SEARCH_TEST, params);
+  },
+
+  // 添加测试到收藏夹
+  async addTestToFavorite(params: {
+    test_id: number;
+  }): Promise<ApiResponse<EmptyResponse>> {
+    return httpClient.post<EmptyResponse>(path.ADD_TEST_TO_FAVORITE, params);
+  },
+
+  // 删除测试从收藏夹
+  async deleteTestFromFavorite(params: {
+    test_id: number;
+  }): Promise<ApiResponse<EmptyResponse>> {
+    return httpClient.post<EmptyResponse>(
+      path.DELETE_TEST_FROM_FAVORITE,
+      params
+    );
+  },
+
+  // 获取用户的收藏夹
+  async getUserFavorite(params: {
+    page: number;
+    size: number;
+  }): Promise<ApiResponse<GetTestListByTypeResponse>> {
+    return httpClient.get<GetTestListByTypeResponse>(
+      path.GET_USER_FAVORITE,
+      params
+    );
+  },
+
+  // 保存用户测试进度
+  async saveUserTestProgress(params: {
+    user_test_id: number;
+    progress: number;
+  }): Promise<ApiResponse<EmptyResponse>> {
+    return httpClient.post<EmptyResponse>(path.SAVE_USER_TEST_PROGRESS, params);
   },
 };

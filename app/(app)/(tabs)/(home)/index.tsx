@@ -8,16 +8,11 @@ import {
 } from "@/services/testServices";
 import { px2hp, px2wp } from "@/utils/common";
 import { router, useFocusEffect } from "expo-router";
-import { useCallback, useState } from "react";
-import {
-  ActivityIndicator,
-  ImageBackground,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { useCallback, useRef, useState } from "react";
+import { ImageBackground, ScrollView, StyleSheet, View } from "react-native";
 
 export default function () {
+  const scrollViewRef = useRef<ScrollView>(null);
   const [recommendList, setRecommendList] = useState<
     GetTestListByTypeResponse["list"]
   >([]);
@@ -61,6 +56,8 @@ export default function () {
   useFocusEffect(
     useCallback(() => {
       getList();
+      // 页面聚焦时滚动到顶部
+      scrollViewRef.current?.scrollTo({ y: 0, animated: true });
     }, [])
   );
 
@@ -76,18 +73,10 @@ export default function () {
         <View style={styles.searchContainer}>
           <SearchBar handlePress={handlePress} disabled />
         </View>
-        {loading ? (
-          <View
-            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-          >
-            <ActivityIndicator style={{ marginHorizontal: "auto" }} />
-          </View>
-        ) : (
-          <ScrollView>
-            <TodayRecommend data={recommendList} />
-            <Popular data={popularList} />
-          </ScrollView>
-        )}
+        <ScrollView ref={scrollViewRef}>
+          <TodayRecommend data={recommendList} />
+          <Popular data={popularList} />
+        </ScrollView>
       </View>
     </View>
   );

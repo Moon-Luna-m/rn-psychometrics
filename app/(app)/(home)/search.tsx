@@ -115,9 +115,6 @@ export default function Search() {
 
   // 模拟搜索请求
   const fetchSearchResults = async (keyword: string, page: number) => {
-    // 模拟网络请求延迟
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    // TODO: 替换为实际的API调用
     const results = await testService.searchTest({
       keyword,
       page,
@@ -125,7 +122,7 @@ export default function Search() {
     });
     return {
       data: results.data?.list || [],
-      hasMore: results.data?.list?.length > 0,
+      hasMore: page * 30 < results.data?.count,
     };
   };
 
@@ -199,7 +196,7 @@ export default function Search() {
   }: {
     item: GetTestListByTypeResponse["list"][0];
   }) => (
-    <View style={styles.cardContainer}>
+    <View style={[styles.cardContainer, { width: '48%' }]}>
       <SearchResultCard
         item={item}
         onPress={() => {
@@ -316,11 +313,11 @@ const styles = StyleSheet.create({
     paddingTop: px2wp(12),
   },
   row: {
-    gap: px2wp(12),
+    justifyContent: 'space-between',
     marginBottom: px2wp(12),
   },
   cardContainer: {
-    flex: 1,
+    marginBottom: 0,
   },
   footer: {
     paddingVertical: px2wp(16),

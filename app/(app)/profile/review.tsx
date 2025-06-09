@@ -1,9 +1,13 @@
 import { Tabs } from "@/components/ui/Tabs";
-import { px2hp, px2wp } from "@/utils/common";
+import {
+  GetUserTestHistoryResponse,
+  testService,
+} from "@/services/testServices";
+import { formatDate, formatDateTime, px2hp, px2wp } from "@/utils/common";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
@@ -20,139 +24,74 @@ import {
 import { Button } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-interface ReviewItem {
-  id: string;
-  title: string;
-  description: string;
-  date: string;
-  time: string;
-  progress?: number; // 进度，仅用于未完成的测试
-  total?: number; // 总题数，仅用于未完成的测试
-}
-
 // 自定义 hook 用于管理列表数据和加载状态
-const useReviewList = (type: "completed" | "incomplete") => {
+const useReviewList = (
+  type: "completed" | "incomplete",
+  onCountChange: (count: number) => void
+) => {
   const [refreshing, setRefreshing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
+  const [data, setData] = useState<GetUserTestHistoryResponse["list"]>([]);
 
-  // 初始数据根据类型区分
-  const initialData = useMemo(() => {
-    if (type === "completed") {
-      return [
-        {
-          id: "1",
-          title: "Five Elements Personality Test",
-          description:
-            "Metal, Wood, Water, Fire, Earth - which personality do you belong to?",
-          date: "2027.02.23",
-          time: "12:32:32",
-        },
-        {
-          id: "2",
-          title: "Five Elements Personality Test",
-          description:
-            "Metal, Wood, Water, Fire, Earth - which personality do you belong to?",
-          date: "2027.02.23",
-          time: "12:32:32",
-        },
-        {
-          id: "3",
-          title: "Five Elements Personality Test",
-          description:
-            "Metal, Wood, Water, Fire, Earth - which personality do you belong to?",
-          date: "2027.02.23",
-          time: "12:32:32",
-        },
-        {
-          id: "4",
-          title: "Five Elements Personality Test",
-          description:
-            "Metal, Wood, Water, Fire, Earth - which personality do you belong to?",
-          date: "2027.02.23",
-          time: "12:32:32",
-        },
-        {
-          id: "5",
-          title: "Five Elements Personality Test",
-          description:
-            "Metal, Wood, Water, Fire, Earth - which personality do you belong to?",
-          date: "2027.02.23",
-          time: "12:32:32",
-        },
-      ];
-    } else {
-      return [
-        {
-          id: "incomplete-1",
-          title: "Five Elements Personality Test",
-          description:
-            "Metal, Wood, Water, Fire, Earth - which personality do you belong to?",
-          date: "2027.02.23",
-          time: "12:32:32",
-          progress: 50,
-          total: 100,
-        },
-      ];
-    }
-  }, [type]);
-
-  const [data, setData] = useState<ReviewItem[]>(initialData);
+  // 重置状态
+  const resetState = useCallback(() => {
+    setData([]);
+    setPage(1);
+    setHasMore(true);
+    setLoading(false);
+    setRefreshing(false);
+  }, []);
 
   // 刷新数据
   const onRefresh = useCallback(async () => {
+    if (loading) return;
     setRefreshing(true);
     try {
-      // TODO: 根据 type 调用对应的刷新API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setData(initialData);
-      setPage(1);
-      setHasMore(true);
+      const res = await testService.getUserTestHistory({
+        status: type === "completed" ? 1 : 0,
+        page: 1,
+        size: 20,
+      });
+      if (res.code === 200) {
+        setData(res.data.list);
+        setPage(1);
+        setHasMore(res.data.list.length < res.data.count);
+        onCountChange(res.data.count);
+      }
     } catch (error) {
       console.error(`Refresh error for ${type}:`, error);
     } finally {
       setRefreshing(false);
     }
-  }, [type, initialData]);
+  }, [type, loading, onCountChange]);
 
   // 加载更多
   const onLoadMore = useCallback(async () => {
-    if (loading || !hasMore) return;
+    if (loading || !hasMore || refreshing) return;
 
     setLoading(true);
     try {
-      // TODO: 根据 type 调用对应的加载更多API
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const res = await testService.getUserTestHistory({
+        status: type === "completed" ? 1 : 0,
+        page: page + 1,
+        size: 20,
+      });
 
-      // 模拟不同类型的数据加载限制
-      const maxPages = type === "completed" ? 3 : 2;
-      if (page >= maxPages) {
-        setHasMore(false);
-        return;
+      if (res.code === 200) {
+        const newData = res.data.list || [];
+        setData((prev) => [...prev, ...newData]);
+        setPage((prev) => prev + 1);
+        setHasMore(data.length + newData.length < res.data.count);
+        onCountChange(res.data.count);
       }
-
-      const newData = Array(5)
-        .fill(0)
-        .map((_, index) => ({
-          id: `${type}-page${page}-${index}`,
-          title: `${type === "completed" ? "Completed" : "Incomplete"} Test ${
-            page * 5 + index + 1
-          }`,
-          description:
-            "Metal, Wood, Water, Fire, Earth - which personality do you belong to?",
-          date: "2027.02.23",
-          time: "12:32:32",
-        }));
-
-      setData((prev) => [...prev, ...newData]);
-      setPage((prev) => prev + 1);
     } catch (error) {
       console.error(`Load more error for ${type}:`, error);
     } finally {
       setLoading(false);
     }
-  }, [loading, hasMore, page, type]);
+  }, [loading, hasMore, page, type, refreshing, data.length, onCountChange]);
 
   return {
     data,
@@ -161,6 +100,7 @@ const useReviewList = (type: "completed" | "incomplete") => {
     hasMore,
     onRefresh,
     onLoadMore,
+    resetState,
   };
 };
 
@@ -171,18 +111,37 @@ export default function Review() {
   const [activeTab, setActiveTab] = useState<"completed" | "incomplete">(
     "completed"
   );
+  const [completedCount, setCompletedCount] = useState(0);
+  const [incompleteCount, setIncompleteCount] = useState(0);
+  const isFirstLoad = useRef(true);
+
+  // 使用自定义 hook 管理不同 tab 的数据
+  const completedList = useReviewList("completed", setCompletedCount);
+  const incompleteList = useReviewList("incomplete", setIncompleteCount);
+
+  // 初始化数据
+  useEffect(() => {
+    async function initData() {
+      await completedList.onRefresh();
+      await incompleteList.onRefresh();
+      isFirstLoad.current = false;
+    }
+    initData();
+  }, []);
 
   const tabs = useMemo(
     () => [
-      { key: "completed", title: t("review.tabs.completed", { count: 12 }) },
-      { key: "incomplete", title: t("review.tabs.incomplete", { count: 12 }) },
+      {
+        key: "completed",
+        title: t("review.tabs.completed", { count: completedCount }),
+      },
+      {
+        key: "incomplete",
+        title: t("review.tabs.incomplete", { count: incompleteCount }),
+      },
     ],
-    [t]
+    [t, completedCount, incompleteCount]
   );
-
-  // 使用自定义 hook 管理不同 tab 的数据
-  const completedList = useReviewList("completed");
-  const incompleteList = useReviewList("incomplete");
 
   // 根据当前激活的 tab 获取对应的数据和方法
   const currentList =
@@ -214,11 +173,24 @@ export default function Review() {
   );
 
   // 处理 tab 切换
-  const handleTabChange = (key: string) => {
-    setActiveTab(key as "completed" | "incomplete");
-    // 立即滚动到顶部，不需要动画
-    scrollViewRef.current?.scrollTo({ x: 0, y: 0, animated: false });
-  };
+  const handleTabChange = useCallback(
+    (key: string) => {
+      // 重置当前列表状态
+      currentList.resetState();
+      // 切换标签
+      setActiveTab(key as "completed" | "incomplete");
+      // 立即滚动到顶部，不需要动画
+      scrollViewRef.current?.scrollTo({ x: 0, y: 0, animated: false });
+    },
+    [currentList]
+  );
+
+  // 监听标签变化，重新请求数据（仅在非首次加载时执行）
+  useEffect(() => {
+    if (!isFirstLoad.current) {
+      currentList.onRefresh();
+    }
+  }, [activeTab]);
 
   return (
     <View style={styles.container}>
@@ -252,7 +224,6 @@ export default function Review() {
                 onRefresh={currentList.onRefresh}
                 colors={["#19DBF2"]}
                 tintColor="#19DBF2"
-                title={t("common.loading")}
                 titleColor="#19DBF2"
               />
             ) : undefined
@@ -284,10 +255,13 @@ function ReviewCard({
   item,
   type,
 }: {
-  item: ReviewItem;
+  item: GetUserTestHistoryResponse["list"][0];
   type: "completed" | "incomplete";
 }) {
   const { t } = useTranslation();
+
+  const date = formatDate(item.start_time);
+  const time = formatDateTime(item.start_time, "HH:mm:ss");
 
   if (type === "incomplete") {
     return (
@@ -295,14 +269,14 @@ function ReviewCard({
         <View style={styles.cardHeader}>
           <View style={styles.cardInfo}>
             <Text style={styles.cardTitle} numberOfLines={1}>
-              {item.title}
+              {item.test_name}
             </Text>
             <Text style={styles.cardDescription} numberOfLines={2}>
-              {item.description}
+              {item.test_desc}
             </Text>
             <View style={styles.timeContainer}>
-              <Text style={styles.timeText}>{item.date}</Text>
-              <Text style={styles.timeText}>{item.time}</Text>
+              <Text style={styles.timeText}>{date}</Text>
+              <Text style={styles.timeText}>{time}</Text>
             </View>
           </View>
           <TouchableOpacity activeOpacity={0.5}>
@@ -325,13 +299,19 @@ function ReviewCard({
                     {t("review.card.progress")}:
                   </Text>
                   <View style={styles.progressNumbers}>
-                    <Text style={styles.progressCurrent}>{item.progress}</Text>
+                    <Text style={styles.progressCurrent}>
+                      {item.progress || 0}
+                    </Text>
                     <Text style={styles.progressSeparator}>/</Text>
-                    <Text style={styles.progressTotal}>{item.total}</Text>
+                    <Text style={styles.progressTotal}>
+                      {item.question_count || 0}
+                    </Text>
                   </View>
                 </View>
                 <Text style={styles.progressPercentage}>
-                  {Math.round(((item.progress || 0) / (item.total || 1)) * 100)}
+                  {Math.round(
+                    ((item.progress || 0) / (item.question_count || 0)) * 100
+                  )}
                   %
                 </Text>
               </View>
@@ -341,7 +321,8 @@ function ReviewCard({
                     styles.progressBar,
                     {
                       width: `${Math.round(
-                        ((item.progress || 0) / (item.total || 1)) * 100
+                        ((item.progress || 0) / (item.question_count || 0)) *
+                          100
                       )}%`,
                     },
                   ]}
@@ -368,14 +349,14 @@ function ReviewCard({
       <View style={styles.cardHeader}>
         <View style={styles.cardInfo}>
           <Text style={styles.cardTitle} numberOfLines={1}>
-            {item.title}
+            {item.test_name}
           </Text>
           <Text style={styles.cardDescription} numberOfLines={2}>
-            {item.description}
+            {item.test_desc}
           </Text>
           <View style={styles.timeContainer}>
-            <Text style={styles.timeText}>{item.date}</Text>
-            <Text style={styles.timeText}>{item.time}</Text>
+            <Text style={styles.timeText}>{date}</Text>
+            <Text style={styles.timeText}>{time}</Text>
           </View>
         </View>
         <TouchableOpacity style={styles.detailsButton} activeOpacity={0.5}>
@@ -451,6 +432,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: px2wp(16),
   },
   card: {
+    height: 161,
     backgroundColor: "#FFFFFF",
     borderRadius: px2wp(20),
     padding: px2wp(12),
@@ -475,6 +457,7 @@ const styles = StyleSheet.create({
     color: "#0C0A09",
   },
   cardDescription: {
+    height: 32,
     fontFamily: "Outfit",
     fontSize: 12,
     lineHeight: 15,

@@ -14,6 +14,10 @@ const path = {
   GET_RECHARGE_LIST: "/payment/recharge-tiers",
   // 搜索支付记录
   SEARCH_PAYMENT_RECORD: "/payment/search",
+  // vip套餐列表(带价格)
+  GET_VIP_LIST: "/api/vip/plans/pricing",
+  // vip套餐列表(不带价格)
+  GET_VIP_LIST_NO_PRICE: "/api/vip/plans",
 } as const;
 
 // 基础响应类型
@@ -49,16 +53,14 @@ interface GetPaymentOrderDetailResponse {
 }
 
 // 获取充值档位列表响应类型
-interface GetRechargeListResponse {
-  list: Array<{
-    id: number;
-    name: string;
+interface GetRechargeListResponse
+  extends Array<{
+    description: string;
     amount: number;
-    coins: number;
+    coins_amount: number;
     bonus: number;
-    is_recommended: boolean;
-  }>;
-}
+    is_popular: boolean;
+  }> {}
 
 // 搜索支付记录响应类型
 interface SearchPaymentRecordResponse {
@@ -79,6 +81,31 @@ interface SearchPaymentRecordResponse {
   }>;
 }
 
+// vip套餐列表响应类型
+interface GetVipListResponse {
+  created_at: string;
+  duration: number;
+  features: string;
+  first_time_buy_price: number;
+  id: number;
+  is_active: boolean;
+  is_first_time_buy_enabled: boolean;
+  name: string;
+  original_price: number;
+  price: number;
+  sort_order: number;
+  subscription_type: string;
+  updated_at: string;
+  vip_level: number;
+}
+
+// vip套餐列表(不带价格)响应类型
+interface GetVipListNoPriceResponse {
+  id: number;
+  name: string;
+  description: string;
+}
+
 export const paymentService = {
   // 取消支付订单
   async cancelPaymentOrder(params: {
@@ -96,7 +123,10 @@ export const paymentService = {
     product_id: number;
     product_type: number;
   }): Promise<ApiResponse<CreatePaymentOrderResponse>> {
-    return httpClient.post<CreatePaymentOrderResponse>(path.CREATE_PAYMENT_ORDER, params);
+    return httpClient.post<CreatePaymentOrderResponse>(
+      path.CREATE_PAYMENT_ORDER,
+      params
+    );
   },
 
   // 获取支付订单详情
@@ -105,7 +135,10 @@ export const paymentService = {
     id: number;
     out_trade_no: string;
   }): Promise<ApiResponse<GetPaymentOrderDetailResponse>> {
-    return httpClient.get<GetPaymentOrderDetailResponse>(path.GET_PAYMENT_ORDER_DETAIL, params);
+    return httpClient.get<GetPaymentOrderDetailResponse>(
+      path.GET_PAYMENT_ORDER_DETAIL,
+      params
+    );
   },
 
   // 获取充值档位列表
@@ -123,6 +156,21 @@ export const paymentService = {
     start_time: string;
     end_time: string;
   }): Promise<ApiResponse<SearchPaymentRecordResponse>> {
-    return httpClient.get<SearchPaymentRecordResponse>(path.SEARCH_PAYMENT_RECORD, params);
+    return httpClient.get<SearchPaymentRecordResponse>(
+      path.SEARCH_PAYMENT_RECORD,
+      params
+    );
+  },
+
+  // vip套餐列表
+  async getVipList(): Promise<ApiResponse<GetVipListResponse>> {
+    return httpClient.get<GetVipListResponse>(path.GET_VIP_LIST);
+  },
+
+  // vip套餐列表(不带价格)
+  async getVipListNoPrice(): Promise<ApiResponse<GetVipListNoPriceResponse>> {
+    return httpClient.get<GetVipListNoPriceResponse>(
+      path.GET_VIP_LIST_NO_PRICE
+    );
   },
 };

@@ -1,12 +1,19 @@
+import { testService } from "@/services/testServices";
 import { selectUserInfo } from "@/store/slices/userSlice";
-import { generateBlurhash, imgProxy, px2hp, px2wp } from "@/utils/common";
+import {
+  formatDate,
+  generateBlurhash,
+  imgProxy,
+  px2hp,
+  px2wp,
+} from "@/utils/common";
 import { Ionicons } from "@expo/vector-icons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import SimpleLineIcons from "@expo/vector-icons/SimpleLineIcons";
 import { Image as ExpoImage } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
-import { memo, useMemo } from "react";
+import { router, useFocusEffect } from "expo-router";
+import { memo, useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Image,
@@ -103,6 +110,34 @@ export default function Profile() {
   const userInfo = useSelector(selectUserInfo);
   const { t } = useTranslation();
 
+  const [completedCount, setCompletedCount] = useState(0);
+  const [unCompletedCount, setUnCompletedCount] = useState(0);
+
+  const getCompletedCount = async () => {
+    const [res1, res2] = await Promise.all([
+      testService.getUserTestHistory({
+        status: 1,
+        page: 1,
+        size: 1,
+      }),
+      testService.getUserTestHistory({
+        status: 0,
+        page: 1,
+        size: 1,
+      }),
+    ]);
+    if (res1.code === 200 && res2.code === 200) {
+      setCompletedCount(res1.data.count);
+      setUnCompletedCount(res2.data.count);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      getCompletedCount();
+    }, [])
+  );
+
   // 使用 useMemo 缓存服务数组
   const services = useMemo(
     () => [
@@ -110,7 +145,7 @@ export default function Profile() {
         id: "vip",
         icon: require("@/assets/images/profile/vip-service.png"),
         title: t("profile.popularServices.vip.title"),
-        extra: (
+        extra: userInfo?.is_vip_active && (
           <View style={styles.vipExtra}>
             <LinearGradient
               colors={["#FFBA01", "#FFBA01", "#FF3201"]}
@@ -119,18 +154,19 @@ export default function Profile() {
               style={styles.vipDate}
             >
               <Text numberOfLines={1} style={styles.vipDateText}>
-                {t("profile.popularServices.vip.expires")}: 2025.05.20
+                {t("profile.popularServices.vip.expires")}:{" "}
+                {formatDate(userInfo?.vip_expire_at)}
               </Text>
             </LinearGradient>
           </View>
         ),
-        onPress: () => {},
+        onPress: () => router.push("/profile/vip"),
       },
       {
         id: "wallet",
         icon: require("@/assets/images/profile/wallet.png"),
         title: t("profile.popularServices.wallet"),
-        onPress: () => {},
+        onPress: () => router.push("/profile/wallet"),
       },
       {
         id: "favorites",
@@ -193,13 +229,11 @@ export default function Profile() {
                 placeholder={{ blurhash: generateBlurhash() }}
                 contentFit="cover"
               />
-              <View style={styles.editButton}>
-                <Image
-                  source={require("@/assets/images/profile/vip.png")}
-                  style={styles.editButtonGradient}
-                  fadeDuration={0}
-                />
-              </View>
+              {userInfo?.is_vip_active && (
+                <View style={styles.editButton}>
+                  <Image source={require("@/assets/images/profile/vip.png")} />
+                </View>
+              )}
             </View>
 
             {/* 用户名和性别 */}
@@ -254,7 +288,7 @@ export default function Profile() {
                       {t("profile.testCard.completed")}:
                     </Text>
                     <Text numberOfLines={1} style={styles.statValue}>
-                      12
+                      {completedCount}
                     </Text>
                   </View>
 
@@ -267,7 +301,7 @@ export default function Profile() {
                       {t("profile.testCard.notCompleted")}:
                     </Text>
                     <Text numberOfLines={1} style={styles.statValue}>
-                      3
+                      {unCompletedCount}
                     </Text>
                   </View>
                 </View>

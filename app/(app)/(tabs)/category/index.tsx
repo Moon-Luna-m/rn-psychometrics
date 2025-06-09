@@ -69,7 +69,7 @@ const TabContent = ({ route }: { route: TabRoute }) => {
   const fetchData = async (page: number, isRefresh = false) => {
     if (isLoading) return;
 
-    setIsLoading(true);
+    !isRefresh &&setIsLoading(true);
     try {
       const res = await testService.getTestListByType({
         type_id: Number(route.key),
@@ -77,14 +77,14 @@ const TabContent = ({ route }: { route: TabRoute }) => {
         size: 20,
       });
       if (res.code === 200) {
-        const newData = res.data.list;
+        const newData = res.data.list || [];
         if (isRefresh) {
           setData(newData);
         } else {
           setData((prev) => [...prev, ...newData]);
         }
       }
-      setHasMore(res.data.list.length > 0);
+      setHasMore(page * 20 < res.data.count);
       setCurrentPage(page);
     } catch (error) {
       console.error("Failed to fetch data:", error);
@@ -97,12 +97,11 @@ const TabContent = ({ route }: { route: TabRoute }) => {
   const onRefresh = useCallback(() => {
     if (isLoading) return;
     setRefreshing(true);
-    resetState();
     fetchData(1, true);
   }, [isLoading, resetState]);
 
   const loadMore = () => {
-    if (isLoading || !hasMore) return;
+    if (isLoading || !hasMore || refreshing) return;
     fetchData(currentPage + 1);
   };
 
@@ -116,7 +115,7 @@ const TabContent = ({ route }: { route: TabRoute }) => {
   }: {
     item: GetTestListByTypeResponse["list"][0];
   }) => (
-    <View style={styles.cardContainer}>
+    <View style={[styles.cardContainer, { width: '48%' }]}>
       <SearchResultCard
         item={item}
         onPress={() => {
@@ -183,12 +182,12 @@ export default function Category() {
 
   useFocusEffect(
     useCallback(() => {
+      getTestTypeList();
       return () => {
         // 重置分类页的状态
         setIndex(0);
         setShowAllCategories(false);
         progress.value = 0;
-        getTestTypeList();
       };
     }, [])
   );
@@ -385,7 +384,7 @@ const styles = StyleSheet.create({
     minHeight: px2hp(44),
   },
   indicator: {
-    bottom: 12,
+    bottom: 10,
     backgroundColor: "#19DBF2",
   },
   label: {
@@ -466,14 +465,15 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   cardContainer: {
-    flex: 1,
+    marginBottom: px2wp(12),
   },
   resultList: {
-    paddingTop: px2wp(12),
+    // paddingTop: px2wp(12),
+    // paddingHorizontal: px2wp(8),
   },
   row: {
-    gap: px2wp(12),
-    marginBottom: px2wp(12),
+    justifyContent: 'space-between',
+    marginBottom: 0,
   },
   footer: {
     paddingVertical: px2wp(16),

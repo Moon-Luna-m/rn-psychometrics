@@ -95,11 +95,13 @@ const styles = StyleSheet.create({
   content: {
     flexDirection: "row",
     flexWrap: "wrap",
+    gap: px2wp(12),
     paddingHorizontal: HORIZONTAL_PADDING,
-    gap: CARD_GAP,
-    paddingBottom: px2hp(12),
+    justifyContent: 'space-between',
+    marginBottom: px2wp(12),
   },
   cardWrapper: {
-    width: CARD_WIDTH,
+    width: '48%',
+    marginBottom: px2wp(0),
   },
 });

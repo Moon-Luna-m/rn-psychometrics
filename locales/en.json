@@ -13,6 +13,10 @@
     "selectDate": "Select Date",
     "dataEditing": "Data Editing",
     "settings": "Settings",
+    "time": {
+      "minutes": "min",
+      "hours": "h"
+    },
     "datePicker": {
       "year": "Year",
       "month": "Month",
@@ -254,6 +258,89 @@
     },
     "popular": {
       "title": "Popular Tests"
+    }
+  },
+  "wallet": {
+    "title": "My Wallet",
+    "currentBalance": "Current Balance",
+    "coinDetails": "Coin Details",
+    "rechargeAmount": "Recharge Amount",
+    "rechargeMethod": "Recharge Method",
+    "paymentMethods": {
+      "mastercard": "Mastercard",
+      "paypal": "Paypal"
+    },
+    "tags": {
+      "firstCharge": "First Charge",
+      "limitedTime": "Limited Time"
+    },
+    "rechargeInstructions": "Recharge Instructions",
+    "instructions": {
+      "0": "Recharge is permanent",
+      "1": "Recharge rate: $1 = 1 Coin",
+      "2": "Recharge amount cannot be withdrawn or exchanged",
+      "3": "Recharge coins are only available within this app"
+    }
+  },
+  "coinDetail": {
+    "title": "Coin Details"
+  },
+  "vip": {
+    "title": "VIP",
+    "balance": "Balance",
+    "recharge": "Recharge",
+    "withdraw": "Withdraw",
+    "notActivated": "Not Activated",
+    "subscriptions": {
+      "monthly": {
+        "title": "Monthly Membership",
+        "price": "9.9",
+        "perMonth": "$9.9/month"
+      },
+      "quarterly": {
+        "title": "Quarterly Membership",
+        "price": "24.9",
+        "perMonth": "$9.5/month"
+      },
+      "annual": {
+        "title": "Annual Membership",
+        "price": "60.9",
+        "perMonth": "$8.5/month"
+      },
+      "lifetime": {
+        "title": "Lifetime Membership",
+        "price": "200",
+        "perMonth": "One-time payment"
+      }
+    },
+    "agreement": {
+      "autoRenewal": "Automatic renewal starts at ${{price}}/month, can be canceled anytime",
+      "oneTimePayment": "One-time payment, lifetime access",
+      "prefix": "Becoming a member indicates agreement",
+      "membershipAgreement": "Membership Agreement",
+      "and": "and",
+      "subscriptionAgreement": "Continuous Subscription Membership Service Agreement"
+    },
+    "benefits": {
+      "title": "Member Benefits",
+      "items": {
+        "unlimitedTests": {
+          "title": "Advanced Assessment Unlock",
+          "desc": "More Comprehensive Assessment Data"
+        },
+        "exclusiveContent": {
+          "title": "AI Companion Service",
+          "desc": "Large Model Accurately Identifies Pain Points"
+        },
+        "prioritySupport": {
+          "title": "Professional Report PDF Export",
+          "desc": "Report Shareable"
+        },
+        "noAds": {
+          "title": "Free Test Unlock",
+          "desc": "A Large Number of Member Exclusive Tests"
+        }
+      }
     }
   }
 }

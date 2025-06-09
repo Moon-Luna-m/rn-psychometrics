@@ -4,6 +4,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import * as FileSystem from "expo-file-system";
 import { deleteItemAsync, getItemAsync, setItemAsync } from "expo-secure-store";
+import i18next from "i18next";
 import numeral from "numeral";
 import { Platform } from "react-native";
 import {
@@ -446,4 +447,35 @@ export const randomPicks = <T>(array: T[], count: number): T[] => {
   
   const shuffled = [...array].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, count);
+};
+
+/**
+ * 格式化持续时间
+ * @param seconds 秒数
+ * @param format 格式化选项，默认为 'auto'
+ * @returns 格式化后的持续时间字符串
+ * @example
+ * // 格式化为最适合的单位
+ * formatDuration(5400) // 返回 "1.5 hours" (90分钟)
+ * formatDuration(2700) // 返回 "45 minutes"
+ * formatDuration(9000) // 返回 "2.5 hours" (150分钟)
+ */
+export const formatDuration = (
+  seconds?: number | null,
+  format: 'auto' | 'minutes' | 'hours' = 'auto'
+): string => {
+  if (seconds == null || seconds < 0) {
+    return `0 ${i18next.t('common.time.minutes')}`;
+  }
+
+  // 转换秒为分钟
+  const minutes = Math.round(seconds / 60);
+
+  if (format === 'minutes' || (format === 'auto' && minutes < 60)) {
+    return `${minutes} ${i18next.t('common.time.minutes')}`;
+  }
+
+  // 转换分钟为小时
+  const hours = minutes / 60;
+  return `${hours.toFixed(1)} ${i18next.t('common.time.hours')}`;
 };
