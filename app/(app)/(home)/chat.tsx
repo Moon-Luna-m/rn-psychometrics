@@ -278,27 +278,18 @@ export default function Chat() {
       setLastSubmission(null);
 
       // 不重置问题索引和回答，而是保持显示所有结果
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: String(prev.length + 1),
-          message: t("chat.test_ready", {
-            name: result.testInfo?.name,
-            count: result.testInfo?.question_count,
-          }),
-          isUser: false,
-          testInfo: result.testInfo,
-        },
-      ]);
+      handleResponse(result);
+      
+      // 如果生成测试成功，设置测试已生成状态
+      if (result.status === "success") {
+        setIsTestGenerated(true);
+      }
+      
       // 解除输入限制
       setIsAnsweringQuestions(false);
       // 清空问题相关状态
       setCurrentQuestionIndex(0);
       setClarifyResponses({});
-      // 如果生成测试成功，设置测试已生成状态
-      if (result.status === "success") {
-        setIsTestGenerated(true);
-      }
     } catch (error) {
       // Handle error
       setIsAnsweringQuestions(false);
