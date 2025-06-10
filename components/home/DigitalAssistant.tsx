@@ -5,46 +5,67 @@ import { useTranslation } from "react-i18next";
 import { Image, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-export default function DigitalAssistant() {
+export default function DigitalAssistant({
+  onPress,
+  showAskButton = true,
+}: {
+  onPress?: () => void;
+  showAskButton?: boolean;
+}) {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
 
   return (
-    <View style={styles.container}>
+    <View
+      style={[
+        styles.container,
+        { height: showAskButton ? px2hp(260) : px2hp(240) },
+      ]}
+    >
       {/* 数字人头像 */}
       <Image
         source={require("@/assets/images/home/digital-human.png")}
-        style={styles.avatar}
+        style={[styles.avatar, { right: showAskButton ? 0 : 88 }]}
         resizeMode="cover"
       />
-      <View style={[styles.robotIconContainer, { top: insets.top +20 }]}>
-        <Image
-          source={require("@/assets/images/home/robot.png")}
-          style={styles.robotIcon}
-          resizeMode="contain"
-        />
-      </View>
+      {showAskButton && (
+        <>
+          <View style={[styles.robotIconContainer, { top: insets.top + 20 }]}>
+            <Image
+              source={require("@/assets/images/home/robot.png")}
+              style={styles.robotIcon}
+              resizeMode="contain"
+            />
+          </View>
 
-      {/* 文字内容 */}
-      <View style={styles.content}>
-        <View>
-          <Text style={styles.greeting}>{t('home.digitalAssistant.greeting')}</Text>
-          <Text style={styles.question}>{t('home.digitalAssistant.question')}</Text>
-        </View>
+          {/* 文字内容 */}
+          <View style={styles.content}>
+            <View>
+              <Text style={styles.greeting}>
+                {t("home.digitalAssistant.greeting")}
+              </Text>
+              <Text style={styles.question}>
+                {t("home.digitalAssistant.question")}
+              </Text>
+            </View>
 
-        <View style={styles.askButtonWrapper}>
-          <Pressable>
-            <LinearGradient
-              colors={["#64FFFA", "#F59EFF"]}
-              start={{ x: 0.03, y: 0.29 }}
-              end={{ x: 0.91, y: 0.84 }}
-              style={styles.gradient}
-            >
-              <Text style={styles.buttonText}>{t('home.digitalAssistant.askButton')}</Text>
-            </LinearGradient>
-          </Pressable>
-        </View>
-      </View>
+            <View style={styles.askButtonWrapper}>
+              <Pressable onPress={onPress}>
+                <LinearGradient
+                  colors={["#64FFFA", "#F59EFF"]}
+                  start={{ x: 0.03, y: 0.29 }}
+                  end={{ x: 0.91, y: 0.84 }}
+                  style={styles.gradient}
+                >
+                  <Text style={styles.buttonText}>
+                    {t("home.digitalAssistant.askButton")}
+                  </Text>
+                </LinearGradient>
+              </Pressable>
+            </View>
+          </View>
+        </>
+      )}
     </View>
   );
 }
@@ -52,14 +73,12 @@ export default function DigitalAssistant() {
 const styles = StyleSheet.create({
   container: {
     width: px2wp(375),
-    height: px2hp(260),
     position: "relative",
   },
   avatar: {
     width: px2wp(200),
     height: px2hp(200),
     position: "absolute",
-    right: px2wp(0),
     bottom: px2hp(0),
   },
   content: {
@@ -82,7 +101,7 @@ const styles = StyleSheet.create({
   },
   askButtonWrapper: {
     marginTop: px2hp(8),
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
   },
   gradient: {
     paddingHorizontal: px2wp(24),

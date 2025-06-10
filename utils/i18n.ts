@@ -4,6 +4,9 @@ import { initReactI18next } from "react-i18next";
 import { I18nManager, ImageSourcePropType } from "react-native";
 
 // 导入翻译资源
+import dayjs from "dayjs";
+import "dayjs/locale/en";
+import "dayjs/locale/zh";
 import en from "../locales/en.json";
 import zh from "../locales/zh.json";
 import { clearLocalCache, getLocalCache, setLocalCache } from "./common";
@@ -104,7 +107,7 @@ export const setLanguage = async (language: string) => {
     const isRTL = LANGUAGES[language]?.isRTL || false;
     I18nManager.allowRTL(isRTL);
     I18nManager.forceRTL(isRTL);
-
+    dayjs.locale(language);
     return true;
   } catch (error) {
     // console.error("Error setting language:", error);

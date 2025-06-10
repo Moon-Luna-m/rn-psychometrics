@@ -342,5 +342,27 @@
         }
       }
     }
+  },
+  "chat": {
+    "hello": "Hello, I am your mental AI assistant. What would you like to explore? Feel free to ask me any questions!",
+    "error": "Sorry, I didn't understand. Could you rephrase that?",
+    "type_confirmation": "I understand your needs. Please confirm if this is the test type you want.",
+    "need_clarification": "To better understand your needs, I need to ask you a few questions.",
+    "test_ready": "I have prepared the '{{name}}' test with {{count}} questions. Shall we begin?",
+    "unknown_error": "Sorry, an unknown error occurred. Please try again later.",
+    "network_error": "Network connection issue. Please check your connection and try again.",
+    "retry": "Retry",
+    "input": {
+      "placeholder": "Enter your answer",
+      "send": "Submit"
+    },
+    "typing": "Typing",
+    "optional": "Optional",
+    "your_answer": "Your answer"
+  },
+  "test": {
+    "total_questions": "{{count}} Questions",
+    "estimated_time": "About {{minutes}} minutes",
+    "start": "Start the test"
   }
 }

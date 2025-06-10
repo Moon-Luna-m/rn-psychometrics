@@ -34,13 +34,15 @@ export interface HttpBaseConfig {
 // 全局配置接口
 export interface GlobalConfig extends HttpBaseConfig {
   interceptBusinessError?: boolean; // 是否拦截业务错误
+  interceptNetworkError?: boolean; // 是否拦截网络错误
   successCode?: number; // 成功的业务代码
   onError?: (error: ErrorDetail) => void; // 错误处理回调
 }
 
 // HTTP 请求配置接口
-export interface RequestConfig extends Partial<HttpBaseConfig> {
-  interceptError?: boolean; // 是否拦截错误，默认true
+export interface RequestConfig extends HttpBaseConfig {
+  interceptError?: boolean; // 是否拦截业务错误
+  interceptNetworkError?: boolean; // 是否拦截网络错误
   businessCodes?: number[]; // 允许的业务代码列表
-  [key: string]: any;
+  params?: Record<string, any>; // 请求参数
 } 

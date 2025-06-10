@@ -339,5 +339,27 @@
     "popular": {
       "title": "热门测试"
     }
+  },
+  "chat": {
+    "hello": "你好，我是你的心理AI助手。有什么我能帮你的吗？",
+    "error": "抱歉，我没有理解你的意思。你能换个方式描述吗？",
+    "type_confirmation": "我理解你的需求了。请确认这是你想要的测试类型。",
+    "need_clarification": "为了更好地了解你的需求，我需要问你几个问题。",
+    "test_ready": "我已准备好{{name}}测试，共有{{count}}道题目。是否开始？",
+    "unknown_error": "抱歉，出现了未知错误。请稍后再试。",
+    "network_error": "网络连接出现问题，请检查网络后重试。",
+    "retry": "重试",
+    "input": {
+      "placeholder": "请输入您的回答",
+      "send": "确定"
+    },
+    "typing": "正在输入中",
+    "optional": "可选",
+    "your_answer": "您的回答"
+  },
+  "test": {
+    "total_questions": "共{{count}}道题目",
+    "estimated_time": "预计需要{{minutes}}分钟",
+    "start": "开始测试"
   }
 }

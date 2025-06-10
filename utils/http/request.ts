@@ -25,6 +25,7 @@ const AUTH_TOKEN_KEY = "Authorization";
 export const HTTP_EVENTS = {
   ERROR: "http:error",
   UNAUTHORIZED: "http:unauthorized",
+  NETWORK_ERROR: "http:network_error",
 } as const;
 
 // 自定义错误类
@@ -47,8 +48,9 @@ export class HttpRequest {
   private globalConfig: GlobalConfig = {
     baseURL: process.env.EXPO_PUBLIC_API_URL,
     interceptBusinessError: true,
+    interceptNetworkError: true,
     successCode: 200,
-    timeout: 20000,
+    timeout: 120000,
     onError: (error: ErrorDetail) => {
       eventBus.emit(HTTP_EVENTS.ERROR, error);
     },
@@ -256,11 +258,21 @@ export class HttpRequest {
     );
   }
 
-  private async handleRequestError(error: any, url?: string): Promise<never> {
+  private async handleRequestError(error: any, url?: string, requestConfig?: RequestConfig): Promise<never> {
     let errorDetail: ErrorDetail;
 
     try {
       errorDetail = this.createErrorDetail(error, url);
+
+      
+      // 判断是否需要拦截网络错误
+      const shouldInterceptNetworkError = requestConfig?.interceptNetworkError ?? this.globalConfig.interceptNetworkError;
+      
+      // 如果是网络错误且配置为不拦截，直接返回错误
+      if (errorDetail.type === ErrorType.NETWORK && !shouldInterceptNetworkError) {
+        return Promise.reject(errorDetail);
+      }
+
       // 调用全局错误处理
       this.globalConfig.onError?.(errorDetail);
     } catch (e) {
@@ -299,7 +311,7 @@ export class HttpRequest {
 
       return response.data;
     } catch (error) {
-      return this.handleRequestError(error, url);
+      return this.handleRequestError(error, url, config);
     }
   }
 
@@ -337,7 +349,7 @@ export class HttpRequest {
 
       return response.data;
     } catch (error) {
-      return this.handleRequestError(error, url);
+      return this.handleRequestError(error, url, config);
     }
   }
 
@@ -375,7 +387,7 @@ export class HttpRequest {
 
       return response.data;
     } catch (error) {
-      return this.handleRequestError(error, url);
+      return this.handleRequestError(error, url, config);
     }
   }
 
@@ -396,7 +408,7 @@ export class HttpRequest {
 
       return response.data;
     } catch (error) {
-      return this.handleRequestError(error, url);
+      return this.handleRequestError(error, url, config);
     }
   }
 
