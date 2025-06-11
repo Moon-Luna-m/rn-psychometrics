@@ -200,8 +200,12 @@ export default function Search() {
       <SearchResultCard
         item={item}
         onPress={() => {
-          // TODO: 处理点击搜索结果
-          console.log("Selected test:", item.id);
+          router.push({
+            pathname: "/test/[id]",
+            params: {
+              id: item.id.toString(),
+            },
+          });
         }}
       />
     </View>

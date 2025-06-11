@@ -239,6 +239,12 @@ export default function Chat() {
 
   const handleStartTest = () => {
     // TODO: Handle test start
+    router.push({
+      pathname: "/test/[id]",
+      params: {
+        id: messages[messages.length - 1]?.testInfo?.id.toString() || "",
+      },
+    });
     console.log("Start test:", messages[messages.length - 1]?.testInfo);
   };
 

@@ -7,6 +7,7 @@ import { px2hp, px2wp } from "@/utils/common";
 import { AntDesign } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
+import { router } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -119,7 +120,12 @@ const TabContent = ({ route }: { route: TabRoute }) => {
       <SearchResultCard
         item={item}
         onPress={() => {
-          console.log("Selected test:", item.id);
+          router.push({
+            pathname: "/test/[id]",
+            params: {
+              id: item.id.toString(),
+            },
+          });
         }}
       />
     </View>

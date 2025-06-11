@@ -1,7 +1,5 @@
 import { icons } from "@/assets/static";
-import {
-  GetTestListByTypeResponse
-} from "@/services/testServices";
+import { GetTestListByTypeResponse } from "@/services/testServices";
 import {
   formatCompact,
   formatCurrency,
@@ -11,6 +9,7 @@ import {
 } from "@/utils/common";
 import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
+import { router } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -20,7 +19,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
+  View,
 } from "react-native";
 import StarIcon from "./StarIcon";
 
@@ -156,7 +155,18 @@ export default function TodayRecommend({
         contentContainerStyle={styles.scrollContent}
       >
         {data.map((item, index) => (
-          <RecommendCard key={index} item={item} />
+          <RecommendCard
+            key={index}
+            item={item}
+            onPress={() => {
+              router.push({
+                pathname: "/test/[id]",
+                params: {
+                  id: item.id.toString(),
+                },
+              });
+            }}
+          />
         ))}
       </ScrollView>
     </View>

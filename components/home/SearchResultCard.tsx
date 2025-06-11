@@ -15,25 +15,29 @@ import StarIcon from "./StarIcon";
 interface SearchResultCardProps {
   item: GetTestListByTypeResponse["list"][0];
   onPress?: () => void;
+  showIcon?: boolean;
 }
 
 export default function SearchResultCard({
   item,
   onPress,
+  showIcon = true,
 }: SearchResultCardProps) {
   const icon = icons[Number(item.image.split("/")[2].split(".")[0]) - 1];
   const { t } = useTranslation();
   return (
     <TouchableOpacity
-      style={styles.container}
+      style={[styles.container, !showIcon && { paddingTop: 16 }]}
       onPress={onPress}
       activeOpacity={0.7}
     >
       <View style={styles.content}>
-        <View style={styles.header}>
-          <View style={styles.iconContainer}>
-            <Image source={icon.icon} style={styles.icon} />
-          </View>
+        <View style={[styles.header]}>
+          {showIcon && (
+            <View style={styles.iconContainer}>
+              <Image source={icon.icon} style={styles.icon} />
+            </View>
+          )}
           <View style={styles.titleContainer}>
             <Text style={styles.title} numberOfLines={1}>
               {item.name}

@@ -1,6 +1,7 @@
 import { avatars, icons } from "@/assets/static";
 import { GetTestListByTypeResponse } from "@/services/testServices";
 import { px2hp, px2wp, randomPick } from "@/utils/common";
+import { router } from "expo-router";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Dimensions, Image, StyleSheet, Text, View } from "react-native";
@@ -61,7 +62,14 @@ export default function Popular({
       <View style={styles.content}>
         {data.map((item, index) => (
           <View key={index} style={styles.cardWrapper}>
-            <SearchResultCard item={item} />
+            <SearchResultCard item={item} onPress={() => {
+              router.push({
+                pathname: "/test/[id]",
+                params: {
+                  id: item.id.toString(),
+                },
+              });
+            }} />
           </View>
         ))}
       </View>
