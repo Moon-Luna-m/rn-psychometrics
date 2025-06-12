@@ -6,10 +6,12 @@ import FAQCard from "@/components/test/FAQCard";
 import FeatureCard from "@/components/test/FeatureCard";
 import GrowthPathCard from "@/components/test/GrowthPathCard";
 import Header from "@/components/test/Header";
+import PersonalizedAdvice from "@/components/test/PersonalizedAdvice";
 import PurchaseSheet from "@/components/test/PurchaseSheet";
 import RadarCard from "@/components/test/RadarCard";
 import ReportCard from "@/components/test/ReportCard";
 import ShareSheet from "@/components/test/ShareSheet";
+import SpiritualInspiration from "@/components/test/SpiritualInspiration";
 import TestInfoCard from "@/components/test/TestInfoCard";
 import TextProgressCard from "@/components/test/TextProgressCard";
 import TraitCard from "@/components/test/TraitCard";
@@ -19,21 +21,59 @@ import { LinearGradient } from "expo-linear-gradient";
 import React, { useState } from "react";
 import {
   Dimensions,
-  ScrollView,
+  Platform,
   Share,
   StyleSheet,
   Text,
   TouchableHighlight,
   View,
 } from "react-native";
+import Animated, {
+  interpolateColor,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue
+} from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
+const SCROLL_THRESHOLD = Platform.OS === "web" ? 180 : 120;
 
 export default function TestDetailsPage() {
   const insets = useSafeAreaInsets();
   const [showPurchase, setShowPurchase] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  const scrollY = useSharedValue(0);
+
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      scrollY.value = event.contentOffset.y;
+    },
+  });
+
+  const headerBackgroundAnimatedStyle = useAnimatedStyle(() => {
+    const backgroundColor = interpolateColor(
+      scrollY.value,
+      [0, SCROLL_THRESHOLD],
+      ["transparent", "#FFFFFF"]
+    );
+   
+    return {
+      backgroundColor: backgroundColor,
+    };
+  });
+
+  const headerColorAnimatedStyle = useAnimatedStyle(() => {
+    const color = interpolateColor(
+      scrollY.value,
+      [0, SCROLL_THRESHOLD],
+      ["#FFFFFF", "#0D120E"]
+    );
+
+    return {
+      color: color,
+    };
+  });
 
   // Mock data for demonstration
   const mockData = {
@@ -271,7 +311,7 @@ export default function TestDetailsPage() {
       ],
     },
     visualDashboard: {
-      value: 85,
+      value: 50,
       level: "Very high",
       completionRate: 82,
     },
@@ -318,11 +358,15 @@ export default function TestDetailsPage() {
         bg={mockData.header.bg}
         color={mockData.header.color}
         onPress={handleHeaderPress}
+        headerBackgroundAnimatedStyle={headerBackgroundAnimatedStyle}
+        headerColorAnimatedStyle={headerColorAnimatedStyle}
       />
-      <ScrollView
-        style={styles.scrollView}
+      <Animated.ScrollView
+        style={[styles.scrollView, { marginTop: insets.top + 44 }]}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.content}
+        onScroll={scrollHandler}
+        scrollEventThrottle={16}
       >
         <SearchResultCard
           showIcon={false}
@@ -352,7 +396,8 @@ export default function TestDetailsPage() {
           avatar={mockData.avatar.image}
           result={{
             title: "Innovative Leader",
-            description: "You have strong innovative spirit and leadership potential, are good at guiding the team, and keep an open mind to accept new ideas and challenges.",
+            description:
+              "You have strong innovative spirit and leadership potential, are good at guiding the team, and keep an open mind to accept new ideas and challenges.",
           }}
         />
         <BadgeCard badges={mockData.badges} />
@@ -375,7 +420,9 @@ export default function TestDetailsPage() {
         <AnalysisCard dimensions={mockData.dimensions} />
         <RadarCard data={mockData.radar} />
         <FAQCard faqs={mockData.faqs} />
-      </ScrollView>
+        <PersonalizedAdvice />
+        <SpiritualInspiration />
+      </Animated.ScrollView>
       <LinearGradient
         colors={["rgba(255,255,255,0)", "#FFFFFF"]}
         style={styles.buttonContainer}
@@ -414,8 +461,8 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    marginTop: -20,
     paddingHorizontal: 16,
+    paddingTop: Platform.OS !== "web" ? 120 : 180,
   },
   content: {
     gap: px2hp(20),
@@ -452,7 +499,6 @@ const styles = StyleSheet.create({
     fontFamily: "Outfit",
   },
   buyButton: {
-    flex: 2,
     height: 48,
     backgroundColor: "#19DBF2",
     borderRadius: 78,

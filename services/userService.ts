@@ -44,6 +44,9 @@ export interface UserInfo {
   sex: number;
   balance: number;
   birthday: string;
+  is_vip_active: boolean;
+  vip_expire_at: string;
+  vip: number;
 }
 
 // 谷歌登录返回信息

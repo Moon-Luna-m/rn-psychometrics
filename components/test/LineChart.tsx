@@ -90,7 +90,7 @@ export default function LineChart({
     <View style={[styles.container, { width, height }]}>
       <Svg width={width} height={height}>
         <Defs>
-          <LinearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
+          <LinearGradient id="gradient-line-chart" x1="0" y1="0" x2="0" y2="1">
             <Stop offset="0" stopColor="#00A1FF" stopOpacity="0.2" />
             <Stop offset="1" stopColor="#00A1FF" stopOpacity="0" />
           </LinearGradient>
@@ -99,7 +99,7 @@ export default function LineChart({
         {/* 绘制填充区域 */}
         <Path
           d={fillPath}
-          fill="url(#gradient)"
+          fill="url(#gradient-line-chart)"
         />
 
         {/* 绘制贝塞尔曲线 */}

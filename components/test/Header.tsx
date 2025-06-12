@@ -7,28 +7,66 @@ import {
   Dimensions,
   Image,
   ImageSourcePropType,
+  Platform,
   StyleSheet,
-  Text,
-  TextStyle,
   TouchableOpacity,
   View,
 } from "react-native";
+import Animated from "react-native-reanimated";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import Svg, { Path } from "react-native-svg";
 
 const { width } = Dimensions.get("window");
 const HEADER_HEIGHT = 240;
 const IMAGE_WIDTH = width * 0.888; // 333/375
 const IMAGE_HEIGHT = HEADER_HEIGHT * 1.085; // 260.54/240
 
+const AnimatedPath = Animated.createAnimatedComponent(Path);
+const AnimatedSvg = Animated.createAnimatedComponent(Svg);
+
+const BackArrow = ({ animatedProps }: { animatedProps: { color: string } }) => {
+  return (
+    <AnimatedSvg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      animatedProps={animatedProps}
+    >
+      <AnimatedPath
+        d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"
+        fill="currentColor"
+      />
+    </AnimatedSvg>
+  );
+};
+
+const AnimatedIonicons = Animated.createAnimatedComponent(Ionicons);
+
 interface HeaderProps {
   insetTop: number;
   bg: ImageSourcePropType;
   color: readonly [ColorValue, ColorValue];
   onPress?: (type: "share" | "collect") => void;
+  headerBackgroundAnimatedStyle: {
+    backgroundColor: string;
+  };
+  headerColorAnimatedStyle: {
+    color: string;
+  };
 }
 
-export default function Header({ insetTop, bg, color, onPress }: HeaderProps) {
+export default function Header({
+  insetTop,
+  bg,
+  color,
+  onPress,
+  headerColorAnimatedStyle,
+  headerBackgroundAnimatedStyle,
+}: HeaderProps) {
+  const insets = useSafeAreaInsets();
+
   return (
-    <>
+    <View style={{ position: "absolute", inset: 0 }}>
       <LinearGradient
         colors={color}
         locations={[0, 1]}
@@ -38,15 +76,33 @@ export default function Header({ insetTop, bg, color, onPress }: HeaderProps) {
       >
         <Image source={bg} style={styles.image} resizeMode="cover" />
       </LinearGradient>
-      <View style={[styles.header, { top: insetTop }]}>
+      <Animated.View
+        style={[
+          styles.header,
+          { paddingTop: insetTop, height: 44 + insetTop },
+          headerBackgroundAnimatedStyle,
+        ]}
+      >
         <TouchableOpacity
           style={styles.backContainer}
           onPress={() => router.back()}
           activeOpacity={0.5}
         >
-          <Ionicons name="arrow-back-outline" size={24} color="#fff" />
+          {Platform.OS === "web" ? (
+            <BackArrow animatedProps={headerColorAnimatedStyle} />
+          ) : (
+            <AnimatedIonicons
+              style={headerColorAnimatedStyle}
+              name="arrow-back-outline"
+              size={24}
+            />
+          )}
         </TouchableOpacity>
-        <Text style={styles.titleText}>Test Details</Text>
+        <View style={styles.titleContainer}>
+          <Animated.Text style={[styles.titleText, headerColorAnimatedStyle]}>
+            Test Details
+          </Animated.Text>
+        </View>
         <View style={styles.right}>
           <TouchableOpacity
             activeOpacity={0.5}
@@ -67,8 +123,8 @@ export default function Header({ insetTop, bg, color, onPress }: HeaderProps) {
             />
           </TouchableOpacity>
         </View>
-      </View>
-    </>
+      </Animated.View>
+    </View>
   );
 }
 
@@ -85,29 +141,39 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: "row",
-    height: 44,
     width: "100%",
     position: "absolute",
     left: 0,
-    paddingHorizontal: 16,
     justifyContent: "space-between",
     alignItems: "center",
   },
   backContainer: {
+    position: "absolute",
+    left: 16,
+    bottom: 0,
     height: 44,
     justifyContent: "center",
+    zIndex: 10,
+  },
+  titleContainer: {
+    position: "absolute",
+    width: "100%",
+    height: 44,
+    bottom: 0,
+    left: 0,
+    justifyContent: "center",
+    alignItems: "center",
   },
   titleText: {
-    position: "absolute",
-    left: 0,
-    right: 0,
-    paddingVertical: 10,
     fontSize: 18,
-    color: "#fff",
     fontWeight: "600",
-    textAlign: "center",
-  } as TextStyle,
+    color: "#fff",
+  },
   right: {
+    position: "absolute",
+    height: 44,
+    right: 16,
+    bottom: 0,
     flexDirection: "row",
     alignItems: "center",
     gap: 12,
