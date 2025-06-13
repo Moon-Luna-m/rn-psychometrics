@@ -1,9 +1,74 @@
 ---
 description: 
 globs: 
-alwaysApply: false
+alwaysApply: true
 ---
+Rule Name: en
+Description: 
 ### 代码生成规范
 1、UI风格应在ios、安卓、web端统一
 2、动画均采用react-native-reanimated库实现
 3、安装依赖均采用pnpm包管理器
+
+### 技术栈规范
+- 框架：React Native
+- 状态管理：Redux Toolkit
+- 导航：expo-router
+- UI组件库：react-native-paper
+- 动画：React Native Reanimated
+- 包管理器：pnpm
+- 手势库：react-native-gesture-handler
+
+### 代码风格规范
+1. 组件规范：
+   - 使用函数式组件和 Hooks
+   - 组件文件使用 .tsx 后缀
+   - 组件名采用大驼峰命名法
+   - 每个组件都应该有 Props 类型定义
+
+2. 样式规范：
+   - 使用 styled-components 进行样式管理
+   - 响应式设计必须兼容不同尺寸设备
+   - 颜色值统一从主题文件引入
+
+3. 目录结构：
+   ```
+    components/     # 可复用组件
+    app/       # 页面组件
+    store/        # Redux 状态管理
+    services/     # API 服务
+    hooks/        # 自定义 Hooks
+    utils/        # 工具函数
+   ```
+
+4. 命名规范：
+   - 文件夹：小写中划线
+   - 组件文件：大驼峰
+   - 工具函数：小驼峰
+   - 常量：大写下划线
+
+5. 注释规范：
+   - 组件必须包含功能说明注释
+   - 复杂逻辑必须添加注释
+   - API 接口必须注明参数类型
+
+6. 性能优化规范：
+   - 使用 useMemo 和 useCallback 优化性能
+   - 大列表使用 FlatList 实现
+   - 图片资源必须优化尺寸
+
+### 开发流程规范
+1. 版本控制：
+   - 遵循 Git Flow 工作流
+   - Commit 信息必须符合规范
+   - 重要功能必须创建分支开发
+
+2. 测试规范：
+   - 新功能必须编写单元测试
+   - 组件必须包含快照测试
+   - E2E测试覆盖关键流程
+
+3. 发布规范：
+   - 使用 semantic-release 管理版本
+   - 更新必须包含更新日志
+   - 发布前必须完成全面测试

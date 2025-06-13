@@ -13,11 +13,8 @@ export default function TestLayout() {
       <Stack.Screen
         name="start/[id]"
         options={{
-          presentation: "modal",
-          animation: "slide_from_bottom",
-          contentStyle: {
-            backgroundColor: '#fff',
-          },
+          presentation: "fullScreenModal",
+          gestureEnabled: false,
         }}
       />
     </Stack>

@@ -479,3 +479,19 @@ export const formatDuration = (
   const hours = minutes / 60;
   return `${hours.toFixed(1)} ${i18next.t('common.time.hours')}`;
 };
+
+/**
+ * 数字补零，在数字前方不足指定位数时补零
+ * @param number 要格式化的数字
+ * @param length 期望的总长度，默认为2
+ * @returns 补零后的字符串
+ * @example
+ * // 补零到2位
+ * padZero(5) // 返回 "05"
+ * padZero(10) // 返回 "10"
+ * // 补零到3位
+ * padZero(5, 3) // 返回 "005"
+ */
+export const padZero = (number: number | string, length: number = 2): string => {
+  return String(number).padStart(length, '0');
+};

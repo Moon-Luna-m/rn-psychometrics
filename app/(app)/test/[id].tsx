@@ -18,6 +18,7 @@ import TraitCard from "@/components/test/TraitCard";
 import VisualDashboard from "@/components/test/VisualDashboard";
 import { px2hp } from "@/utils/common";
 import { LinearGradient } from "expo-linear-gradient";
+import { router } from "expo-router";
 import React, { useState } from "react";
 import {
   Dimensions,
@@ -432,7 +433,15 @@ export default function TestDetailsPage() {
           style={styles.buyButton}
           underlayColor="#19DBF2"
           activeOpacity={0.5}
-          onPress={() => setShowPurchase(true)}
+          onPress={() => {
+            router.push({
+              pathname: "/test/start/[id]",
+              params: {
+                id: "1",
+              },
+            });
+            // setShowPurchase(true)
+          }}
         >
           <Text style={styles.buyButtonText}>Buy Test</Text>
         </TouchableHighlight>
