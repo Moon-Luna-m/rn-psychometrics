@@ -1,19 +1,19 @@
-import React, { useState } from "react";
+import React from "react";
 import {
-    Dimensions,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 const windowWidth = Dimensions.get("window").width;
 
 interface EmotionOption {
   id: string;
-  label: string;
-  size: number;
-  position: {
+  content: string;
+  size?: number;
+  position?: {
     top?: number;
     left?: number;
     right?: number;
@@ -24,59 +24,34 @@ interface EmotionOption {
 interface EmotionChoiceProps {
   question: string;
   description: string;
+  options: EmotionOption[];
+  selectedEmotion?: string | null;
   onSelect?: (value: string) => void;
 }
 
-const EMOTIONS: EmotionOption[] = [
-  {
-    id: "communicator",
-    label: "Communicator",
-    size: 120,
-    position: { top: 20, left: 13 },
-  },
-  {
-    id: "collaborator",
-    label: "Collaborator",
-    size: 100,
-    position: { top: 195, left: 33 },
-  },
-  {
-    id: "executor",
-    label: "Executor",
-    size: 100,
-    position: { top: 175, right: 55 },
-  },
-  {
-    id: "thinker",
-    label: "Thinker",
-    size: 99,
-    position: { top: 10, right: 49 },
-  },
-  {
-    id: "innovator",
-    label: "Innovator",
-    size: 80,
-    position: { top: 113, left: 133 },
-  },
-  {
-    id: "leader",
-    label: "Leader",
-    size: 60,
-    position: { top: 95, right: -5 },
-  },
+// 默认布局配置
+const DEFAULT_LAYOUTS = [
+  { size: 120, position: { top: 20, left: 13 } },
+  { size: 100, position: { top: 195, left: 33 } },
+  { size: 100, position: { top: 175, right: 55 } },
+  { size: 99, position: { top: 10, right: 49 } },
+  { size: 80, position: { top: 113, left: 133 } },
+  { size: 60, position: { top: 95, right: -5 } },
 ];
 
 export const EmotionChoice: React.FC<EmotionChoiceProps> = ({
   question,
   description,
+  options,
+  selectedEmotion,
   onSelect,
 }) => {
-  const [selectedEmotion, setSelectedEmotion] = useState<string | null>(null);
-
-  const handleSelect = (id: string) => {
-    setSelectedEmotion(id);
-    onSelect?.(id);
-  };
+  // 将选项与默认布局配置合并
+  const emotionsWithLayout = options.map((option, index) => ({
+    ...option,
+    size: option.size || DEFAULT_LAYOUTS[index % DEFAULT_LAYOUTS.length].size,
+    position: option.position || DEFAULT_LAYOUTS[index % DEFAULT_LAYOUTS.length].position,
+  }));
 
   return (
     <View style={styles.container}>
@@ -90,7 +65,7 @@ export const EmotionChoice: React.FC<EmotionChoiceProps> = ({
           <View style={styles.circle2} />
         </View>
 
-        {EMOTIONS.map((emotion) => (
+        {emotionsWithLayout.map((emotion) => (
           <TouchableOpacity
             key={emotion.id}
             style={[
@@ -103,7 +78,7 @@ export const EmotionChoice: React.FC<EmotionChoiceProps> = ({
               selectedEmotion === emotion.id && styles.selectedEmotion,
             ]}
             activeOpacity={0.7}
-            onPress={() => handleSelect(emotion.id)}
+            onPress={() => onSelect?.(emotion.id)}
           >
             <Text
               style={[
@@ -114,7 +89,7 @@ export const EmotionChoice: React.FC<EmotionChoiceProps> = ({
                 selectedEmotion === emotion.id && styles.selectedEmotionText,
               ]}
             >
-              {emotion.label}
+              {emotion.content}
             </Text>
           </TouchableOpacity>
         ))}

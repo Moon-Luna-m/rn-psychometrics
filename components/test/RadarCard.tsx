@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
 import Svg, { Circle, G, Path, Text as SvgText } from "react-native-svg";
 
@@ -7,6 +8,32 @@ const CHART_SIZE = width - 72; // 16px padding on each side + 20px card padding
 const CENTER_X = CHART_SIZE / 2;
 const CENTER_Y = CHART_SIZE / 2;
 const RADIUS = Math.min(CENTER_X, CENTER_Y) * 0.8;
+
+// 获取标签简写
+const getAbbreviation = (label: string): string => {
+  // 处理特殊情况
+  const specialCases: Record<string, string> = {
+    "Leadership": "LS",
+    "Role Perception": "RP",
+    "Communication": "CM",
+    "Problem Solving": "PS",
+    "Team Work": "TW",
+    "Decision Making": "DM",
+    "Emotional Intelligence": "EI",
+    "Critical Thinking": "CT",
+  };
+
+  if (specialCases[label]) {
+    return specialCases[label];
+  }
+
+  // 默认处理：取每个单词的首字母
+  return label
+    .split(" ")
+    .map(word => word[0])
+    .join("")
+    .toUpperCase();
+};
 
 interface RadarCardProps {
   data: {
@@ -17,6 +44,7 @@ interface RadarCardProps {
 }
 
 export default function RadarCard({ data }: RadarCardProps) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = React.useState<"radar" | "heatmap">(
     "radar"
   );
@@ -48,10 +76,9 @@ export default function RadarCard({ data }: RadarCardProps) {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Multi-dimensional analysis</Text>
+        <Text style={styles.title}>{t("test.components.radar.title")}</Text>
         <Text style={styles.subtitle}>
-          Comprehensively evaluate your performance and development potential in
-          each dimension
+          {t("test.components.radar.subtitle")}
         </Text>
       </View>
 
@@ -136,7 +163,7 @@ export default function RadarCard({ data }: RadarCardProps) {
                 alignmentBaseline="middle"
                 fontFamily="Outfit"
               >
-                {item.label}
+                {getAbbreviation(item.label)}
               </SvgText>
             );
           })}

@@ -1,3 +1,4 @@
+import Collect from "@/components/test/icons/CollectIcon";
 import {
   GetTestListByTypeResponse,
   testService,
@@ -32,8 +33,8 @@ const useFavoritesList = () => {
   const [data, setData] = useState<FavoriteItem[]>([]);
 
   // 刷新数据
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
+  const onRefresh = useCallback(async (loading?: boolean) => {
+    setRefreshing(loading ?? true);
     try {
       const res = await testService.getUserFavorite({
         page: 1,
@@ -75,7 +76,7 @@ const useFavoritesList = () => {
 
   // 初始化加载
   useEffect(() => {
-    onRefresh();
+    onRefresh(false);
   }, []);
 
   return {
@@ -93,7 +94,7 @@ function FavoriteCard({
   onRefresh,
 }: {
   item: FavoriteItem;
-  onRefresh: () => void;
+  onRefresh: (loading?: boolean) => void;
 }) {
   const { t } = useTranslation();
 
@@ -132,12 +133,12 @@ function FavoriteCard({
               .deleteTestFromFavorite({ test_id: item.id })
               .then((res) => {
                 if (res.code === 200) {
-                  onRefresh();
+                  onRefresh(false);
                 }
               });
           }}
         >
-          <Ionicons name="bookmarks" size={16} color="#EB5735" />
+          <Collect />
         </TouchableOpacity>
       </View>
       <View style={styles.cardFooter}>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from "react-i18next";
 import { Image, StyleSheet, Text, View } from "react-native";
 
 interface FAQ {
@@ -12,9 +13,11 @@ interface FAQCardProps {
 }
 
 export default function FAQCard({ faqs }: FAQCardProps) {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Frequently asked questions</Text>
+      <Text style={styles.title}>{t("test.components.faq.title")}</Text>
       <View style={styles.faqContainer}>
         {faqs.map((faq, index) => (
           <View key={index} style={styles.faqItem}>

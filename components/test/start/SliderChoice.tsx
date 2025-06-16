@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   Dimensions,
   NativeScrollEvent,
@@ -19,8 +19,8 @@ interface SliderChoiceProps {
   description: string;
   minValue?: number;
   maxValue?: number;
-  value?: number;
-  onValueChange?: (value: number) => void;
+  value: number;
+  onValueChange: (value: number) => void;
   minLabel?: string;
   maxLabel?: string;
 }
@@ -30,15 +30,22 @@ export const SliderChoice: React.FC<SliderChoiceProps> = ({
   description,
   minValue = 0,
   maxValue = 10,
-  value = 0,
+  value,
   onValueChange,
   minLabel = "Rarely",
   maxLabel = "Often",
 }) => {
-  const [currentValue, setCurrentValue] = useState(value);
   const scrollViewRef = useRef<ScrollView>(null);
   const scrollTimeoutRef = useRef<number>(null);
-  const [changed, setChanged] = useState(false);
+
+  // 初始化时滚动到当前值的位置
+  useEffect(() => {
+    const offset = value * 10 * MARK_WIDTH;
+    scrollViewRef.current?.scrollTo({
+      x: offset,
+      animated: false,
+    });
+  }, []);
 
   // 计算滚动位置对应的值
   const getValueFromOffset = (offset: number): number => {
@@ -60,10 +67,8 @@ export const SliderChoice: React.FC<SliderChoiceProps> = ({
       animated: true,
     });
 
-    if (newValue !== currentValue) {
-      setCurrentValue(newValue);
-      onValueChange?.(newValue);
-      setChanged(true);
+    if (newValue !== value) {
+      onValueChange(newValue);
     }
   };
 
@@ -144,12 +149,12 @@ export const SliderChoice: React.FC<SliderChoiceProps> = ({
             <Text
               style={[
                 styles.currentValue,
-                changed && {
+                value !== 0 && {
                   color: "#19DBF2",
                 },
               ]}
             >
-              {currentValue}
+              {value}
             </Text>
             <Text style={styles.maxValue}>/</Text>
             <Text style={styles.maxValue}>10</Text>

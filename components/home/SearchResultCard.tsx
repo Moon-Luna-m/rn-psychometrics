@@ -16,12 +16,14 @@ interface SearchResultCardProps {
   item: GetTestListByTypeResponse["list"][0];
   onPress?: () => void;
   showIcon?: boolean;
+  disabled?: boolean;
 }
 
 export default function SearchResultCard({
   item,
   onPress,
   showIcon = true,
+  disabled = false,
 }: SearchResultCardProps) {
   const icon = icons[Number(item.image.split("/")[2].split(".")[0]) - 1];
   const { t } = useTranslation();
@@ -30,6 +32,7 @@ export default function SearchResultCard({
       style={[styles.container, !showIcon && { paddingTop: 16 }]}
       onPress={onPress}
       activeOpacity={0.7}
+      disabled={disabled}
     >
       <View style={styles.content}>
         <View style={[styles.header]}>

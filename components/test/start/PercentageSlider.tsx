@@ -1,0 +1,181 @@
+import Slider from '@react-native-community/slider';
+import React, { useState } from 'react';
+import { Platform, StyleSheet, Text, View } from 'react-native';
+
+interface Option {
+  id: string;
+  title: string;
+}
+
+interface PercentageSliderProps {
+  question: string;
+  description: string;
+  options: Option[];
+  values: Record<string, number>;
+  onValuesChange: (values: Record<string, number>) => void;
+}
+
+export function PercentageSlider({
+  question,
+  description,
+  options,
+  values,
+  onValuesChange,
+}: PercentageSliderProps) {
+  // 用于跟踪滑动过程中的临时值
+  const [tempValues, setTempValues] = useState<Record<string, number>>(values);
+
+  // 处理滑动过程中的值变化
+  const handleValueChange = (id: string, newValue: number) => {
+    setTempValues(prev => ({
+      ...prev,
+      [id]: newValue,
+    }));
+  };
+
+  // 处理滑动完成时的值变化
+  const handleSlidingComplete = (id: string, finalValue: number) => {
+    onValuesChange({
+      ...values,
+      [id]: finalValue,
+    });
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.question}>{question}</Text>
+      <Text style={styles.description}>{description}</Text>
+
+      {options.map((option) => (
+        <View key={option.id} style={styles.sliderCard}>
+          <View style={styles.titleContainer}>
+            <Text style={styles.title}>{option.title}</Text>
+            <Text style={styles.percentage}>{Math.round(tempValues[option.id] || 0)}%</Text>
+          </View>
+
+          <View style={styles.sliderContainer}>
+            <View style={styles.sliderTrack}>
+              <View 
+                style={[
+                  styles.sliderProgress, 
+                  { width: `${tempValues[option.id] || 0}%` }
+                ]} 
+              />
+            </View>
+            <Slider
+              style={[styles.slider, { zIndex: 1 }]}
+              minimumValue={0}
+              maximumValue={100}
+              value={values[option.id] || 0}
+              onValueChange={(value) => handleValueChange(option.id, value)}
+              onSlidingComplete={(value) => handleSlidingComplete(option.id, value)}
+              minimumTrackTintColor="transparent"
+              maximumTrackTintColor="transparent"
+              thumbImage={require("@/assets/images/test/slider-thumb.png")}
+            />
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 24,
+  },
+  question: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#0C0A09',
+    marginBottom: 8,
+    fontFamily: 'Outfit',
+  },
+  description: {
+    fontSize: 14,
+    color: '#7F909F',
+    marginBottom: 32,
+    fontFamily: 'Outfit',
+  },
+  sliderCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 14,
+    marginBottom: 24,
+    boxShadow: '0px 4px 11px 0px rgba(36, 164, 179, 0.12)',
+    ...Platform.select({
+      ios: {
+        shadowColor: 'rgba(36, 164, 179, 0.12)',
+        shadowOffset: {
+          width: 0,
+          height: 4,
+        },
+        shadowOpacity: 1,
+        shadowRadius: 11,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
+  },
+  titleContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  title: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#0C0A09',
+    fontFamily: 'Outfit',
+    textTransform: 'uppercase',
+  },
+  percentage: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#686D76',
+    fontFamily: 'Outfit',
+  },
+  sliderContainer: {
+    height: 22,
+    justifyContent: 'center',
+  },
+  sliderTrack: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    height: 12,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 100,
+    overflow: 'hidden',
+    boxShadow: '6px 4px 17px 0px rgba(0, 0, 0, 0.06)',
+    ...Platform.select({
+      ios: {
+        shadowColor: 'rgba(0, 0, 0, 0.06)',
+        shadowOffset: {
+          width: 6,
+          height: 4,
+        },
+        shadowOpacity: 1,
+        shadowRadius: 17,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
+  },
+  sliderProgress: {
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    backgroundColor: '#19DBF2',
+    borderRadius: 100,
+  },
+  slider: {
+    width: '100%',
+    height: 22,
+  },
+}); 

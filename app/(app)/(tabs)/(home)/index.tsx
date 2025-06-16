@@ -57,7 +57,7 @@ export default function () {
     useCallback(() => {
       getList();
       // 页面聚焦时滚动到顶部
-      scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+      scrollViewRef.current?.scrollTo({ y: 0, animated: false });
     }, [])
   );
 

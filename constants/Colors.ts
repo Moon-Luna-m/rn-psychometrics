@@ -24,3 +24,48 @@ export const Colors = {
     tabIconSelected: tintColorDark,
   },
 };
+
+import { ColorGroup } from "../components/test/start/ColorChoice";
+
+export const DEFAULT_COLOR_GROUPS: ColorGroup[] = [
+  {
+    colors: ["#FFFAE7", "#FEF8DE", "#FDF6D9", "#FCF6D2", "#FCF3CA", "#FDF2C4", "#FCF0BE", "#FBEFB5"],
+    label: "黄色系",
+  },
+  {
+    colors: ["#FCF2E8", "#FCEFDF", "#FCEBD9", "#FAE8D2", "#FAE2C8", "#FAE0C5", "#F9DCBC", "#F9D9B3"],
+    label: "橙色系",
+  },
+  {
+    colors: ["#FBE9E7", "#FAE2DE", "#F9DCD8", "#F8D5CF", "#F7CEC8", "#F5C8C2", "#F6C1BB", "#F5BAB2"],
+    label: "红色系",
+  },
+  {
+    colors: ["#FBE6EF", "#FADEEA", "#F8D8E5", "#F6CFE1", "#F5C8DD", "#F6C2D8", "#F4BAD3", "#F3B3CE"],
+    label: "粉红系",
+  },
+  {
+    colors: ["#FBE6F7", "#FADEF5", "#F8D7F2", "#F7CFF1", "#F6C8ED", "#F5C2ED", "#F4B9E7", "#F3B3E7"],
+    label: "紫红系",
+  },
+  {
+    colors: ["#F5E6FD", "#F3DFFB", "#F1D7FC", "#F0CFFC", "#ECC7FB", "#E9C2FB", "#E7B9F9", "#E4B2FB"],
+    label: "紫色系",
+  },
+  {
+    colors: ["#EFE5FD", "#EBDEFC", "#E7D7FC", "#E2CFFC", "#DEC7FB", "#D9C2FA", "#D5B8FA", "#D0B0F6"],
+    label: "深紫系",
+  },
+  {
+    colors: ["#E8E6FC", "#E1DEFD", "#DBD7FC", "#D4CEFA", "#CDC6FA", "#C4BEFA", "#BEB7FA", "#B7AFFA"],
+    label: "蓝紫系",
+  },
+  {
+    colors: ["#E7E8FD", "#DEDFFD", "#D7DAFD", "#D0D3FC", "#C7CEFC", "#BFC4FB", "#B9BFFB", "#B1B9FA"],
+    label: "浅蓝系",
+  },
+  {
+    colors: ["#E7F1FD", "#E0EBFD", "#DAE9FE", "#D2E4FC", "#CBE0FD", "#C5DCFC", "#BED8FB", "#B6D3FB"],
+    label: "天蓝系",
+  },
+];

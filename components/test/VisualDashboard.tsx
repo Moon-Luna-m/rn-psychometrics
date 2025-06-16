@@ -1,5 +1,6 @@
 import CircleProgress from "@/utils/circleProgress";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Image, StyleSheet, Text, View } from "react-native";
 
 interface VisualDashboardProps {
@@ -18,11 +19,15 @@ const VisualDashboard: React.FC<VisualDashboardProps> = ({
   level,
   completionRate,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Comprehensive ability</Text>
-        <Text style={styles.subtitle}>Comprehensive indicators</Text>
+        <Text style={styles.title}>{t("test.components.visualDashboard.title")}</Text>
+        <Text style={styles.subtitle}>
+          {t("test.components.visualDashboard.subtitle")}
+        </Text>
       </View>
 
       <View style={[styles.dashboardContainer]}>
@@ -78,15 +83,21 @@ const VisualDashboard: React.FC<VisualDashboardProps> = ({
 
       <View style={styles.infoContainer}>
         <View style={styles.infoItem}>
-          <Text style={styles.infoLabel}>Current value</Text>
+          <Text style={styles.infoLabel}>
+            {t("test.components.visualDashboard.info.currentValue")}
+          </Text>
           <Text style={styles.infoValue}>{value}</Text>
         </View>
         <View style={styles.infoItem}>
-          <Text style={styles.infoLabel}>Level</Text>
+          <Text style={styles.infoLabel}>
+            {t("test.components.visualDashboard.info.level")}
+          </Text>
           <Text style={[styles.infoValue, styles.levelValue]}>{level}</Text>
         </View>
         <View style={styles.infoItem}>
-          <Text style={styles.infoLabel}>Completion rate</Text>
+          <Text style={styles.infoLabel}>
+            {t("test.components.visualDashboard.info.completionRate")}
+          </Text>
           <Text style={styles.infoValue}>{completionRate}%</Text>
         </View>
       </View>
@@ -163,6 +174,7 @@ const styles = StyleSheet.create({
   infoItem: {
     flex: 1,
     alignItems: "center",
+    justifyContent: "space-between",
     gap: 8,
   },
   infoLabel: {
@@ -176,6 +188,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "600",
     color: "#0C0A09",
+    lineHeight: 30
   },
   levelValue: {
     fontSize: 15,

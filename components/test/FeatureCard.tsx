@@ -1,7 +1,10 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Image, StyleSheet, Text, View } from "react-native";
 
 export default function FeatureCard() {
+  const { t } = useTranslation();
+  
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
@@ -11,9 +14,9 @@ export default function FeatureCard() {
         />
       </View>
       <View style={styles.header}>
-        <Text style={styles.title}>What is your personality type?</Text>
+        <Text style={styles.title}>{t("test.components.feature.title")}</Text>
         <Text style={styles.subtitle}>
-          Get your own personality tag and detailed analysis
+          {t("test.components.feature.subtitle")}
         </Text>
       </View>
     </View>

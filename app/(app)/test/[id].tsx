@@ -3,23 +3,28 @@ import AnalysisCard from "@/components/test/AnalysisCard";
 import AvatarCard from "@/components/test/AvatarCard";
 import BadgeCard from "@/components/test/BadgeCard";
 import FAQCard from "@/components/test/FAQCard";
-import FeatureCard from "@/components/test/FeatureCard";
 import GrowthPathCard from "@/components/test/GrowthPathCard";
 import Header from "@/components/test/Header";
 import PersonalizedAdvice from "@/components/test/PersonalizedAdvice";
 import PurchaseSheet from "@/components/test/PurchaseSheet";
 import RadarCard from "@/components/test/RadarCard";
-import ReportCard from "@/components/test/ReportCard";
 import ShareSheet from "@/components/test/ShareSheet";
 import SpiritualInspiration from "@/components/test/SpiritualInspiration";
 import TestInfoCard from "@/components/test/TestInfoCard";
 import TextProgressCard from "@/components/test/TextProgressCard";
 import TraitCard from "@/components/test/TraitCard";
 import VisualDashboard from "@/components/test/VisualDashboard";
-import { px2hp } from "@/utils/common";
+import {
+  BlockType,
+  TestDetailResponse,
+  testService,
+} from "@/services/testServices";
+import { formatDuration, px2hp } from "@/utils/common";
+import { getTestTypeKey } from "@/utils/reportTransformer";
 import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
-import React, { useState } from "react";
+import { router, useLocalSearchParams } from "expo-router";
+import React, { Fragment, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dimensions,
   Platform,
@@ -33,7 +38,7 @@ import Animated, {
   interpolateColor,
   useAnimatedScrollHandler,
   useAnimatedStyle,
-  useSharedValue
+  useSharedValue,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -41,11 +46,13 @@ const { width } = Dimensions.get("window");
 const SCROLL_THRESHOLD = Platform.OS === "web" ? 180 : 120;
 
 export default function TestDetailsPage() {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [showPurchase, setShowPurchase] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const scrollY = useSharedValue(0);
-
+  const [testData, setTestData] = useState<TestDetailResponse | null>(null);
+  const { id } = useLocalSearchParams();
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
       scrollY.value = event.contentOffset.y;
@@ -58,7 +65,7 @@ export default function TestDetailsPage() {
       [0, SCROLL_THRESHOLD],
       ["transparent", "#FFFFFF"]
     );
-   
+
     return {
       backgroundColor: backgroundColor,
     };
@@ -87,9 +94,9 @@ export default function TestDetailsPage() {
       estimatedTime: "30",
       source: "MBTI",
       tags: [
-        "Personality analysis",
-        "Psychological assessment",
-        "Self-awareness",
+        t("test.tags.personalityAnalysis"),
+        t("test.tags.psychologicalAssessment"),
+        t("test.tags.selfAwareness"),
       ],
     },
     avatar: {
@@ -104,53 +111,53 @@ export default function TestDetailsPage() {
     traits: [
       {
         icon: require("@/assets/images/test/trait1.png"),
-        label: "Innovative thinking",
+        label: t("test.traits.innovativeThinking"),
         value: 85,
         color: "#8257E5",
-        description: "Your innovative thinking",
+        description: t("test.traits.innovativeThinkingDesc"),
       },
       {
         icon: require("@/assets/images/test/trait2.png"),
-        label: "Leadership",
+        label: t("test.traits.leadership"),
         value: 75,
         color: "#04D361",
-        description: "You excel in leadership",
+        description: t("test.traits.leadershipDesc"),
       },
       {
         icon: require("@/assets/images/test/trait3.png"),
-        label: "Team Builder",
+        label: t("test.traits.teamBuilder"),
         value: 90,
         color: "#FF963A",
-        description: "You are a great team builder",
+        description: t("test.traits.teamBuilderDesc"),
       },
     ],
     dimensions: [
       {
-        label: "Leadership",
+        label: t("test.dimensions.leadership"),
         value: 85,
         color: "#AB8AFF",
         trend: "up" as any,
       },
       {
-        label: "Role Perception",
+        label: t("test.dimensions.rolePerception"),
         value: 70,
         color: "#FFD76F",
         trend: "down" as any,
       },
       {
-        label: "Values",
+        label: t("test.dimensions.values"),
         value: 90,
         color: "#67C7FF",
         trend: "down" as any,
       },
       {
-        label: "Positiveness",
+        label: t("test.dimensions.positiveness"),
         value: 95,
         color: "#00CEB6",
         trend: "up" as any,
       },
       {
-        label: "Emotional Management",
+        label: t("test.dimensions.emotionalManagement"),
         value: 45,
         color: "#FF8FAF",
         trend: "down" as any,
@@ -158,42 +165,42 @@ export default function TestDetailsPage() {
     ],
     radar: [
       {
-        label: "Logical Thinking",
+        label: t("test.radar.logicalThinking"),
         value: 82.1,
         color: "#8965E5",
       },
       {
-        label: "Execution Ability",
+        label: t("test.radar.executionAbility"),
         value: 92.3,
         color: "#FF6692",
       },
       {
-        label: "Decision-Making and Judgment",
+        label: t("test.radar.decisionMaking"),
         value: 80.5,
         color: "#12B282",
       },
       {
-        label: "Emotional Management",
+        label: t("test.radar.emotionalManagement"),
         value: 86.2,
         color: "#FF52F3",
       },
       {
-        label: "Learning and Adaptability",
+        label: t("test.radar.learningAdaptability"),
         value: 88.4,
         color: "#00C3FF",
       },
       {
-        label: "Teamwork and Collaboration",
+        label: t("test.radar.teamwork"),
         value: 79.6,
         color: "#5289FF",
       },
       {
-        label: "Communication and Expression",
+        label: t("test.radar.communication"),
         value: 93.6,
         color: "#8DC222",
       },
       {
-        label: "Innovative Thinking / Creativity",
+        label: t("test.radar.innovativeThinking"),
         value: 97.4,
         color: "#FFC966",
       },
@@ -201,77 +208,74 @@ export default function TestDetailsPage() {
     faqs: [
       {
         icon: require("@/assets/images/test/faq.png"),
-        question: "Is the test scientifically based?",
-        answer:
-          "Our assessment is based on psychological research and expert advice and has a certain reference value.",
+        question: t("test.faqs.scientific.question"),
+        answer: t("test.faqs.scientific.answer"),
       },
       {
         icon: require("@/assets/images/test/faq.png"),
-        question: "Are the test results accurate?",
-        answer:
-          "The test results are for reference only. The real you is more complex and unique than any test.",
+        question: t("test.faqs.accuracy.question"),
+        answer: t("test.faqs.accuracy.answer"),
       },
       {
         icon: require("@/assets/images/test/faq.png"),
-        question: "How long does it take to complete?",
-        answer:
-          "It takes about 8 minutes. It is recommend to complete it in a quiet environment to obtain more accurate results.",
+        question: t("test.faqs.duration.question"),
+        answer: t("test.faqs.duration.answer"),
       },
     ],
     badges: [
       {
         icon: require("@/assets/images/badges/creative-thinking.png"),
-        title: "Creative Thinking",
-        description: "You excel in Innovative Thinking",
+        title: t("test.badges.creativeThinking.title"),
+        description: t("test.badges.creativeThinking.description"),
       },
       {
         icon: require("@/assets/images/badges/adaptability.png"),
-        title: "Adaptability",
-        description: "You excel in Adaptability",
+        title: t("test.badges.adaptability.title"),
+        description: t("test.badges.adaptability.description"),
       },
       {
         icon: require("@/assets/images/badges/leadership.png"),
-        title: "Leadership",
-        description: "You excel in Leadership",
+        title: t("test.badges.leadership.title"),
+        description: t("test.badges.leadership.description"),
       },
       {
         icon: require("@/assets/images/badges/team-builder.png"),
-        title: "Team Builder",
-        description: "You excel in Team Building",
+        title: t("test.badges.teamBuilder.title"),
+        description: t("test.badges.teamBuilder.description"),
       },
       {
         icon: require("@/assets/images/badges/communicator.png"),
-        title: "Master Communicator",
-        description: "You excel in Communication",
+        title: t("test.badges.communicator.title"),
+        description: t("test.badges.communicator.description"),
       },
       {
         icon: require("@/assets/images/badges/learner.png"),
-        title: "Student Learner",
-        description: "You excel in Learning",
+        title: t("test.badges.learner.title"),
+        description: t("test.badges.learner.description"),
       },
     ],
     textProgress: {
-      title: "Summary of psychological analysis",
-      subtitle: "Analysis and guidance from professional psychologists",
+      title: t("test.textProgress.title"),
+      subtitle: t("test.textProgress.subtitle"),
       items: [
         {
-          text: "Everyone is unique, and your combination of personality traits makes you who you are today.",
+          text: t("test.textProgress.items.unique"),
           color: "#00A1FF",
         },
         {
-          text: "Understanding your strengths and room for growth is an important starting point for personal development.",
+          text: t("test.textProgress.items.understanding"),
           color: "#00CEB6",
         },
         {
-          text: "Remember, personality traits are neither good nor bad, the key is how to play to your strengths.",
+          text: t("test.textProgress.items.traits"),
           color: "#FFB900",
         },
         {
-          text: "Continuous self-reflection and learning will help you go further on the road of life.",
+          text: t("test.textProgress.items.reflection"),
           color: "#FF6692",
         },
         {
-          text: "Believe in yourself, embrace change, your potential is far greater than you think",
+          text: t("test.textProgress.items.potential"),
           color: "#8965E5",
         },
       ],
@@ -280,42 +284,90 @@ export default function TestDetailsPage() {
       currentStage: 3,
       stages: [
         {
-          title: "Self-awareness",
+          title: t("test.growthPath.selfAwareness.title"),
           color: "#90FF5D",
           stage: 1,
-          description: "Understanding yourself and your unique traits",
+          description: t("test.growthPath.selfAwareness.description"),
         },
         {
-          title: "Skill Development",
+          title: t("test.growthPath.skillDevelopment.title"),
           color: "#39DD72",
           stage: 2,
-          description: "Building and enhancing your core competencies",
+          description: t("test.growthPath.skillDevelopment.description"),
         },
         {
-          title: "Practical application",
+          title: t("test.growthPath.practicalApplication.title"),
           color: "#29DDED",
           stage: 3,
-          description: "Applying your skills in real-world situations",
+          description: t("test.growthPath.practicalApplication.description"),
         },
         {
-          title: "Continuous optimization",
+          title: t("test.growthPath.optimization.title"),
           color: "#2C8BFF",
           stage: 4,
-          description: "Refining and improving your abilities",
+          description: t("test.growthPath.optimization.description"),
         },
         {
-          title: "Influencing others",
+          title: t("test.growthPath.influence.title"),
           color: "#7550E5",
           stage: 5,
-          description: "Making a positive impact on those around you",
+          description: t("test.growthPath.influence.description"),
         },
       ],
     },
     visualDashboard: {
       value: 50,
-      level: "Very high",
+      level: t("test.components.visualDashboard.level"),
       completionRate: 82,
     },
+  };
+
+  const renderComponent = (type: BlockType, data?: any) => {
+    switch (type) {
+      case "MatchingResultBlock":
+        return <AvatarCard />;
+      case "KeywordTagBlock":
+        return <TraitCard traits={data ?? mockData.traits} />;
+      case "RadarChartBlock":
+        return <RadarCard data={data ?? mockData.radar} />;
+      case "QuoteImageBlock":
+        return <SpiritualInspiration />;
+      case "RecommendationBox":
+        return <PersonalizedAdvice />;
+      case "BadgeBlock":
+        return <BadgeCard badges={data ?? mockData.badges} />;
+      case "GrowthPathBlock":
+        return (
+          <GrowthPathCard
+            currentStage={
+              data?.currentStage ?? mockData.growthPath.currentStage
+            }
+            stages={data?.stages ?? mockData.growthPath.stages}
+          />
+        );
+      case "TextProgressBlock":
+        return (
+          <TextProgressCard
+            title={data?.title ?? mockData.textProgress.title}
+            subtitle={data?.subtitle ?? mockData.textProgress.subtitle}
+            items={data?.items ?? mockData.textProgress.items}
+          />
+        );
+      case "VisualMeterBlock":
+        return (
+          <VisualDashboard
+            value={data?.value ?? mockData.visualDashboard.value}
+            level={data?.level ?? mockData.visualDashboard.level}
+            completionRate={
+              data?.completionRate ?? mockData.visualDashboard.completionRate
+            }
+          />
+        );
+      case "MultiDimensionalBlock":
+        return (
+          <AnalysisCard dimensions={data?.dimensions ?? mockData.dimensions} />
+        );
+    }
   };
 
   const handlePurchase = (method: string) => {
@@ -326,9 +378,9 @@ export default function TestDetailsPage() {
   const handleShare = async (method: string) => {
     try {
       const result = await Share.share({
-        message: "Check out this amazing personality test!",
+        message: t("test.share.message"),
         url: "https://example.com/test",
-        title: "Personality Test",
+        title: t("test.share.title"),
       });
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
@@ -344,13 +396,35 @@ export default function TestDetailsPage() {
     }
   };
 
-  const handleHeaderPress = (type: "share" | "collect") => {
+  const handleHeaderPress = async (type: "share" | "collect") => {
     if (type === "share") {
       setShowShare(true);
     } else if (type === "collect") {
-      console.log("collect");
+      if (!testData) return;
+      let res: any;
+      if (testData?.is_favorited) {
+        res = await testService.deleteTestFromFavorite({
+          test_id: testData.id,
+        });
+      } else {
+        res = await testService.addTestToFavorite({ test_id: testData.id });
+      }
+      if (res.code === 200) {
+        setTestData({ ...testData, is_favorited: !testData.is_favorited });
+      }
     }
   };
+
+  useEffect(() => {
+    const getTestData = async () => {
+      const response = await testService.getTestList({ id: Number(id) });
+      if (response.code === 200) {
+        setTestData(response.data);
+        console.log("testData", response.data);
+      }
+    };
+    getTestData();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -361,6 +435,7 @@ export default function TestDetailsPage() {
         onPress={handleHeaderPress}
         headerBackgroundAnimatedStyle={headerBackgroundAnimatedStyle}
         headerColorAnimatedStyle={headerColorAnimatedStyle}
+        isCollect={testData?.is_favorited}
       />
       <Animated.ScrollView
         style={[styles.scrollView, { marginTop: insets.top + 44 }]}
@@ -369,60 +444,39 @@ export default function TestDetailsPage() {
         onScroll={scrollHandler}
         scrollEventThrottle={16}
       >
-        <SearchResultCard
-          showIcon={false}
-          item={{
-            id: 1,
-            type_id: 1,
-            name: "Pathways of Personality: MBTI Snapshot",
-            desc: "A brief yet insightful assessment that reveals your core MBTI type by examining how you gain energy, process information, make decisions, and organize life.",
-            image: "icons/tests/1.png",
-            price: 0,
-            discount_price: 0,
-            question_count: 5,
-            answer_time: 600,
-            star: 0,
-            total: 1,
-            user_avatars: ["avatars/100000_1747648721.png"],
-          }}
-        />
-        <TestInfoCard
-          questionCount={mockData.testInfo.questionCount}
-          estimatedTime={mockData.testInfo.estimatedTime}
-          source={mockData.testInfo.source}
-          tags={mockData.testInfo.tags}
-        />
-        <FeatureCard />
-        <AvatarCard
-          avatar={mockData.avatar.image}
-          result={{
-            title: "Innovative Leader",
-            description:
-              "You have strong innovative spirit and leadership potential, are good at guiding the team, and keep an open mind to accept new ideas and challenges.",
-          }}
-        />
-        <BadgeCard badges={mockData.badges} />
-        <TextProgressCard
-          title={mockData.textProgress.title}
-          subtitle={mockData.textProgress.subtitle}
-          items={mockData.textProgress.items}
-        />
-        <VisualDashboard
-          value={mockData.visualDashboard.value}
-          level={mockData.visualDashboard.level}
-          completionRate={mockData.visualDashboard.completionRate}
-        />
-        <GrowthPathCard
-          currentStage={mockData.growthPath.currentStage}
-          stages={mockData.growthPath.stages}
-        />
-        <ReportCard chartData={mockData.report.chartData} />
-        <TraitCard traits={mockData.traits} />
-        <AnalysisCard dimensions={mockData.dimensions} />
-        <RadarCard data={mockData.radar} />
-        <FAQCard faqs={mockData.faqs} />
-        <PersonalizedAdvice />
-        <SpiritualInspiration />
+        {testData && (
+          <>
+            {
+              <SearchResultCard
+                showIcon={false}
+                item={{
+                  id: testData?.id,
+                  type_id: testData?.type_id,
+                  name: testData?.name,
+                  desc: testData?.desc,
+                  image: testData?.image,
+                  price: testData?.price,
+                  discount_price: testData?.discount_price,
+                  question_count: testData?.question_count,
+                  answer_time: testData?.answer_time,
+                  star: testData?.star,
+                  total: testData?.total,
+                  user_avatars: testData?.user_avatars,
+                }}
+                disabled={true}
+              />
+            }
+            <TestInfoCard
+              questionCount={testData?.question_count}
+              estimatedTime={formatDuration(testData?.answer_time)}
+              tags={[t(`test.types.${getTestTypeKey(testData?.type_id)}.name`)]}
+            />
+            {testData?.component_types.map((type) => (
+              <Fragment key={type}>{renderComponent(type)}</Fragment>
+            ))}
+            <FAQCard faqs={mockData.faqs} />
+          </>
+        )}
       </Animated.ScrollView>
       <LinearGradient
         colors={["rgba(255,255,255,0)", "#FFFFFF"]}
@@ -434,16 +488,18 @@ export default function TestDetailsPage() {
           underlayColor="#19DBF2"
           activeOpacity={0.5}
           onPress={() => {
-            router.push({
-              pathname: "/test/start/[id]",
-              params: {
-                id: "1",
-              },
-            });
-            // setShowPurchase(true)
+            if (testData?.discount_price) {
+              setShowPurchase(true);
+            } else {
+              router.push(`/test/start/${testData?.id}`);
+            }
           }}
         >
-          <Text style={styles.buyButtonText}>Buy Test</Text>
+          <Text style={styles.buyButtonText}>
+            {testData?.discount_price
+              ? t("test.button.buyTest")
+              : t("test.start")}
+          </Text>
         </TouchableHighlight>
       </LinearGradient>
 
@@ -518,7 +574,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "600",
-    textTransform: "uppercase",
+    textTransform: "capitalize",
     fontFamily: "Outfit",
   },
 });

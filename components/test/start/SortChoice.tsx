@@ -14,7 +14,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import DraggableFlatList, {
   DragEndParams,
@@ -31,20 +31,22 @@ interface SortChoiceProps {
   question: string;
   description: string;
   options: SortOption[];
-  onSort?: (newData: SortOption[]) => void;
+  sortedOptions?: SortOption[];
+  onSort: (value: SortOption[]) => void;
 }
 
 const MobileSortChoice: React.FC<SortChoiceProps> = ({
   question,
   description,
   options,
+  sortedOptions,
   onSort,
 }) => {
-  const [data, setData] = useState<SortOption[]>(options);
+  const [data, setData] = useState<SortOption[]>(sortedOptions || options);
 
   useEffect(() => {
-    setData(options);
-  }, [options]);
+    setData(sortedOptions || options);
+  }, [sortedOptions, options]);
 
   const renderItem = ({
     item,
@@ -60,6 +62,7 @@ const MobileSortChoice: React.FC<SortChoiceProps> = ({
           disabled={isActive}
           style={[
             styles.sortItem,
+            { marginVertical: 12 },
             {
               backgroundColor: isActive ? "#FFFFFF" : "transparent",
               boxShadow: isActive
@@ -80,9 +83,7 @@ const MobileSortChoice: React.FC<SortChoiceProps> = ({
             }}
           >
             <View style={styles.indexContainer}>
-              <Text style={styles.indexText}>
-                {item.id}
-              </Text>
+              <Text style={styles.indexText}>{item.id}</Text>
             </View>
             <Text style={styles.itemText} numberOfLines={1}>
               {item.text}
@@ -96,7 +97,7 @@ const MobileSortChoice: React.FC<SortChoiceProps> = ({
 
   const handleDragEnd = ({ data: newData }: DragEndParams<SortOption>) => {
     setData(newData);
-    onSort?.(newData);
+    onSort(newData);
   };
 
   return (
@@ -126,13 +127,14 @@ const WebSortChoice: React.FC<SortChoiceProps> = ({
   question,
   description,
   options,
+  sortedOptions,
   onSort,
 }) => {
-  const [data, setData] = useState<SortOption[]>(options);
+  const [data, setData] = useState<SortOption[]>(sortedOptions || options);
 
   useEffect(() => {
-    setData(options);
-  }, [options]);
+    setData(sortedOptions || options);
+  }, [sortedOptions, options]);
 
   useEffect(() => {
     console.log(data);
@@ -145,7 +147,7 @@ const WebSortChoice: React.FC<SortChoiceProps> = ({
     const [reorderedItem] = items.splice(result.source.index, 1);
     items.splice(result.destination.index, 0, reorderedItem);
     setData(items);
-    onSort?.(items);
+    onSort(items);
   };
 
   return (
@@ -178,35 +180,42 @@ const WebSortChoice: React.FC<SortChoiceProps> = ({
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
                         style={{
-                          ...styles.sortItem,
-                          backgroundColor: snapshot.isDragging
-                            ? "#FFFFFF"
-                            : "transparent",
-                          boxShadow: snapshot.isDragging
-                            ? "0px 4px 11px 0px rgba(36, 164, 179, 0.12)"
-                            : "none",
+                          paddingBottom: 12,
+                          paddingTop: index === 0 ? 12 : 0,
                           ...provided.draggableProps.style,
                         }}
                       >
-                        <View
+                        <div
                           style={{
-                            flex: 1,
-                            flexDirection: "row",
-                            alignItems: "center",
-                            paddingVertical: 12,
-                            borderBottomWidth:
-                              index === data.length - 1 ? 0 : 1,
-                            borderBottomColor: "#E4EBF0",
+                            ...styles.sortItem,
+                            backgroundColor: snapshot.isDragging
+                              ? "#FFFFFF"
+                              : "transparent",
+                            boxShadow: snapshot.isDragging
+                              ? "0px 4px 11px 0px rgba(36, 164, 179, 0.12)"
+                              : "none",
                           }}
                         >
-                          <View style={styles.indexContainer}>
-                            <Text style={styles.indexText}>{item.id}</Text>
+                          <View
+                            style={{
+                              flex: 1,
+                              flexDirection: "row",
+                              alignItems: "center",
+                              paddingVertical: 12,
+                              borderBottomWidth:
+                                index === data.length - 1 ? 0 : 1,
+                              borderBottomColor: "#E4EBF0",
+                            }}
+                          >
+                            <View style={styles.indexContainer}>
+                              <Text style={styles.indexText}>{item.id}</Text>
+                            </View>
+                            <Text style={styles.itemText} numberOfLines={1}>
+                              {item.text}
+                            </Text>
+                            <Feather name="menu" size={24} color="#9B9A9A" />
                           </View>
-                          <Text style={styles.itemText} numberOfLines={1}>
-                            {item.text}
-                          </Text>
-                          <Feather name="menu" size={24} color="#9B9A9A" />
-                        </View>
+                        </div>
                       </div>
                     )}
                   </Draggable>
@@ -261,8 +270,8 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     paddingLeft: 12,
     paddingRight: 12,
-    marginTop: 12,
-    marginBottom: 12,
+    // marginTop: 12,
+    // marginBottom: 12,
   },
   indexContainer: {
     width: 24,

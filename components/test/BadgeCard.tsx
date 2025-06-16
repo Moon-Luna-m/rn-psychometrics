@@ -1,5 +1,6 @@
 import { px2hp } from '@/utils/common';
 import React from 'react';
+import { useTranslation } from "react-i18next";
 import { Image, StyleSheet, Text, View } from 'react-native';
 
 interface Badge {
@@ -13,12 +14,14 @@ interface BadgeCardProps {
 }
 
 export default function BadgeCard({ badges }: BadgeCardProps) {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Your trait badges</Text>
+        <Text style={styles.title}>{t("test.components.badge.title")}</Text>
         <Text style={styles.subtitle}>
-          Congratulations on earning the following achievement badges
+          {t("test.components.badge.subtitle")}
         </Text>
       </View>
 

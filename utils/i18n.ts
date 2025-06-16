@@ -19,6 +19,7 @@ type LanguageConfig = {
   value: string;
   isRTL: boolean;
   flag: ImageSourcePropType;
+  code: string;
 };
 
 type Languages = {
@@ -32,12 +33,14 @@ export const LANGUAGES: Languages = {
     value: "en",
     isRTL: false,
     flag: require("@/assets/images/flags/en.png"),
+    code: "en-US",
   },
   zh: {
     label: "简体中文",
     value: "zh",
     isRTL: false,
     flag: require("@/assets/images/flags/zh.png"),
+    code: "zh-CN",
   },
 };
 

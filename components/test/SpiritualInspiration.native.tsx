@@ -1,22 +1,8 @@
 import { LinearGradient } from "expo-linear-gradient";
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Image, StyleSheet, Text, View } from "react-native";
 import PagerView from "react-native-pager-view";
-
-const inspirations = [
-  {
-    id: "1",
-    text: "A true leader does not tell others what to do, but inspires them to want to do it. You possess this gift, being skilled at motivating and guiding others.",
-  },
-  {
-    id: "2",
-    text: "Your empathy and emotional intelligence allow you to understand others deeply, making you a natural guide in both personal and professional relationships.",
-  },
-  {
-    id: "3",
-    text: "You have the rare ability to see potential in others and help them realize it. This makes you not just a leader, but a mentor who creates lasting positive impact.",
-  },
-];
 
 const InspirationSlide = ({ text }: { text: string }) => (
   <View style={styles.slide}>
@@ -43,11 +29,27 @@ const InspirationSlide = ({ text }: { text: string }) => (
 );
 
 export const SpiritualInspiration = () => {
+  const { t } = useTranslation();
   const [activeIndex, setActiveIndex] = useState(0);
+
+  const inspirations = [
+    {
+      id: "1",
+      text: t("test.components.spiritual.inspirations.leadership"),
+    },
+    {
+      id: "2",
+      text: t("test.components.spiritual.inspirations.empathy"),
+    },
+    {
+      id: "3",
+      text: t("test.components.spiritual.inspirations.potential"),
+    },
+  ];
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Spiritual Inspiration</Text>
+      <Text style={styles.title}>{t("test.components.spiritual.title")}</Text>
       <View style={styles.contentContainer}>
         <PagerView
           style={styles.pagerView}

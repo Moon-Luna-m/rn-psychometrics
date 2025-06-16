@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import {
   Image,
   ImageSourcePropType,
@@ -21,9 +22,11 @@ interface TraitCardProps {
 
 
 export default function TraitCard({ traits }: TraitCardProps) {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>What is your characteristic label?</Text>
+      <Text style={styles.title}>{t("test.components.trait.title")}</Text>
       <View style={styles.traitsContainer}>
         {traits.map((trait, index) => (
           <View

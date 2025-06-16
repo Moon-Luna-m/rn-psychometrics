@@ -1,5 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
+import { useTranslation } from "react-i18next";
 import {
   Image,
   StyleSheet,
@@ -10,7 +11,7 @@ import {
 interface TestInfoCardProps {
   questionCount: number;
   estimatedTime: string;
-  source: string;
+  source?: string;
   tags: string[];
 }
 
@@ -20,6 +21,8 @@ export default function TestInfoCard({
   source,
   tags,
 }: TestInfoCardProps) {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.container}>
       <LinearGradient
@@ -28,7 +31,7 @@ export default function TestInfoCard({
         start={{ x: 0, y: 0.1 }}
         end={{ x: 0, y: 1 }}
       >
-        <Text style={styles.headerText}>Test Information</Text>
+        <Text style={styles.headerText}>{t("test.components.testInfo.title")}</Text>
       </LinearGradient>
 
       <View style={styles.content}>
@@ -41,8 +44,12 @@ export default function TestInfoCard({
               />
             </View>
             <View style={styles.textGroup}>
-              <Text style={styles.label}>Number of questions</Text>
-              <Text style={styles.value}>{questionCount} questions</Text>
+              <Text style={styles.label}>
+                {t("test.components.testInfo.questions.label")}
+              </Text>
+              <Text style={styles.value}>
+                {t("test.components.testInfo.questions.value", { count: questionCount })}
+              </Text>
             </View>
           </View>
 
@@ -54,12 +61,15 @@ export default function TestInfoCard({
               />
             </View>
             <View style={styles.textGroup}>
-              <Text style={styles.label}>Estimated time</Text>
-              <Text style={styles.value}>{estimatedTime} minutes</Text>
+              <Text style={styles.label}>
+                {t("test.components.testInfo.time.label")}
+              </Text>
+              <Text style={styles.value}>
+                {t("test.components.testInfo.time.value", { time: estimatedTime })}
+              </Text>
             </View>
           </View>
-
-          <View style={[styles.infoItem, styles.borderPink]}>
+          {/* <View style={[styles.infoItem, styles.borderPink]}>
             <View style={[styles.iconContainer, styles.pinkBg]}>
               <Image 
                 source={require('@/assets/images/test/direct.png')} 
@@ -67,10 +77,14 @@ export default function TestInfoCard({
               />
             </View>
             <View style={styles.textGroup}>
-              <Text style={styles.label}>Data source</Text>
-              <Text style={styles.value}>{source}</Text>
+              <Text style={styles.label}>
+                {t("test.components.testInfo.source.label")}
+              </Text>
+              <Text style={styles.value}>
+                {t("test.components.testInfo.source.value", { source })}
+              </Text>
             </View>
-          </View>
+          </View> */}
         </View>
 
         <View style={styles.divider} />
@@ -196,6 +210,6 @@ const styles = StyleSheet.create({
     fontFamily: "Outfit",
     fontSize: 10,
     color: "#F28DDE",
-    textTransform: "uppercase",
+    textTransform: "capitalize",
   },
 }); 

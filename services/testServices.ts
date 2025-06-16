@@ -38,6 +38,18 @@ interface BaseResponse {
   message: string;
 }
 
+export type BlockType =
+  | "MatchingResultBlock"
+  | "KeywordTagBlock"
+  | "RadarChartBlock"
+  | "QuoteImageBlock"
+  | "RecommendationBox"
+  | "BadgeBlock"
+  | "GrowthPathBlock"
+  | "TextProgressBlock"
+  | "VisualMeterBlock"
+  | "MultiDimensionalBlock";
+
 // 心理测试详情
 export interface TestDetailResponse {
   id: number;
@@ -46,9 +58,14 @@ export interface TestDetailResponse {
   desc: string;
   image: string;
   price: number;
+  star: number;
+  total: number;
+  user_avatars: Array<string>;
   discount_price: number;
   question_count: number;
+  is_favorited: boolean;
   answer_time: number;
+  component_types: Array<BlockType>;
   questions: Array<{
     id: number;
     content: string;

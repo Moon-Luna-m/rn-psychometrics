@@ -10,6 +10,7 @@ import { deleteItemAsync, getItemAsync, setItemAsync } from "expo-secure-store";
 import qs from "qs";
 import { Platform } from "react-native";
 import { eventBus } from "../eventBus";
+import { getStoredLanguage, LANGUAGES } from "../i18n";
 import {
   ApiResponse,
   ErrorDetail,
@@ -170,9 +171,14 @@ export class HttpRequest {
           } else {
             token = await getItemAsync(AUTH_TOKEN_KEY);
           }
-          
+
           if (token) {
             config.headers.token = `${token}`;
+          }
+          const language = await getStoredLanguage();
+          console.log("language", language);
+          if (language) {
+            config.headers["Accept-Language"] = LANGUAGES[language].code;
           }
 
           return config;
@@ -258,18 +264,26 @@ export class HttpRequest {
     );
   }
 
-  private async handleRequestError(error: any, url?: string, requestConfig?: RequestConfig): Promise<never> {
+  private async handleRequestError(
+    error: any,
+    url?: string,
+    requestConfig?: RequestConfig
+  ): Promise<never> {
     let errorDetail: ErrorDetail;
 
     try {
       errorDetail = this.createErrorDetail(error, url);
 
-      
       // 判断是否需要拦截网络错误
-      const shouldInterceptNetworkError = requestConfig?.interceptNetworkError ?? this.globalConfig.interceptNetworkError;
-      
+      const shouldInterceptNetworkError =
+        requestConfig?.interceptNetworkError ??
+        this.globalConfig.interceptNetworkError;
+
       // 如果是网络错误且配置为不拦截，直接返回错误
-      if (errorDetail.type === ErrorType.NETWORK && !shouldInterceptNetworkError) {
+      if (
+        errorDetail.type === ErrorType.NETWORK &&
+        !shouldInterceptNetworkError
+      ) {
         return Promise.reject(errorDetail);
       }
 
@@ -330,7 +344,7 @@ export class HttpRequest {
         processedData = data;
         requestConfig.headers = {
           ...requestConfig.headers,
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         };
       } else {
         // 处理普通 JSON 数据
@@ -368,7 +382,7 @@ export class HttpRequest {
         processedData = data;
         requestConfig.headers = {
           ...requestConfig.headers,
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         };
       } else {
         // 处理普通 JSON 数据

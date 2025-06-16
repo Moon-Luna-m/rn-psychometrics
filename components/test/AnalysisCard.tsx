@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import {
   Image,
   ImageSourcePropType,
@@ -20,13 +21,14 @@ interface AnalysisCardProps {
 }
 
 export default function AnalysisCard({ dimensions }: AnalysisCardProps) {
+  const { t } = useTranslation();
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Multi-dimensional Analysis</Text>
+        <Text style={styles.title}>{t("test.components.radar.title")}</Text>
         <Text style={styles.subtitle}>
-          Comprehensively evaluate your performance and development potential in
-          each dimension
+          {t("test.components.radar.subtitle")}
         </Text>
       </View>
       <View style={styles.dimensionsContainer}>

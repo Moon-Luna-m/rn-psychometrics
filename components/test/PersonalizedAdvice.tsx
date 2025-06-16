@@ -1,13 +1,16 @@
 import React from 'react';
+import { useTranslation } from "react-i18next";
 import { Image, StyleSheet, Text, View } from 'react-native';
 
-const adviceItems = [
-  { id: 1, text: "Personal growth advice" },
-  { id: 2, text: "Career development direction" },
-  { id: 3, text: "Interpersonal relationship guidance" },
-];
-
 export const PersonalizedAdvice = () => {
+  const { t } = useTranslation();
+
+  const adviceItems = [
+    { id: 1, text: t("test.components.personalAdvice.items.personal") },
+    { id: 2, text: t("test.components.personalAdvice.items.career") },
+    { id: 3, text: t("test.components.personalAdvice.items.relationship") },
+  ];
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -19,7 +22,7 @@ export const PersonalizedAdvice = () => {
           />
         </View>
         <View style={styles.titleContainer}>
-          <Text style={styles.title}>Personalized recommendations</Text>
+          <Text style={styles.title}>{t("test.components.personalAdvice.title")}</Text>
           <View style={styles.adviceList}>
             {adviceItems.map((item) => (
               <View key={item.id} style={styles.adviceItem}>

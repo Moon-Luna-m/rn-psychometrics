@@ -363,6 +363,232 @@
   "test": {
     "total_questions": "{{count}} Questions",
     "estimated_time": "About {{minutes}} minutes",
-    "start": "Start the test"
+    "start": "Start test",
+    "exit": {
+      "title": "Are you sure you want to exit the test?",
+      "description": "You can save the current test progress so that you can continue answering questions next time.",
+      "confirmButton": "Confirm Exit",
+      "saveButton": "Save Progress",
+      "cancelButton": "Cancel"
+    },
+    "tags": {
+      "personalityAnalysis": "Personality Analysis",
+      "psychologicalAssessment": "Psychological Assessment",
+      "selfAwareness": "Self-Awareness"
+    },
+    "traits": {
+      "innovativeThinking": "Innovative Thinking",
+      "innovativeThinkingDesc": "Your innovative thinking ability",
+      "leadership": "Leadership",
+      "leadershipDesc": "You excel in leadership",
+      "teamBuilder": "Team Builder",
+      "teamBuilderDesc": "You are a great team builder"
+    },
+    "dimensions": {
+      "leadership": "Leadership",
+      "rolePerception": "Role Perception",
+      "values": "Values",
+      "positiveness": "Positiveness",
+      "emotionalManagement": "Emotional Management"
+    },
+    "radar": {
+      "logicalThinking": "Logical Thinking",
+      "executionAbility": "Execution Ability",
+      "decisionMaking": "Decision Making",
+      "emotionalManagement": "Emotional Management",
+      "learningAdaptability": "Learning & Adaptability",
+      "teamwork": "Teamwork",
+      "communication": "Communication",
+      "innovativeThinking": "Innovative Thinking"
+    },
+    "faqs": {
+      "scientific": {
+        "question": "Is the test scientifically based?",
+        "answer": "Our assessment is based on psychological research and expert advice and has a certain reference value."
+      },
+      "accuracy": {
+        "question": "Are the test results accurate?",
+        "answer": "The test results are for reference only. The real you is more complex and unique than any test."
+      },
+      "duration": {
+        "question": "How long does it take to complete?",
+        "answer": "It takes about 8 minutes. It is recommended to complete it in a quiet environment to obtain more accurate results."
+      }
+    },
+    "badges": {
+      "creativeThinking": {
+        "title": "Creative Thinking",
+        "description": "You excel in Innovative Thinking"
+      },
+      "adaptability": {
+        "title": "Adaptability",
+        "description": "You excel in Adaptability"
+      },
+      "leadership": {
+        "title": "Leadership",
+        "description": "You excel in Leadership"
+      },
+      "teamBuilder": {
+        "title": "Team Builder",
+        "description": "You excel in Team Building"
+      },
+      "communicator": {
+        "title": "Master Communicator",
+        "description": "You excel in Communication"
+      },
+      "learner": {
+        "title": "Student Learner",
+        "description": "You excel in Learning"
+      }
+    },
+    "textProgress": {
+      "title": "Summary of Psychological Analysis",
+      "subtitle": "Analysis and guidance from professional psychologists",
+      "items": {
+        "unique": "Everyone is unique, and your combination of personality traits makes you who you are today.",
+        "understanding": "Understanding your strengths and room for growth is an important starting point for personal development.",
+        "traits": "Remember, personality traits are neither good nor bad, the key is how to play to your strengths.",
+        "reflection": "Continuous self-reflection and learning will help you go further on the road of life.",
+        "potential": "Believe in yourself, embrace change, your potential is far greater than you think"
+      }
+    },
+    "growthPath": {
+      "selfAwareness": {
+        "title": "Self-awareness",
+        "description": "Understanding yourself and your unique traits"
+      },
+      "skillDevelopment": {
+        "title": "Skill Development",
+        "description": "Building and enhancing your core competencies"
+      },
+      "practicalApplication": {
+        "title": "Practical Application",
+        "description": "Applying your skills in real-world situations"
+      },
+      "optimization": {
+        "title": "Continuous Optimization",
+        "description": "Refining and improving your abilities"
+      },
+      "influence": {
+        "title": "Influencing Others",
+        "description": "Making a positive impact on those around you"
+      }
+    },
+    "visualDashboard": {
+      "title": "Comprehensive ability",
+      "subtitle": "Comprehensive indicators",
+      "info": {
+        "currentValue": "Current value",
+        "level": "Level",
+        "completionRate": "Completion rate"
+      }
+    },
+    "share": {
+      "message": "Check out this amazing personality test!",
+      "title": "Personality Test"
+    },
+    "card": {
+      "title": "Pathways of Personality: MBTI Snapshot",
+      "description": "A brief yet insightful assessment that reveals your core MBTI type by examining how you gain energy, process information, make decisions, and organize life."
+    },
+    "button": {
+      "buyTest": "Buy Test"
+    },
+    "components": {
+      "avatar": {
+        "title": "Your own image?",
+        "description": "Animal image that represents your personality"
+      },
+      "feature": {
+        "title": "What is your personality type?",
+        "subtitle": "Get your own personality tag and detailed analysis"
+      },
+      "personalAdvice": {
+        "title": "Personalized recommendations",
+        "items": {
+          "personal": "Personal growth advice",
+          "career": "Career development direction",
+          "relationship": "Interpersonal relationship guidance"
+        }
+      },
+      "spiritual": {
+        "title": "Spiritual Inspiration",
+        "inspirations": {
+          "leadership": "A true leader does not tell others what to do, but inspires them to want to do it. You possess this gift, being skilled at motivating and guiding others.",
+          "empathy": "Your empathy and emotional intelligence allow you to understand others deeply, making you a natural guide in both personal and professional relationships.",
+          "potential": "You have the rare ability to see potential in others and help them realize it. This makes you not just a leader, but a mentor who creates lasting positive impact."
+        }
+      },
+      "trait": {
+        "title": "What is your characteristic label?"
+      },
+      "radar": {
+        "title": "Multi-dimensional analysis",
+        "subtitle": "Comprehensively evaluate your performance and development potential in each dimension"
+      },
+      "badge": {
+        "title": "Your trait badges",
+        "subtitle": "Congratulations on earning the following achievement badges"
+      },
+      "growthPath": {
+        "title": "Growth path",
+        "subtitle": "Your psychological growth stage",
+        "currentStage": "Current stage: {{stage}}"
+      },
+      "visualDashboard": {
+        "title": "Comprehensive ability",
+        "subtitle": "Comprehensive indicators",
+        "level": "Level",
+        "info": {
+          "currentValue": "Current value",
+          "level": "Level",
+          "completionRate": "Completion rate"
+        }
+      },
+      "testInfo": {
+        "title": "Test Information",
+        "questions": {
+          "label": "Number of questions",
+          "value": "{{count}} questions"
+        },
+        "time": {
+          "label": "Estimated time",
+          "value": "{{time}}"
+        },
+        "source": {
+          "label": "Data source",
+          "value": "{{source}}"
+        }
+      },
+      "faq": {
+        "title": "Frequently asked questions"
+      }
+    },
+    "types": {
+      "personality": {
+        "name": "Personality",
+        "description": "Understand your personality traits comprehensively"
+      },
+      "emotion": {
+        "name": "Emotion",
+        "description": "Evaluate your emotional management ability"
+      },
+      "relationship": {
+        "name": "Relationship",
+        "description": "Explore your interpersonal relationship patterns"
+      },
+      "career": {
+        "name": "Career",
+        "description": "Discover your career development direction"
+      },
+      "youth": {
+        "name": "Youth",
+        "description": "Support healthy growth of young people"
+      },
+      "fun": {
+        "name": "Fun",
+        "description": "Fun and engaging personality exploration"
+      }
+    }
   }
 }

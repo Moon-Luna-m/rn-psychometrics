@@ -15,6 +15,7 @@ import {
 import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Svg, { Path } from "react-native-svg";
+import Collect from "./icons/CollectIcon";
 
 const { width } = Dimensions.get("window");
 const HEADER_HEIGHT = 240;
@@ -53,6 +54,7 @@ interface HeaderProps {
   headerColorAnimatedStyle: {
     color: string;
   };
+  isCollect?: boolean;
 }
 
 export default function Header({
@@ -62,6 +64,7 @@ export default function Header({
   onPress,
   headerColorAnimatedStyle,
   headerBackgroundAnimatedStyle,
+  isCollect,
 }: HeaderProps) {
   const insets = useSafeAreaInsets();
 
@@ -108,10 +111,25 @@ export default function Header({
             activeOpacity={0.5}
             onPress={() => onPress?.("collect")}
           >
-            <Image
-              source={require("@/assets/images/test/collect.png")}
-              style={styles.icon}
-            />
+            {!isCollect ? (
+              <Image
+                source={require("@/assets/images/test/collect.png")}
+                style={styles.icon}
+              />
+            ) : (
+              <View
+                style={{
+                  width: 24,
+                  height: 24,
+                  backgroundColor: "#fff",
+                  borderRadius: 44,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Collect />
+              </View>
+            )}
           </TouchableOpacity>
           <TouchableOpacity
             activeOpacity={0.5}

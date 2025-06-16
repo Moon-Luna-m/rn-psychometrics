@@ -1,13 +1,11 @@
 import React from "react";
 import {
-  Dimensions,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
-
-const windowWidth = Dimensions.get("window").width;
 
 interface Option {
   key: string;
@@ -17,20 +15,37 @@ interface Option {
 interface SingleChoiceProps {
   question: string;
   options: Option[];
-  selectedOption: string | null;
-  onSelect: (key: string) => void;
+  selectedOption?: string | null;
+  selectedOptions?: string[];
+  onSelect: (value: string) => void;
+  multiple?: boolean;
+  maxSelect?: number;
 }
 
 export const SingleChoice: React.FC<SingleChoiceProps> = ({
   question,
   options,
   selectedOption,
+  selectedOptions = [],
   onSelect,
+  multiple = false,
+  maxSelect,
 }) => {
+  const isSelected = (key: string) => {
+    return multiple 
+      ? selectedOptions.includes(key)
+      : selectedOption === key;
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.questionContainer}>
         <Text style={styles.question}>{question}</Text>
+        {multiple && maxSelect && (
+          <Text style={styles.maxSelectHint}>
+            {`请选择${maxSelect}项`}
+          </Text>
+        )}
       </View>
       <View style={styles.optionsContainer}>
         {options.map((option) => (
@@ -38,7 +53,7 @@ export const SingleChoice: React.FC<SingleChoiceProps> = ({
             key={option.key}
             style={[
               styles.optionItem,
-              selectedOption === option.key && styles.optionItemSelected,
+              isSelected(option.key) && styles.optionItemSelected,
             ]}
             onPress={() => onSelect(option.key)}
             activeOpacity={0.7}
@@ -47,7 +62,7 @@ export const SingleChoice: React.FC<SingleChoiceProps> = ({
               <Text
                 style={[
                   styles.optionLetter,
-                  selectedOption === option.key && styles.optionLetterSelected,
+                  isSelected(option.key) && styles.optionLetterSelected,
                 ]}
               >
                 {option.key}
@@ -56,7 +71,7 @@ export const SingleChoice: React.FC<SingleChoiceProps> = ({
             <Text
               style={[
                 styles.optionText,
-                selectedOption === option.key && styles.optionTextSelected,
+                isSelected(option.key) && styles.optionTextSelected,
               ]}
             >
               {option.text}
@@ -71,53 +86,73 @@ export const SingleChoice: React.FC<SingleChoiceProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 24,
   },
   questionContainer: {
-    marginBottom: 44,
+    paddingHorizontal: 24,
+    marginBottom: 32,
   },
   question: {
+    fontWeight: "600",
     fontSize: 18,
     color: "#0C0A09",
-    fontWeight: "600",
-    textTransform: "uppercase",
+    textTransform: "capitalize",
+  },
+  maxSelectHint: {
+    marginTop: 8,
+    fontSize: 14,
+    color: "#7F909F",
   },
   optionsContainer: {
-    gap: 24,
+    paddingHorizontal: 24,
   },
   optionItem: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 12,
-    gap: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
-    boxShadow: "0px 4px 11px 0px rgba(36, 164, 179, 0.12)",
+    marginBottom: 12,
+    ...Platform.select({
+      ios: {
+        shadowColor: "rgba(36, 164, 179, 0.12)",
+        shadowOffset: {
+          width: 0,
+          height: 4,
+        },
+        shadowOpacity: 1,
+        shadowRadius: 11,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
   },
   optionItemSelected: {
     backgroundColor: "#19DBF2",
-    borderColor: "#19DBF2",
   },
   optionCircle: {
     width: 24,
     height: 24,
+    borderRadius: 12,
+    backgroundColor: "#F5F7FA",
     justifyContent: "center",
     alignItems: "center",
+    marginRight: 12,
   },
   optionLetter: {
-    fontSize: 16,
+    fontSize: 12,
+    fontWeight: "600",
     color: "#0C0A09",
-    lineHeight: 20,
-    fontWeight: "900",
   },
   optionLetterSelected: {
-    color: "#fff",
+    color: "#FFFFFF",
+    backgroundColor: "#19DBF2",
   },
   optionText: {
-    fontSize: 16,
-    color: "#7F909F",
     flex: 1,
-    lineHeight: 20,
+    fontSize: 14,
+    color: "#0C0A09",
   },
   optionTextSelected: {
     color: "#FFFFFF",

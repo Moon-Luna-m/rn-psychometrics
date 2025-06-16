@@ -1,5 +1,6 @@
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import Svg, { G, Path } from "react-native-svg";
 
@@ -26,6 +27,7 @@ const GrowthPathCard: React.FC<GrowthPathCardProps> = ({
   stages,
   currentStage,
 }) => {
+  const { t } = useTranslation();
   const { width } = useWindowDimensions();
 
   // 仪表盘配置
@@ -78,8 +80,10 @@ const GrowthPathCard: React.FC<GrowthPathCardProps> = ({
   return (
     <LinearGradient colors={["#E5FFFB", "#FFFFFF"]} style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Growth path</Text>
-        <Text style={styles.subtitle}>Your psychological growth stage</Text>
+        <Text style={styles.title}>{t("test.components.growthPath.title")}</Text>
+        <Text style={styles.subtitle}>
+          {t("test.components.growthPath.subtitle")}
+        </Text>
       </View>
 
       <View
@@ -109,7 +113,7 @@ const GrowthPathCard: React.FC<GrowthPathCardProps> = ({
             {stages[currentStage - 1].title}
           </Text>
           <Text style={styles.currentStageText}>
-            Current stage: {currentStage}
+            {t("test.components.growthPath.currentStage", { stage: currentStage })}
           </Text>
         </View>
       </View>
