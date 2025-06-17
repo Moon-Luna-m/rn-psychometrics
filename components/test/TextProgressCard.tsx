@@ -9,7 +9,7 @@ interface ProgressItem {
 
 interface TextProgressCardProps {
   title: string;
-  subtitle: string;
+  subtitle?: string;
   items: ProgressItem[];
 }
 
@@ -18,7 +18,7 @@ export default function TextProgressCard({ title, subtitle, items }: TextProgres
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>{title}</Text>
-        <Text style={styles.subtitle}>{subtitle}</Text>
+        {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
       </View>
 
       <View style={styles.progressList}>

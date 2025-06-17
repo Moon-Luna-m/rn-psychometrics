@@ -45,27 +45,30 @@ const useReviewList = (
   }, []);
 
   // 刷新数据
-  const onRefresh = useCallback(async () => {
-    if (loading) return;
-    setRefreshing(true);
-    try {
-      const res = await testService.getUserTestHistory({
-        status: type === "completed" ? 1 : 0,
-        page: 1,
-        size: 20,
-      });
-      if (res.code === 200) {
-        setData(res.data.list);
-        setPage(1);
-        setHasMore(res.data.list.length < res.data.count);
-        onCountChange(res.data.count);
+  const onRefresh = useCallback(
+    async (loading?: boolean) => {
+      if (loading) return;
+      setRefreshing(loading ?? true);
+      try {
+        const res = await testService.getUserTestHistory({
+          status: type === "completed" ? 1 : 0,
+          page: 1,
+          size: 20,
+        });
+        if (res.code === 200) {
+          setData(res.data.list);
+          setPage(1);
+          setHasMore(res.data.list.length < res.data.count);
+          onCountChange(res.data.count);
+        }
+      } catch (error) {
+        console.error(`Refresh error for ${type}:`, error);
+      } finally {
+        setRefreshing(loading ?? true);
       }
-    } catch (error) {
-      console.error(`Refresh error for ${type}:`, error);
-    } finally {
-      setRefreshing(false);
-    }
-  }, [type, loading, onCountChange]);
+    },
+    [type, loading, onCountChange]
+  );
 
   // 加载更多
   const onLoadMore = useCallback(async () => {
@@ -122,8 +125,8 @@ export default function Review() {
   // 初始化数据
   useEffect(() => {
     async function initData() {
-      await completedList.onRefresh();
-      await incompleteList.onRefresh();
+      await completedList.onRefresh(false);
+      await incompleteList.onRefresh(false);
       isFirstLoad.current = false;
     }
     initData();
@@ -188,7 +191,7 @@ export default function Review() {
   // 监听标签变化，重新请求数据（仅在非首次加载时执行）
   useEffect(() => {
     if (!isFirstLoad.current) {
-      currentList.onRefresh();
+      currentList.onRefresh(false);
     }
   }, [activeTab]);
 
@@ -371,7 +374,9 @@ function ReviewCard({
           contentStyle={styles.buttonContent}
           labelStyle={styles.generateButtonText}
           rippleColor="rgba(0, 0, 0, 0.03)"
-          onPress={() => {}}
+          onPress={() => {
+            router.push(`/test/result/${item.test_id}`);
+          }}
         >
           {t("review.card.generateReport")}
         </Button>
@@ -380,7 +385,9 @@ function ReviewCard({
           style={styles.testAgainButton}
           contentStyle={styles.buttonContent}
           labelStyle={styles.testAgainButtonText}
-          onPress={() => {}}
+          onPress={() => {
+            router.push(`/test/start/${item.test_id}`);
+          }}
         >
           {t("review.card.testAgain")}
         </Button>

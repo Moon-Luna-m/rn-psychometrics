@@ -1,12 +1,7 @@
 import { Image } from "expo-image";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import {
-  ImageSourcePropType,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { ImageSourcePropType, StyleSheet, Text, View } from "react-native";
 
 interface AvatarCardProps {
   avatar?: ImageSourcePropType;
@@ -18,7 +13,7 @@ interface AvatarCardProps {
 
 export default function AvatarCard({ avatar, result }: AvatarCardProps) {
   const { t } = useTranslation();
-  
+
   return (
     <View style={styles.container}>
       <View style={styles.avatarContainer}>
@@ -27,11 +22,15 @@ export default function AvatarCard({ avatar, result }: AvatarCardProps) {
           style={styles.bg}
           contentFit="cover"
         />
-        {avatar && (
+        {avatar ? (
           <View style={styles.realAvatar}>
-            <Image source={avatar} style={styles.realAvatarImage} contentFit="cover" />
+            <Image
+              source={avatar}
+              style={styles.realAvatarImage}
+              contentFit="cover"
+            />
           </View>
-        )}
+        ) : null}
       </View>
       <View style={[styles.content, result && styles.resultContent]}>
         {result ? (
@@ -50,7 +49,9 @@ export default function AvatarCard({ avatar, result }: AvatarCardProps) {
           </>
         ) : (
           <>
-            <Text style={styles.title}>{t("test.components.avatar.title")}</Text>
+            <Text style={styles.title}>
+              {t("test.components.avatar.title")}
+            </Text>
             <Text style={styles.description}>
               {t("test.components.avatar.description")}
             </Text>

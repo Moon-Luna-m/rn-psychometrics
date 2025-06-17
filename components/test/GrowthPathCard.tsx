@@ -23,6 +23,9 @@ const MARK_PATH =
 // 未完成状态的颜色
 const INACTIVE_COLOR = "#ECF2FC";
 
+// 固定总刻度数
+const TOTAL_MARKS = 25;
+
 const GrowthPathCard: React.FC<GrowthPathCardProps> = ({
   stages,
   currentStage,
@@ -37,43 +40,60 @@ const GrowthPathCard: React.FC<GrowthPathCardProps> = ({
     radius: 140,
     markWidth: 19,
     markHeight: 37,
-    marksPerStage: 5,
     gapAngle: 2,
   };
 
-  // 计算总刻度数和当前激活的刻度数
-  const totalMarks = stages.length * DASHBOARD_CONFIG.marksPerStage;
-  const activeMarks = currentStage * DASHBOARD_CONFIG.marksPerStage;
+  // 计算每个阶段的刻度数
+  const marksPerStage = Math.floor(TOTAL_MARKS / stages.length);
+  const remainingMarks = TOTAL_MARKS % stages.length;
+  
+  // 计算当前激活的刻度数
+  const getActiveMarks = () => {
+    if (currentStage === 0) return 0;
+    
+    let activeMarks = 0;
+    for (let i = 0; i < currentStage; i++) {
+      activeMarks += marksPerStage;
+      if (i < remainingMarks) activeMarks += 1;
+    }
+    return activeMarks;
+  };
+
+  // 获取某个刻度所属的阶段索引
+  const getStageIndexForMark = (markIndex: number) => {
+    let accumulatedMarks = 0;
+    for (let i = 0; i < stages.length; i++) {
+      const stageMarks = marksPerStage + (i < remainingMarks ? 1 : 0);
+      accumulatedMarks += stageMarks;
+      if (markIndex < accumulatedMarks) return i;
+    }
+    return stages.length - 1;
+  };
 
   // 计算刻度位置和旋转角度
   const calculateMarkPosition = (index: number) => {
-    // 计算从0度开始，向两侧展开的角度
-    const angleStep = 180 / (totalMarks - 1);
-    // 将索引转换为对应的角度：中心为0度，两侧分别为-90度和90度
-    const currentAngle = (index - (totalMarks - 1) / 2) * angleStep;
+    const angleStep = 180 / (TOTAL_MARKS - 1);
+    const currentAngle = (index - (TOTAL_MARKS - 1) / 2) * angleStep;
     const radians = (currentAngle * Math.PI) / 180;
 
-    // 计算位置
-    const x = DASHBOARD_CONFIG.radius * Math.sin(radians); // 使用sin来计算x
-    const y = -DASHBOARD_CONFIG.radius * Math.cos(radians); // 使用-cos来计算y
+    const x = DASHBOARD_CONFIG.radius * Math.sin(radians);
+    const y = -DASHBOARD_CONFIG.radius * Math.cos(radians);
 
     const centerX = DASHBOARD_CONFIG.width / 2;
     const centerY = DASHBOARD_CONFIG.radius + 40;
 
-    // 刻度的旋转角度应该与当前角度一致，因为我们的SVG本身就是垂直的
-    const rotation = currentAngle;
-
     return {
       x: centerX + x,
       y: centerY + y,
-      rotation: rotation,
+      rotation: currentAngle,
     };
   };
 
   // 获取刻度颜色
   const getMarkColor = (index: number) => {
+    const activeMarks = getActiveMarks();
     if (index >= activeMarks) return INACTIVE_COLOR;
-    const stageIndex = Math.floor(index / DASHBOARD_CONFIG.marksPerStage);
+    const stageIndex = getStageIndexForMark(index);
     return stages[stageIndex].color;
   };
 
@@ -91,7 +111,7 @@ const GrowthPathCard: React.FC<GrowthPathCardProps> = ({
       >
         <Svg width={DASHBOARD_CONFIG.width} height={DASHBOARD_CONFIG.height}>
           <G>
-            {Array.from({ length: totalMarks }).map((_, index) => {
+            {Array.from({ length: TOTAL_MARKS }).map((_, index) => {
               const { x, y, rotation } = calculateMarkPosition(index);
               return (
                 <Path

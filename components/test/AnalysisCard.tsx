@@ -13,7 +13,7 @@ interface Dimension {
   label: string;
   value: number;
   color: string;
-  trend: "up" | "down";
+  trend: "up" | "down" | "stable";
 }
 
 interface AnalysisCardProps {
@@ -40,7 +40,9 @@ export default function AnalysisCard({ dimensions }: AnalysisCardProps) {
                 source={
                   dimension.trend === "up"
                     ? require("@/assets/images/test/trend-up.png")
-                    : require("@/assets/images/test/trend-down.png")
+                    : dimension.trend === "down"
+                    ? require("@/assets/images/test/trend-down.png")
+                    : require("@/assets/images/test/trend.png")
                 }
                 style={styles.trendIcon}
               />

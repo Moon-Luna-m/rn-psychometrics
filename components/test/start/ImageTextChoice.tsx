@@ -1,6 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import Svg, { Circle, Path, Rect } from "react-native-svg";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface ImageTextChoiceProps {
   question: string;
@@ -8,125 +7,11 @@ interface ImageTextChoiceProps {
   options: Array<{
     key: string;
     text: string;
-    color: string;
-    shadowColor: string;
-    pattern: "circle" | "square" | "triangle" | "diamond";
+    imageUrl: string;
   }>;
   selectedOption: string | null;
   onSelect: (key: string) => void;
 }
-
-const PatternSvg = ({
-  pattern,
-  color,
-}: {
-  pattern: "circle" | "square" | "triangle" | "diamond";
-  color: string;
-}) => {
-  const size = 80;
-  const smallSize = 40;
-  const opacity = 0.2;
-
-  switch (pattern) {
-    case "circle":
-      return (
-        <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-          <Circle
-            cx={size / 2}
-            cy={size / 2}
-            r={size / 2}
-            fill={color}
-            fillOpacity={opacity}
-          />
-          <Circle
-            cx={smallSize / 2}
-            cy={size - smallSize / 2}
-            r={smallSize / 2}
-            fill={color}
-            fillOpacity={opacity}
-          />
-          <Circle
-            cx={size - smallSize / 2}
-            cy={size - smallSize / 2}
-            r={smallSize / 2}
-            fill={color}
-            fillOpacity={opacity}
-          />
-        </Svg>
-      );
-    case "square":
-      return (
-        <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-          <Rect
-            x={0}
-            y={0}
-            width={smallSize}
-            height={smallSize}
-            fill={color}
-            fillOpacity={opacity}
-          />
-          <Rect
-            x={smallSize}
-            y={0}
-            width={smallSize}
-            height={smallSize}
-            fill={color}
-            fillOpacity={opacity}
-          />
-          <Rect
-            x={0}
-            y={smallSize}
-            width={smallSize}
-            height={smallSize}
-            fill={color}
-            fillOpacity={opacity}
-          />
-        </Svg>
-      );
-    case "triangle":
-      return (
-        <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-          <Path
-            d={`M${size / 2} 0 L${size} ${size} L0 ${size} Z`}
-            fill={color}
-            fillOpacity={opacity}
-          />
-          <Path
-            d={`M${smallSize / 2} ${size - smallSize} L${smallSize} ${size} L0 ${size} Z`}
-            fill={color}
-            fillOpacity={opacity}
-          />
-          <Path
-            d={`M${size - smallSize / 2} ${size - smallSize} L${size} ${size} L${size - smallSize} ${size} Z`}
-            fill={color}
-            fillOpacity={opacity}
-          />
-        </Svg>
-      );
-    case "diamond":
-      return (
-        <Svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-          <Path
-            d={`M${size / 2} 0 L${size} ${size / 2} L${size / 2} ${size} L0 ${size / 2} Z`}
-            fill={color}
-            fillOpacity={opacity}
-          />
-          <Path
-            d={`M${smallSize / 2} ${size - smallSize} L${smallSize} ${size - smallSize / 2} L${smallSize / 2} ${size} L0 ${size - smallSize / 2} Z`}
-            fill={color}
-            fillOpacity={opacity}
-          />
-          <Path
-            d={`M${size - smallSize / 2} ${size - smallSize} L${size} ${size - smallSize / 2} L${size - smallSize / 2} ${size} L${size - smallSize} ${size - smallSize / 2} Z`}
-            fill={color}
-            fillOpacity={opacity}
-          />
-        </Svg>
-      );
-    default:
-      return null;
-  }
-};
 
 export function ImageTextChoice({
   question,
@@ -138,59 +23,31 @@ export function ImageTextChoice({
   return (
     <View style={styles.container}>
       <Text style={styles.question}>{question}</Text>
-      <Text style={styles.description}>{description}</Text>
+      {description ? (
+        <Text style={styles.description}>{description}</Text>
+      ) : null}
 
       <View style={styles.optionsContainer}>
-        {options.map((option, index) => (
-          <View key={option.key} style={styles.optionRow}>
-            {index % 2 === 0 && options[index + 1] && (
-              <>
-                <TouchableOpacity
-                  activeOpacity={0.7}
-                  style={[
-                    styles.optionCard,
-                    { backgroundColor: option.color },
-                    {
-                      shadowColor: option.shadowColor,
-                      shadowOffset: { width: 0, height: 12 },
-                      shadowOpacity: 1,
-                      shadowRadius: 20,
-                      elevation: 12,
-                    },
-                  ]}
-                  onPress={() => onSelect(option.key)}
-                >
-                  <Text style={styles.optionKey}>{option.key}</Text>
-                  <View style={styles.patternContainer}>
-                    <PatternSvg pattern={option.pattern} color="#FFFFFF" />
-                  </View>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  activeOpacity={0.7}
-                  style={[
-                    styles.optionCard,
-                    { backgroundColor: options[index + 1].color },
-                    {
-                      shadowColor: options[index + 1].shadowColor,
-                      shadowOffset: { width: 0, height: 12 },
-                      shadowOpacity: 1,
-                      shadowRadius: 20,
-                      elevation: 12,
-                    },
-                  ]}
-                  onPress={() => onSelect(options[index + 1].key)}
-                >
-                  <Text style={styles.optionKey}>{options[index + 1].key}</Text>
-                  <View style={styles.patternContainer}>
-                    <PatternSvg
-                      pattern={options[index + 1].pattern}
-                      color="#FFFFFF"
-                    />
-                  </View>
-                </TouchableOpacity>
-              </>
-            )}
-          </View>
+        {options.map((option) => (
+          <TouchableOpacity
+            key={option.key}
+            activeOpacity={0.7}
+            style={[
+              styles.optionCard,
+              // {
+              //   backgroundColor: option.color,
+              //   shadowColor: option.shadowColor,
+              // }
+            ]}
+            onPress={() => onSelect(option.key)}
+          >
+            <Text style={styles.optionKey}>{option.key}</Text>
+            <Image
+              source={{ uri: option.imageUrl }}
+              style={styles.optionImage}
+              resizeMode="cover"
+            />
+          </TouchableOpacity>
         ))}
       </View>
     </View>
@@ -216,27 +73,34 @@ const styles = StyleSheet.create({
     fontFamily: "Outfit",
   },
   optionsContainer: {
+    marginTop: 32,
     gap: 24,
-  },
-  optionRow: {
     flexDirection: "row",
-    gap: 11,
+    flexWrap: "wrap",
   },
   optionCard: {
-    flex: 1,
+    width: 158,
     height: 100,
     borderRadius: 12,
-    padding: 8,
   },
   optionKey: {
+    position: "absolute",
+    left: 8,
+    top: 8,
     fontSize: 20,
     fontWeight: "900",
     color: "#FFFFFF",
     fontFamily: "Outfit",
+    textTransform: "uppercase",
+    lineHeight: 25,
+    zIndex: 1,
   },
-  patternContainer: {
+  optionImage: {
     position: "absolute",
-    right: 39,
-    top: 10,
+    width: "100%",
+    height: "100%",
+    left: 0,
+    top: 0,
+    borderRadius: 12,
   },
 });

@@ -1,6 +1,6 @@
-import Slider from '@react-native-community/slider';
-import React, { useState } from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import Slider from "@react-native-community/slider";
+import React, { useEffect, useState } from "react";
+import { Platform, StyleSheet, Text, View } from "react-native";
 
 interface Option {
   id: string;
@@ -22,12 +22,30 @@ export function PercentageSlider({
   values,
   onValuesChange,
 }: PercentageSliderProps) {
+  // 初始化默认值，确保每个选项都有对应的值
+  const getInitialValues = () => {
+    const initialValues = { ...values };
+    options.forEach((option) => {
+      if (!(option.id in initialValues)) {
+        initialValues[option.id] = 0;
+      }
+    });
+    return initialValues;
+  };
+
   // 用于跟踪滑动过程中的临时值
-  const [tempValues, setTempValues] = useState<Record<string, number>>(values);
+  const [tempValues, setTempValues] = useState<Record<string, number>>(
+    getInitialValues()
+  );
+
+  // 当 values 或 options 变化时更新 tempValues
+  useEffect(() => {
+    setTempValues(getInitialValues());
+  }, [values, options]);
 
   // 处理滑动过程中的值变化
   const handleValueChange = (id: string, newValue: number) => {
-    setTempValues(prev => ({
+    setTempValues((prev) => ({
       ...prev,
       [id]: newValue,
     }));
@@ -35,10 +53,17 @@ export function PercentageSlider({
 
   // 处理滑动完成时的值变化
   const handleSlidingComplete = (id: string, finalValue: number) => {
-    onValuesChange({
+    const newValues = {
       ...values,
       [id]: finalValue,
+    };
+    // 确保所有选项都有值
+    options.forEach((option) => {
+      if (!(option.id in newValues)) {
+        newValues[option.id] = 0;
+      }
     });
+    onValuesChange(newValues);
   };
 
   return (
@@ -46,20 +71,22 @@ export function PercentageSlider({
       <Text style={styles.question}>{question}</Text>
       <Text style={styles.description}>{description}</Text>
 
-      {options.map((option) => (
-        <View key={option.id} style={styles.sliderCard}>
+      {options.map((option, index) => (
+        <View key={index} style={styles.sliderCard}>
           <View style={styles.titleContainer}>
             <Text style={styles.title}>{option.title}</Text>
-            <Text style={styles.percentage}>{Math.round(tempValues[option.id] || 0)}%</Text>
+            <Text style={styles.percentage}>
+              {Math.round(tempValues[option.id] || 0)}%
+            </Text>
           </View>
 
           <View style={styles.sliderContainer}>
             <View style={styles.sliderTrack}>
-              <View 
+              <View
                 style={[
-                  styles.sliderProgress, 
-                  { width: `${tempValues[option.id] || 0}%` }
-                ]} 
+                  styles.sliderProgress,
+                  { width: `${tempValues[option.id] || 0}%` },
+                ]}
               />
             </View>
             <Slider
@@ -68,9 +95,13 @@ export function PercentageSlider({
               maximumValue={100}
               value={values[option.id] || 0}
               onValueChange={(value) => handleValueChange(option.id, value)}
-              onSlidingComplete={(value) => handleSlidingComplete(option.id, value)}
+              onSlidingComplete={(value) =>
+                handleSlidingComplete(option.id, value)
+              }
               minimumTrackTintColor="transparent"
               maximumTrackTintColor="transparent"
+              thumbTintColor="transparent"
+              step={1}
               thumbImage={require("@/assets/images/test/slider-thumb.png")}
             />
           </View>
@@ -87,26 +118,26 @@ const styles = StyleSheet.create({
   },
   question: {
     fontSize: 18,
-    fontWeight: '700',
-    color: '#0C0A09',
+    fontWeight: "700",
+    color: "#0C0A09",
     marginBottom: 8,
-    fontFamily: 'Outfit',
+    fontFamily: "Outfit",
   },
   description: {
     fontSize: 14,
-    color: '#7F909F',
+    color: "#7F909F",
     marginBottom: 32,
-    fontFamily: 'Outfit',
+    fontFamily: "Outfit",
   },
   sliderCard: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 20,
     padding: 14,
     marginBottom: 24,
-    boxShadow: '0px 4px 11px 0px rgba(36, 164, 179, 0.12)',
+    boxShadow: "0px 4px 11px 0px rgba(36, 164, 179, 0.12)",
     ...Platform.select({
       ios: {
-        shadowColor: 'rgba(36, 164, 179, 0.12)',
+        shadowColor: "rgba(36, 164, 179, 0.12)",
         shadowOffset: {
           width: 0,
           height: 4,
@@ -120,40 +151,40 @@ const styles = StyleSheet.create({
     }),
   },
   titleContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 12,
   },
   title: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#0C0A09',
-    fontFamily: 'Outfit',
-    textTransform: 'uppercase',
+    fontWeight: "600",
+    color: "#0C0A09",
+    fontFamily: "Outfit",
+    textTransform: "uppercase",
   },
   percentage: {
     fontSize: 14,
-    fontWeight: '600',
-    color: '#686D76',
-    fontFamily: 'Outfit',
+    fontWeight: "600",
+    color: "#686D76",
+    fontFamily: "Outfit",
   },
   sliderContainer: {
     height: 22,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
   sliderTrack: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     right: 0,
     height: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 100,
-    overflow: 'hidden',
-    boxShadow: '6px 4px 17px 0px rgba(0, 0, 0, 0.06)',
+    overflow: "hidden",
+    boxShadow: "6px 4px 17px 0px rgba(0, 0, 0, 0.06)",
     ...Platform.select({
       ios: {
-        shadowColor: 'rgba(0, 0, 0, 0.06)',
+        shadowColor: "rgba(0, 0, 0, 0.06)",
         shadowOffset: {
           width: 6,
           height: 4,
@@ -167,15 +198,15 @@ const styles = StyleSheet.create({
     }),
   },
   sliderProgress: {
-    position: 'absolute',
+    position: "absolute",
     left: 0,
     top: 0,
     bottom: 0,
-    backgroundColor: '#19DBF2',
+    backgroundColor: "#19DBF2",
     borderRadius: 100,
   },
   slider: {
-    width: '100%',
+    width: "100%",
     height: 22,
   },
-}); 
+});

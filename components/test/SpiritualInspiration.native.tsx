@@ -28,11 +28,18 @@ const InspirationSlide = ({ text }: { text: string }) => (
   </View>
 );
 
-export const SpiritualInspiration = () => {
+export const SpiritualInspiration = ({
+  inspirations = [],
+}: {
+  inspirations?: Array<{
+    text: string;
+    id: number;
+  }>;
+}) => {
   const { t } = useTranslation();
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const inspirations = [
+  const defaultInspirations = [
     {
       id: "1",
       text: t("test.components.spiritual.inspirations.leadership"),
@@ -56,22 +63,26 @@ export const SpiritualInspiration = () => {
           initialPage={0}
           onPageSelected={(e) => setActiveIndex(e.nativeEvent.position)}
         >
-          {inspirations.map((item) => (
-            <View key={item.id} style={styles.pageContainer}>
-              <InspirationSlide text={item.text} />
-            </View>
-          ))}
+          {(inspirations.length > 0 ? inspirations : defaultInspirations).map(
+            (item) => (
+              <View key={item.id} style={styles.pageContainer}>
+                <InspirationSlide text={item.text} />
+              </View>
+            )
+          )}
         </PagerView>
         <View style={styles.indicators}>
-          {inspirations.map((_, index) => (
-            <View
-              key={index}
-              style={[
-                styles.indicator,
-                index === activeIndex && styles.indicatorActive,
-              ]}
-            />
-          ))}
+          {(inspirations.length > 0 ? inspirations : defaultInspirations).map(
+            (_, index) => (
+              <View
+                key={index}
+                style={[
+                  styles.indicator,
+                  index === activeIndex && styles.indicatorActive,
+                ]}
+              />
+            )
+          )}
         </View>
       </View>
     </View>

@@ -361,9 +361,20 @@
     "your_answer": "Your answer"
   },
   "test": {
+    "next": "Next",
+    "submit": "Submit",
+    "testDetail": "Test Detail",
+    "testReport": "Test Report",
+    "testAgain": "Test Again",
+    "advancedReport": "Advanced Report",
     "total_questions": "{{count}} Questions",
     "estimated_time": "About {{minutes}} minutes",
     "start": "Start test",
+    "result": {
+      "title": "Discover the Real You",
+      "subtitle": "Gain deeper insights into your inner traits through scientific personality assessments",
+      "advancedReport": "Advanced Report"
+    },
     "exit": {
       "title": "Are you sure you want to exit the test?",
       "description": "You can save the current test progress so that you can continue answering questions next time.",
@@ -589,6 +600,43 @@
         "name": "Fun",
         "description": "Fun and engaging personality exploration"
       }
+    }
+  },
+  "purchase": {
+    "tabs": {
+      "payment": "Payment",
+      "coin": "Gold Coin Payment"
+    },
+    "coin": {
+      "balance": "Your coins",
+      "recharge": "Recharge",
+      "illustration": {
+        "title": "illustrate:",
+        "text": "Use virtual currency equivalent to real money"
+      }
+    },
+    "card": {
+      "title": "Discover the real you",
+      "badge": "Advanced Report"
+    },
+    "confirm": "CONFIRM"
+  },
+  "http": {
+    "errors": {
+      "network": {
+        "unavailable": "Network connection unavailable",
+        "requestFailed": "Network request failed",
+        "timeout": "Request timeout"
+      },
+      "business": {
+        "failed": "Business processing failed",
+        "invalidResponse": "Invalid response data format",
+        "serverError": "Server error"
+      },
+      "auth": {
+        "expired": "Login has expired, please login again"
+      },
+      "unknown": "Unknown error"
     }
   }
 }

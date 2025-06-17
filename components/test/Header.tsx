@@ -45,8 +45,8 @@ const AnimatedIonicons = Animated.createAnimatedComponent(Ionicons);
 
 interface HeaderProps {
   insetTop: number;
-  bg: ImageSourcePropType;
-  color: readonly [ColorValue, ColorValue];
+  bg?: ImageSourcePropType;
+  color?: readonly [ColorValue, ColorValue];
   onPress?: (type: "share" | "collect") => void;
   headerBackgroundAnimatedStyle: {
     backgroundColor: string;
@@ -55,6 +55,9 @@ interface HeaderProps {
     color: string;
   };
   isCollect?: boolean;
+  headerSlot?: React.ReactNode;
+  showCollect?: boolean;
+  title: string;
 }
 
 export default function Header({
@@ -65,20 +68,25 @@ export default function Header({
   headerColorAnimatedStyle,
   headerBackgroundAnimatedStyle,
   isCollect,
+  headerSlot,
+  showCollect = true,
+  title,
 }: HeaderProps) {
   const insets = useSafeAreaInsets();
 
   return (
     <View style={{ position: "absolute", inset: 0 }}>
-      <LinearGradient
-        colors={color}
-        locations={[0, 1]}
-        style={styles.gradient}
-        start={{ x: 0, y: 0.1053 }}
-        end={{ x: 0, y: 1 }}
-      >
-        <Image source={bg} style={styles.image} resizeMode="cover" />
-      </LinearGradient>
+      {headerSlot ?? (
+        <LinearGradient
+          colors={color ?? ["#00A1FF", "#00CEB6"]}
+          locations={[0, 1]}
+          style={styles.gradient}
+          start={{ x: 0, y: 0.1053 }}
+          end={{ x: 0, y: 1 }}
+        >
+          <Image source={bg} style={styles.image} resizeMode="cover" />
+        </LinearGradient>
+      )}
       <Animated.View
         style={[
           styles.header,
@@ -103,34 +111,36 @@ export default function Header({
         </TouchableOpacity>
         <View style={styles.titleContainer}>
           <Animated.Text style={[styles.titleText, headerColorAnimatedStyle]}>
-            Test Details
+            {title}
           </Animated.Text>
         </View>
         <View style={styles.right}>
-          <TouchableOpacity
-            activeOpacity={0.5}
-            onPress={() => onPress?.("collect")}
-          >
-            {!isCollect ? (
-              <Image
-                source={require("@/assets/images/test/collect.png")}
-                style={styles.icon}
-              />
-            ) : (
-              <View
-                style={{
-                  width: 24,
-                  height: 24,
-                  backgroundColor: "#fff",
-                  borderRadius: 44,
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Collect />
-              </View>
-            )}
-          </TouchableOpacity>
+          {showCollect && (
+            <TouchableOpacity
+              activeOpacity={0.5}
+              onPress={() => onPress?.("collect")}
+            >
+              {!isCollect ? (
+                <Image
+                  source={require("@/assets/images/test/collect.png")}
+                  style={styles.icon}
+                />
+              ) : (
+                <View
+                  style={{
+                    width: 24,
+                    height: 24,
+                    backgroundColor: "#fff",
+                    borderRadius: 44,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Collect />
+                </View>
+              )}
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
             activeOpacity={0.5}
             onPress={() => onPress?.("share")}

@@ -11,9 +11,6 @@ import {
 interface Trait {
   icon: ImageSourcePropType;
   label: string;
-  value: number;
-  color: string;
-  description: string;
 }
 
 interface TraitCardProps {
@@ -48,7 +45,7 @@ export default function TraitCard({ traits }: TraitCardProps) {
             </View>
             <View style={styles.traitContent}>
               <Text style={styles.label}>{trait.label}</Text>
-              <Text style={styles.description}>{trait.description}</Text>
+              {/* <Text style={styles.description}>{trait.description}</Text> */}
             </View>
           </View>
         ))}

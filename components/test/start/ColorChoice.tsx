@@ -10,11 +10,8 @@ interface ColorChoiceProps {
   question: string;
   description: string;
   colorGroups: ColorGroup[];
-  selectedColor: {
-    groupIndex: number;
-    strengthIndex: number;
-  } | null;
-  onSelect: (color: { groupIndex: number; strengthIndex: number }) => void;
+  selectedColor: number | null;
+  onSelect: (index: number) => void;
   lowStrengthLabel?: string;
   highStrengthLabel?: string;
 }
@@ -28,35 +25,39 @@ export function ColorChoice({
   lowStrengthLabel = "Low strength",
   highStrengthLabel = "High strength",
 }: ColorChoiceProps) {
-  
+  // 将所有颜色展平为一个数组
+  const allColors = colorGroups.reduce((acc, group, groupIndex) => {
+    return acc.concat(
+      group.colors.map((color, strengthIndex) => ({
+        color,
+        groupIndex,
+        strengthIndex,
+      }))
+    );
+  }, [] as Array<{ color: string; groupIndex: number; strengthIndex: number }>);
+
   return (
     <View style={styles.container}>
       <Text style={styles.question}>{question}</Text>
       <Text style={styles.description}>{description}</Text>
 
       <View style={styles.colorGrid}>
-        {colorGroups.map((group, groupIndex) => (
-          <View 
-            key={groupIndex} 
-            style={[
-              styles.colorRow,
-              selectedColor?.groupIndex === groupIndex && { zIndex: 1 }
-            ]}
+        {allColors.map((item, index) => (
+          <View
+            style={styles.colorBoxContainer}
+            key={`${item.groupIndex}-${item.strengthIndex}`}
           >
-            {group.colors.map((color, strengthIndex) => (
-              <TouchableOpacity
-                key={`${groupIndex}-${strengthIndex}`}
-                style={[
-                  styles.colorBox,
-                  { backgroundColor: color },
-                  selectedColor?.groupIndex === groupIndex &&
-                    selectedColor?.strengthIndex === strengthIndex &&
-                    styles.selectedColorBox,
-                ]}
-                activeOpacity={0.7}
-                onPress={() => onSelect({ groupIndex, strengthIndex })}
-              />
-            ))}
+            <TouchableOpacity
+              style={[
+                styles.colorBox,
+                { backgroundColor: item.color },
+                selectedColor
+                  ? selectedColor - 1 === index && styles.selectedColorBox
+                  : null,
+              ]}
+              activeOpacity={0.7}
+              onPress={() => onSelect(index + 1)}
+            />
           </View>
         ))}
       </View>
@@ -88,17 +89,17 @@ const styles = StyleSheet.create({
     fontFamily: "Outfit",
   },
   colorGrid: {
-    gap: 3,
-  },
-  colorRow: {
     flexDirection: "row",
-    gap: 3,
-    overflow: "visible",
+    flexWrap: "wrap",
+  },
+  colorBoxContainer: {
+    width: "12.5%",
+    aspectRatio: 1,
+    padding: 1.5,
   },
   colorBox: {
-    flex: 1,
-    aspectRatio: 1,
-    height: 38.25,
+    width: "100%",
+    height: "100%",
   },
   selectedColorBox: {
     transform: [{ scale: 2 }],

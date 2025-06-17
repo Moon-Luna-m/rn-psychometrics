@@ -1,56 +1,100 @@
+import { RADAR_COLOR } from "@/constants/Colors";
 import { imgProxy } from "./common";
 
 // 定义各种组件的数据接口
 interface MatchingResultData {
-  result_key: string;
-  score?: number;
-  desc: string;
+  result_type: string;
+  result_value: string;
+  result_title: string;
+  result_desc: string;
+  result_image: string;
 }
 
 interface KeywordTagData {
-  tags: string[];
+  tags: Array<{
+    text: string;
+    icon: string;
+  }>;
 }
 
 interface RadarChartData {
-  dimensions: string[];
-  scores: number[];
+  title: string;
+  dimensions: Array<{
+    name: string;
+    value: number;
+    desc: string;
+  }>;
+  max_value: number;
 }
 
 interface VisualMeterData {
-  label: string;
-  value: number;
-  max_value: number;
-  unit: string;
+  title: string;
+  meters: Array<{
+    name: string;
+    value: number;
+    max_value: number;
+    unit: string;
+    level: string;
+  }>;
 }
 
 interface TextProgressData {
-  paragraphs: string[];
+  title: string;
+  paragraphs: Array<{
+    content: string;
+    highlight: boolean;
+  }>;
 }
 
-interface QuoteImageData {
+interface QuoteImageData extends Array<{
   quote: string;
   author: string;
-  image: string;
+}> {}
+
+interface StoryCardData {
+  title: string;
+  character: string;
+  avatar: string;
+  dialogues: Array<{
+    speaker: string;
+    content: string;
+    emotion: string;
+  }>;
 }
 
 interface RecommendationData {
-  suggestions: string[];
+  title: string;
+  layout: string;
+  recommendations: string[];
 }
 
 interface GrowthPathData {
-  steps: string[];
+  title: string;
+  stages: Array<{
+    name: string;
+    description: string;
+    status: string;
+    tips: string[];
+  }>;
 }
 
 interface BadgeData {
   badges: Array<{
-    label: string;
-    desc: string;
+    name: string;
+    description: string;
+    icon: string;
   }>;
 }
 
 interface MultiDimensionalData {
-  dimensions: string[];
-  scores: number[];
+  title: string;
+  dimensions: Array<{
+    name: string;
+    value: number;
+    desc: string;
+    trend: string;
+  }>;
+  max_value: number;
 }
 
 // 组件数据转换器
@@ -58,10 +102,11 @@ export const transformers = {
   // 匹配结果数据转换
   transformMatchingResultData: (data: MatchingResultData) => {
     return {
-      key: data.result_key,
-      score: data.score,
-      description: data.desc,
-      icon: getResultIcon(data.result_key), // 需要实现这个函数来返回对应的图标
+      type: data.result_type,
+      value: data.result_value,
+      title: data.result_title,
+      description: data.result_desc,
+      imageUrl: imgProxy(data.result_image),
     };
   },
 
@@ -69,8 +114,8 @@ export const transformers = {
   transformKeywordTagData: (data: KeywordTagData) => {
     return {
       tags: data.tags.map((tag) => ({
-        label: tag,
-        color: getTagColor(tag), // 需要实现这个函数来返回对应的颜色
+        icon: imgProxy(tag.icon),
+        label: tag.text,
       })),
     };
   },
@@ -78,18 +123,38 @@ export const transformers = {
   // 引用图片数据转换
   transformQuoteImageData: (data: QuoteImageData) => {
     return {
-      quote: data.quote,
-      author: data.author,
-      imageUrl: data.image,
+      list: data.map((item, index) => {
+        return {
+          id: index,
+          text: item.quote,
+          author: item.author,
+        };
+      }),
+    };
+  },
+
+  // 故事卡片数据转换
+  transformStoryCardData: (data: StoryCardData) => {
+    return {
+      title: data.title,
+      character: data.character,
+      avatarUrl: imgProxy(data.avatar),
+      dialogues: data.dialogues.map((dialogue) => ({
+        speaker: dialogue.speaker,
+        content: dialogue.content,
+        emotion: dialogue.emotion,
+      })),
     };
   },
 
   // 推荐建议数据转换
   transformRecommendationData: (data: RecommendationData) => {
     return {
-      suggestions: data.suggestions.map((suggestion, index) => ({
+      title: data.title,
+      layout: data.layout,
+      suggestions: data.recommendations.map((rec, index) => ({
         id: index + 1,
-        content: suggestion,
+        text: rec,
       })),
     };
   },
@@ -97,11 +162,14 @@ export const transformers = {
   // 多维度数据转换
   transformMultiDimensionalData: (data: MultiDimensionalData) => {
     return {
+      title: data.title,
       dimensions: data.dimensions.map((dim, index) => ({
-        key: dim,
-        value: data.scores[index],
-        color: getColorByIndex(index),
-        label: getDimensionLabel(dim), // 需要实现这个函数来返回维度标签
+        label: dim.name,
+        value: dim.value,
+        description: dim.desc,
+        maxValue: data.max_value,
+        color: RADAR_COLOR[index % RADAR_COLOR.length],
+        trend: dim.trend,
       })),
     };
   },
@@ -109,11 +177,13 @@ export const transformers = {
   // 雷达图数据转换
   transformRadarData: (data: RadarChartData) => {
     return {
+      title: data.title,
       dimensions: data.dimensions.map((dim, index) => ({
-        label: dim,
-        value: data.scores[index],
-        color: getColorByIndex(index),
-        trend: data.scores[index] > 15 ? "up" : "down", // 示例阈值
+        label: dim.name,
+        value: dim.value,
+        description: dim.desc,
+        maxValue: data.max_value,
+        color: RADAR_COLOR[index % RADAR_COLOR.length],
       })),
     };
   },
@@ -122,8 +192,9 @@ export const transformers = {
   transformBadgeData: (data: BadgeData) => {
     return {
       badges: data.badges.map((badge) => ({
-        title: badge.label,
-        description: badge.desc,
+        title: badge.name,
+        description: badge.description,
+        icon: badge.icon,
       })),
     };
   },
@@ -131,11 +202,15 @@ export const transformers = {
   // 成长路径数据转换
   transformGrowthPathData: (data: GrowthPathData) => {
     return {
-      stages: data.steps.map((step, index) => ({
-        title: step,
-        description: getStageDescription(step), // 需要实现这个函数来返回阶段描述
-        isCompleted: index < Math.floor(data.steps.length / 2), // 示例：将一半设为已完成
-        isCurrentStage: index === Math.floor(data.steps.length / 2),
+      title: data.title,
+      currentStage:
+        data.stages.findIndex((stage) => stage.status === "current") + 1,
+      stages: data.stages.map((stage, index) => ({
+        title: stage.name,
+        description: stage.description,
+        status: stage.status,
+        tips: stage.tips,
+        stage: index + 1,
       })),
     };
   },
@@ -143,30 +218,30 @@ export const transformers = {
   // 视觉仪表盘数据转换
   transformVisualDashboardData: (data: VisualMeterData) => {
     return {
-      currentValue: data.value,
-      maxValue: data.max_value,
-      level: calculateLevel(data.value), // 需要实现这个函数来计算等级
-      completionRate: (data.value / data.max_value) * 100,
-      label: data.label,
+      title: data.title,
+      meters: data.meters.map((meter) => ({
+        name: meter.name,
+        value: meter.value,
+        maxValue: meter.max_value,
+        unit: meter.unit,
+        level: meter.level,
+      })),
     };
   },
 
   // 文本进度数据转换
   transformTextProgressData: (data: TextProgressData) => {
     return {
-      sections: data.paragraphs.map((text, index) => ({
+      title: data.title,
+      sections: data.paragraphs.map((para, index) => ({
         id: index + 1,
-        content: text,
-        isCompleted: true,
+        text: para.content,
+        isHighlighted: para.highlight,
+        color: RADAR_COLOR[index % RADAR_COLOR.length],
       })),
     };
   },
 };
-
-// 新增辅助函数
-function getResultIcon(key: string) {
-  return key ? imgProxy(key) : null;
-}
 
 function getTagColor(tag: string): string {
   const colorMap: Record<string, string> = {
@@ -178,44 +253,6 @@ function getTagColor(tag: string): string {
   return colorMap[tag] || "#96CEB4";
 }
 
-
-function getDimensionLabel(dimension: string): string {
-  const labelMap: Record<string, string> = {
-    D: "支配性",
-    I: "影响力",
-    S: "稳定性",
-    C: "服从性",
-    // 添加更多标签映射
-  };
-  return labelMap[dimension] || dimension;
-}
-
-// 辅助函数
-function getColorByIndex(index: number): string {
-  const colors = ["#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEEAD"];
-  return colors[index % colors.length];
-}
-
-
-function getStageDescription(stage: string): string {
-  // 根据阶段名称返回对应的描述
-  const descriptionMap: Record<string, string> = {
-    "Explore interests": "探索兴趣爱好，发现潜在发展方向",
-    "Develop skills": "培养核心技能，提升专业能力",
-    "Build confidence": "建立自信心，培养积极心态",
-    // 添加更多描述映射
-  };
-  return descriptionMap[stage] || "";
-}
-
-function calculateLevel(value: number): string {
-  if (value >= 90) return "S";
-  if (value >= 80) return "A";
-  if (value >= 70) return "B";
-  if (value >= 60) return "C";
-  return "D";
-}
-
 // 更新主转换函数
 export function transformTestReport(reportData: any) {
   const { components, test_id, test_name, has_access } = reportData;
@@ -225,60 +262,64 @@ export function transformTestReport(reportData: any) {
       switch (component.type) {
         case "MatchingResultBlock":
           return {
-            type: "matchingResult",
+            type: "MatchingResultBlock",
             data: transformers.transformMatchingResultData(component.data),
-          };
-        case "KeywordTagBlock":
-          return {
-            type: "keywordTag",
-            data: transformers.transformKeywordTagData(component.data),
-          };
-        case "QuoteImageBlock":
-          return {
-            type: "quoteImage",
-            data: transformers.transformQuoteImageData(component.data),
-          };
-        case "RecommendationBox":
-          return {
-            type: "recommendation",
-            data: transformers.transformRecommendationData(component.data),
-          };
-        case "MultiDimensionalBlock":
-          return {
-            type: "multiDimensional",
-            data: transformers.transformMultiDimensionalData(component.data),
           };
         case "RadarChartBlock":
           return {
-            type: "radar",
+            type: "RadarChartBlock",
             data: transformers.transformRadarData(component.data),
-          };
-        case "BadgeBlock":
-          return {
-            type: "badge",
-            data: transformers.transformBadgeData(component.data),
-          };
-        case "GrowthPathBlock":
-          return {
-            type: "growthPath",
-            data: transformers.transformGrowthPathData(component.data),
           };
         case "VisualMeterBlock":
           return {
-            type: "visualDashboard",
+            type: "VisualMeterBlock",
             data: transformers.transformVisualDashboardData(component.data),
           };
         case "TextProgressBlock":
           return {
-            type: "textProgress",
+            type: "TextProgressBlock",
             data: transformers.transformTextProgressData(component.data),
+          };
+        case "StoryCardBlock":
+          return {
+            type: "StoryCardBlock",
+            data: transformers.transformStoryCardData(component.data),
+          };
+        case "RecommendationBox":
+          return {
+            type: "RecommendationBox",
+            data: transformers.transformRecommendationData(component.data),
+          };
+        case "GrowthPathBlock":
+          return {
+            type: "GrowthPathBlock",
+            data: transformers.transformGrowthPathData(component.data),
+          };
+        case "MultiDimensionalBlock":
+          return {
+            type: "MultiDimensionalBlock",
+            data: transformers.transformMultiDimensionalData(component.data),
+          };
+        case "BadgeBlock":
+          return {
+            type: "BadgeBlock",
+            data: transformers.transformBadgeData(component.data),
+          };
+        case "KeywordTagBlock":
+          return {
+            type: "KeywordTagBlock",
+            data: transformers.transformKeywordTagData(component.data),
+          };
+        case "QuoteImageBlock":
+          return {
+            type: "QuoteImageBlock",
+            data: transformers.transformQuoteImageData(component.data),
           };
         default:
           return null;
       }
     })
     .filter(Boolean);
-
   return {
     testId: test_id,
     testName: test_name,

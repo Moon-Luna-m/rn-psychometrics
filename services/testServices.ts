@@ -30,6 +30,8 @@ const path = {
   GET_USER_FAVORITE: "/api/psychology/favorites",
   // 保存用户测试进度
   SAVE_USER_TEST_PROGRESS: "/api/psychology/test/save",
+  // 获取用户测试报告
+  GET_USER_TEST_REPORT: "/api/psychology/user/test/report",
 } as const;
 
 // 基础响应类型
@@ -81,11 +83,115 @@ export interface TestDetailResponse {
   }>;
 }
 
+export interface Option {
+  content: string;
+  dimension: string;
+  id: number;
+  image?: string;
+  score: number;
+}
+
+export interface SingleChoiceQuestion {
+  type: 1;
+  id: number;
+  content: string;
+  options: Option[];
+}
+
+export interface MultipleChoiceQuestion {
+  type: 2;
+  id: number;
+  content: string;
+  options: Option[];
+  maxSelect?: number; // 最大可选数量，可选
+}
+
+export interface SliderQuestion {
+  type: 3;
+  id: number;
+  content: string;
+  options: Option[];
+}
+
+export interface SingleEmotionQuestion {
+  type: 5;
+  id: number;
+  content: string;
+  options: Option[];
+}
+
+export interface EmotionQuestion {
+  type: 6;
+  id: number;
+  content: string;
+  options: Option[];
+}
+
+export interface SortQuestion {
+  type: 4;
+  id: number;
+  content: string;
+  options: Option[];
+}
+
+export interface PercentageQuestion {
+  type: 7;
+  id: number;
+  content: string;
+  options: Option[];
+}
+
+export interface ColorQuestion {
+  type: 8;
+  id: number;
+  content: string;
+  options: Option[];
+}
+
+export interface ImageTextQuestion {
+  type: 9;
+  id: number;
+  content: string;
+  options: Option[];
+}
+
+export interface ImageText2Question {
+  type: 10;
+  id: number;
+  content: string;
+  options: Option[];
+}
+
+// 所有题目类型
+export type Question =
+  | SingleChoiceQuestion
+  | MultipleChoiceQuestion
+  | SliderQuestion
+  | EmotionQuestion
+  | SortQuestion
+  | PercentageQuestion
+  | SingleEmotionQuestion
+  | ColorQuestion
+  | ImageTextQuestion
+  | ImageText2Question;
+
+// 心理测试报告类型
+export interface TestReportResponse {
+  components: Array<{
+    type: BlockType;
+    data: any;
+  }>;
+  has_access: boolean;
+  message: string;
+  test_id: number;
+  test_name: string;
+  discount_price: number;
+  price: number;
+}
+
 // 开始心理测试
 export interface StartTestResponse {
-  additionalProp1: number;
-  additionalProp2: number;
-  additionalProp3: number;
+  user_test_id: number;
 }
 
 // 提交心理测试答案
@@ -222,7 +328,7 @@ export const testService = {
   async submitTestAnswer(params: {
     user_test_id: number;
     answers: Array<{
-      option_id: number;
+      option_ids: number[];
       question_id: number;
     }>;
   }): Promise<ApiResponse<SubmitTestAnswerResponse>> {
@@ -332,8 +438,19 @@ export const testService = {
   // 保存用户测试进度
   async saveUserTestProgress(params: {
     user_test_id: number;
-    progress: number;
+    answers: Array<{
+      option_ids: number[];
+      question_id: number;
+    }>;
   }): Promise<ApiResponse<EmptyResponse>> {
     return httpClient.post<EmptyResponse>(path.SAVE_USER_TEST_PROGRESS, params);
+  },
+
+  // 获取用户测试报告
+  async getUserTestReport(params: { test_id: number }) {
+    return httpClient.get<TestReportResponse>(
+      path.GET_USER_TEST_REPORT,
+      params
+    );
   },
 };

@@ -32,12 +32,19 @@ const InspirationSlide = ({ text }: { text: string }) => (
   </View>
 );
 
-export const SpiritualInspiration = () => {
+export const SpiritualInspiration = ({
+  inspirations = [],
+}: {
+  inspirations?: Array<{
+    text: string;
+    id: number;
+  }>;
+}) => {
   const { t } = useTranslation();
   const swiperRef = useRef<HTMLDivElement>(null);
   const [swiper, setSwiper] = useState<Swiper | null>(null);
 
-  const inspirations = [
+  const defaultInspirations = [
     {
       id: "1",
       text: t("test.components.spiritual.inspirations.leadership"),
@@ -79,11 +86,13 @@ export const SpiritualInspiration = () => {
       <View style={styles.contentContainer}>
         <div ref={swiperRef} className="swiper">
           <div className="swiper-wrapper">
-            {inspirations.map((item) => (
-              <div key={item.id} className="swiper-slide">
-                <InspirationSlide text={item.text} />
-              </div>
-            ))}
+            {(inspirations.length > 0 ? inspirations : defaultInspirations).map(
+              (item) => (
+                <div key={item.id} className="swiper-slide">
+                  <InspirationSlide text={item.text} />
+                </div>
+              )
+            )}
           </div>
           <div className="swiper-pagination" />
         </div>

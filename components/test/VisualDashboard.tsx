@@ -6,7 +6,8 @@ import { Image, StyleSheet, Text, View } from "react-native";
 interface VisualDashboardProps {
   value: number;
   level: string;
-  completionRate: number;
+  // completionRate: number;
+  title?: string;
 }
 
 interface CenterCoordinate {
@@ -17,17 +18,18 @@ interface CenterCoordinate {
 const VisualDashboard: React.FC<VisualDashboardProps> = ({
   value,
   level,
-  completionRate,
+  // completionRate,
+  title = "",
 }) => {
   const { t } = useTranslation();
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>{t("test.components.visualDashboard.title")}</Text>
-        <Text style={styles.subtitle}>
+        <Text style={styles.title}>{title}</Text>
+        {/* <Text style={styles.subtitle}>
           {t("test.components.visualDashboard.subtitle")}
-        </Text>
+        </Text> */}
       </View>
 
       <View style={[styles.dashboardContainer]}>
@@ -94,12 +96,12 @@ const VisualDashboard: React.FC<VisualDashboardProps> = ({
           </Text>
           <Text style={[styles.infoValue, styles.levelValue]}>{level}</Text>
         </View>
-        <View style={styles.infoItem}>
+        {/* <View style={styles.infoItem}>
           <Text style={styles.infoLabel}>
             {t("test.components.visualDashboard.info.completionRate")}
           </Text>
           <Text style={styles.infoValue}>{completionRate}%</Text>
-        </View>
+        </View> */}
       </View>
     </View>
   );

@@ -7,6 +7,7 @@ import axios, {
   InternalAxiosRequestConfig,
 } from "axios";
 import { deleteItemAsync, getItemAsync, setItemAsync } from "expo-secure-store";
+import i18next from "i18next";
 import qs from "qs";
 import { Platform } from "react-native";
 import { eventBus } from "../eventBus";
@@ -161,7 +162,10 @@ export class HttpRequest {
           // 检查网络状态
           const isConnected = await this.checkNetworkConnection();
           if (!isConnected) {
-            throw new HttpError("网络连接不可用", ErrorType.NETWORK);
+            throw new HttpError(
+              i18next.t("http.errors.network.unavailable"),
+              ErrorType.NETWORK
+            );
           }
 
           // 从本地存储获取 token
@@ -186,12 +190,20 @@ export class HttpRequest {
           return Promise.reject(
             error instanceof HttpError
               ? error
-              : new HttpError("请求失败", ErrorType.NETWORK)
+              : new HttpError(
+                  i18next.t("http.errors.network.requestFailed"),
+                  ErrorType.NETWORK
+                )
           );
         }
       },
       (error: Error) => {
-        return Promise.reject(new HttpError("请求失败", ErrorType.NETWORK));
+        return Promise.reject(
+          new HttpError(
+            i18next.t("http.errors.network.requestFailed"),
+            ErrorType.NETWORK
+          )
+        );
       }
     );
 
@@ -211,7 +223,7 @@ export class HttpRequest {
         // 处理业务错误
         if (shouldInterceptError && !allowedCodes.includes(apiResponse.code)) {
           throw new HttpError(
-            apiResponse.message || "业务处理失败",
+            apiResponse.message || i18next.t("http.errors.business.failed"),
             ErrorType.BUSINESS,
             response,
             apiResponse.code,
@@ -235,7 +247,7 @@ export class HttpRequest {
             }
 
             httpError = new HttpError(
-              apiResponse?.message || "登录已过期，请重新登录",
+              apiResponse?.message || i18next.t("http.errors.auth.expired"),
               ErrorType.AUTH,
               error.response,
               status,
@@ -246,7 +258,7 @@ export class HttpRequest {
             eventBus.emit(HTTP_EVENTS.UNAUTHORIZED);
           } else {
             httpError = new HttpError(
-              apiResponse?.message || "服务器错误",
+              apiResponse?.message || i18next.t("http.errors.business.serverError"),
               ErrorType.BUSINESS,
               error.response,
               status,
@@ -254,9 +266,15 @@ export class HttpRequest {
             );
           }
         } else if (error.code === "ECONNABORTED") {
-          httpError = new HttpError("请求超时", ErrorType.TIMEOUT);
+          httpError = new HttpError(
+            i18next.t("http.errors.network.timeout"),
+            ErrorType.TIMEOUT
+          );
         } else {
-          httpError = new HttpError("网络请求失败", ErrorType.NETWORK);
+          httpError = new HttpError(
+            i18next.t("http.errors.network.requestFailed"),
+            ErrorType.NETWORK
+          );
         }
 
         return Promise.reject(httpError);
@@ -268,7 +286,7 @@ export class HttpRequest {
     error: any,
     url?: string,
     requestConfig?: RequestConfig
-  ): Promise<never> {
+  ): Promise<ApiResponse<any>> {
     let errorDetail: ErrorDetail;
 
     try {
@@ -289,18 +307,33 @@ export class HttpRequest {
 
       // 调用全局错误处理
       this.globalConfig.onError?.(errorDetail);
+
+      // 构造API响应格式
+      const apiResponse: ApiResponse<any> = {
+        code: errorDetail.code || -1,
+        message: errorDetail.message,
+        data: errorDetail.data,
+      };
+
+      // 返回格式化的错误响应
+      return apiResponse;
     } catch (e) {
       // 确保即使错误处理过程中出错，也不会导致应用崩溃
       console.error("Error handling failed:", e);
       errorDetail = {
         type: ErrorType.UNKNOWN,
-        message: "未知错误",
+        message: i18next.t("http.errors.unknown"),
         timestamp: Date.now(),
         url,
       };
+
+      // 返回通用错误响应
+      return {
+        code: -1,
+        message: i18next.t("http.errors.unknown"),
+        data: null,
+      };
     }
-    // 返回一个带有错误信息的 rejected promise
-    return Promise.reject(errorDetail);
   }
 
   // GET 方法
@@ -320,7 +353,11 @@ export class HttpRequest {
 
       // 验证响应数据结构
       if (!this.isValidResponse(response.data)) {
-        throw new HttpError("无效的响应数据格式", ErrorType.BUSINESS, response);
+        throw new HttpError(
+          i18next.t("http.errors.business.invalidResponse"),
+          ErrorType.BUSINESS,
+          response
+        );
       }
 
       return response.data;

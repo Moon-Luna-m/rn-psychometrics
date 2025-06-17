@@ -1,4 +1,3 @@
-import SearchResultCard from "@/components/home/SearchResultCard";
 import AnalysisCard from "@/components/test/AnalysisCard";
 import AvatarCard from "@/components/test/AvatarCard";
 import BadgeCard from "@/components/test/BadgeCard";
@@ -6,54 +5,64 @@ import FAQCard from "@/components/test/FAQCard";
 import GrowthPathCard from "@/components/test/GrowthPathCard";
 import Header from "@/components/test/Header";
 import PersonalizedAdvice from "@/components/test/PersonalizedAdvice";
+import PurchaseSheet from "@/components/test/PurchaseSheet";
 import RadarCard from "@/components/test/RadarCard";
 import ShareSheet from "@/components/test/ShareSheet";
 import SpiritualInspiration from "@/components/test/SpiritualInspiration";
-import TestInfoCard from "@/components/test/TestInfoCard";
 import TextProgressCard from "@/components/test/TextProgressCard";
 import TraitCard from "@/components/test/TraitCard";
 import VisualDashboard from "@/components/test/VisualDashboard";
 import { mockDataFn } from "@/constants/MockData";
 import {
-  BlockType,
-  TestDetailResponse,
-  testService,
+    BlockType,
+    TestReportResponse,
+    testService,
 } from "@/services/testServices";
-import { formatDuration, px2hp } from "@/utils/common";
-import { getTestTypeKey } from "@/utils/reportTransformer";
+import { px2hp } from "@/utils/common";
+import { getTransformedReport } from "@/utils/reportTransformer";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { Fragment, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  ActivityIndicator,
-  Dimensions,
-  Platform,
-  Share,
-  StyleSheet,
-  Text,
-  TouchableHighlight,
-  View,
+    ActivityIndicator,
+    Dimensions,
+    ImageBackground,
+    ImageSourcePropType,
+    Platform,
+    Share,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import Animated, {
-  interpolateColor,
-  useAnimatedScrollHandler,
-  useAnimatedStyle,
-  useSharedValue,
+    interpolateColor,
+    useAnimatedScrollHandler,
+    useAnimatedStyle,
+    useSharedValue,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const { width } = Dimensions.get("window");
 const SCROLL_THRESHOLD = Platform.OS === "web" ? 180 : 120;
 
-export default function TestDetailsPage() {
+export default function TestResultPage() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
+  const [showPurchase, setShowPurchase] = useState(false);
   const [showShare, setShowShare] = useState(false);
   const scrollY = useSharedValue(0);
-  const [testData, setTestData] = useState<TestDetailResponse | null>(null);
+  const [testData, setTestData] = useState<TestReportResponse | null>(null);
   const { id } = useLocalSearchParams();
   const [isLoading, setIsLoading] = useState(false);
+  const [headerBg, setHeaderBg] = useState<{
+    normal: ImageSourcePropType;
+    high: ImageSourcePropType;
+  }>({
+    normal: require("@/assets/images/test/result/normal.png"),
+    high: require("@/assets/images/test/result/high.png"),
+  });
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
       scrollY.value = event.contentOffset.y;
@@ -85,54 +94,58 @@ export default function TestDetailsPage() {
   });
 
   const mockData = mockDataFn(t);
+
   const renderComponent = (type: BlockType, data?: any) => {
     switch (type) {
       case "MatchingResultBlock":
-        return <AvatarCard />;
+        return <AvatarCard avatar={data?.imageUrl} result={data} />;
       case "KeywordTagBlock":
-        return <TraitCard traits={mockData.traits} />;
+        return <TraitCard traits={data.tags || []} />;
       case "RadarChartBlock":
-        return <RadarCard data={mockData.radar} />;
+        return <RadarCard data={data || []} />;
       case "QuoteImageBlock":
-        return <SpiritualInspiration />;
+        return <SpiritualInspiration inspirations={data?.list || []} />;
       case "RecommendationBox":
         return (
           <PersonalizedAdvice
-            title={mockData.recommendations.title}
-            adviceItems={mockData.recommendations.adviceItems}
+            title={data.title}
+            adviceItems={data?.suggestions || []}
           />
         );
       case "BadgeBlock":
-        return <BadgeCard badges={mockData.badges} />;
+        return <BadgeCard badges={data?.badges || []} />;
       case "GrowthPathBlock":
         return (
           <GrowthPathCard
-            currentStage={mockData.growthPath.currentStage}
-            stages={mockData.growthPath.stages}
+            currentStage={data?.currentStage}
+            stages={data?.stages ?? []}
           />
         );
       case "TextProgressBlock":
         return (
-          <TextProgressCard
-            title={mockData.textProgress.title}
-            subtitle={mockData.textProgress.subtitle}
-            items={mockData.textProgress.items}
-          />
+          <TextProgressCard title={data?.title} items={data?.sections ?? []} />
         );
       case "VisualMeterBlock":
         return (
           <VisualDashboard
-            title={mockData.visualDashboard.title}
-            value={mockData.visualDashboard.value}
-            level={mockData.visualDashboard.level}
-            // completionRate={
-            //   data?.completionRate ?? mockData.visualDashboard.completionRate
-            // }
+            title={data?.title}
+            value={data?.dimensions[0]?.value}
+            level={data?.dimensions[0]?.level}
           />
         );
       case "MultiDimensionalBlock":
-        return <AnalysisCard dimensions={mockData.dimensions} />;
+        return <AnalysisCard dimensions={data?.dimensions || []} />;
     }
+  };
+
+  const handlePurchase = (method: string) => {
+    console.log("Purchase with method:", method);
+    if (method === "coin") {
+      
+    } else {
+      setShowPurchase(false);
+    }
+    // setShowPurchase(false);
   };
 
   const handleShare = async (method: string) => {
@@ -161,31 +174,29 @@ export default function TestDetailsPage() {
       setShowShare(true);
     } else if (type === "collect") {
       if (!testData) return;
-      let res: any;
-      if (testData?.is_favorited) {
-        res = await testService.deleteTestFromFavorite({
-          test_id: testData.id,
-        });
-      } else {
-        res = await testService.addTestToFavorite({ test_id: testData.id });
-      }
+      const res = await testService.addTestToFavorite({
+        test_id: testData.test_id,
+      });
       if (res.code === 200) {
-        setTestData({ ...testData, is_favorited: !testData.is_favorited });
       }
     }
   };
 
   useEffect(() => {
-    setIsLoading(true);
     const getTestData = async () => {
-      const response = await testService.getTestList({ id: Number(id) });
+      setIsLoading(true);
+      const response = await testService.getUserTestReport({
+        test_id: Number(id),
+      });
       if (response.code === 200) {
         setTestData(response.data);
         console.log("testData", response.data);
+      } else {
+        router.replace("/");
       }
+      setIsLoading(false);
     };
     getTestData();
-    setIsLoading(false);
   }, []);
 
   return (
@@ -198,13 +209,26 @@ export default function TestDetailsPage() {
         <>
           <Header
             insetTop={insets.top}
-            bg={mockData.header.bg}
-            color={mockData.header.color}
             onPress={handleHeaderPress}
             headerBackgroundAnimatedStyle={headerBackgroundAnimatedStyle}
             headerColorAnimatedStyle={headerColorAnimatedStyle}
-            isCollect={testData?.is_favorited}
-            title={t("test.testDetail")}
+            showCollect={false}
+            title={t("test.testReport")}
+            headerSlot={
+              <>
+                <ImageBackground
+                  source={headerBg.normal}
+                  style={styles.gradient}
+                >
+                  <View style={styles.headerContainer}>
+                    <Text style={styles.title}>{t("test.result.title")}</Text>
+                    <Text style={styles.subtitle}>
+                      {t("test.result.subtitle")}
+                    </Text>
+                  </View>
+                </ImageBackground>
+              </>
+            }
           />
           <Animated.ScrollView
             style={[
@@ -218,58 +242,55 @@ export default function TestDetailsPage() {
           >
             {testData && (
               <>
-                {
-                  <SearchResultCard
-                    showIcon={false}
-                    item={{
-                      id: testData?.id,
-                      type_id: testData?.type_id,
-                      name: testData?.name,
-                      desc: testData?.desc,
-                      image: testData?.image,
-                      price: testData?.price,
-                      discount_price: testData?.discount_price,
-                      question_count: testData?.question_count,
-                      answer_time: testData?.answer_time,
-                      star: testData?.star,
-                      total: testData?.total,
-                      user_avatars: testData?.user_avatars,
-                    }}
-                    disabled={true}
-                  />
-                }
-                <TestInfoCard
-                  questionCount={testData?.question_count}
-                  estimatedTime={formatDuration(testData?.answer_time)}
-                  tags={[
-                    t(`test.types.${getTestTypeKey(testData?.type_id)}.name`),
-                  ]}
-                />
-                {testData?.component_types.map((type) => (
-                  <Fragment key={type}>{renderComponent(type)}</Fragment>
-                ))}
+                {getTransformedReport(testData).components.map(
+                  (item: { type: BlockType; data: any }) => (
+                    <Fragment key={item.type}>
+                      {renderComponent(item.type, item.data)}
+                    </Fragment>
+                  )
+                )}
                 <FAQCard faqs={mockData.faqs} />
               </>
             )}
           </Animated.ScrollView>
           <LinearGradient
-            colors={["rgba(255,255,255,0)", "#FFFFFF"]}
+            colors={["rgba(255,255,255,1)", "#FFFFFF"]}
             style={styles.buttonContainer}
             locations={[0, 0.7]}
           >
-            <TouchableHighlight
-              style={styles.buyButton}
-              underlayColor="#19DBF2"
-              activeOpacity={0.5}
+            <TouchableOpacity
+              style={[styles.button, styles.testAgainButton]}
+              activeOpacity={0.7}
               onPress={() => {
-                router.push(`/test/start/${testData?.id}`);
+                router.push(`/test/start/${id}`);
               }}
             >
-              <Text style={styles.buyButtonText}>{t("test.start")}</Text>
-            </TouchableHighlight>
+              <Text style={styles.buyButtonText}>{t("test.testAgain")}</Text>
+            </TouchableOpacity>
+            {testData?.has_access ? (
+              <TouchableOpacity
+                style={[styles.button, styles.buyButton]}
+                activeOpacity={0.7}
+                onPress={() => {
+                  setShowPurchase(true);
+                }}
+              >
+                <Text style={styles.buyButtonText}>
+                  {t("test.result.advancedReport")}
+                </Text>
+              </TouchableOpacity>
+            ) : null}
           </LinearGradient>
         </>
       )}
+
+      <PurchaseSheet
+        isVisible={showPurchase}
+        testName={testData?.test_name || ""}
+        onClose={() => setShowPurchase(false)}
+        price={testData?.discount_price || 0}
+        onConfirm={handlePurchase}
+      />
 
       <ShareSheet
         isVisible={showShare}
@@ -290,6 +311,30 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  gradient: {
+    height: 240,
+    width: "100%",
+    alignItems: "center",
+  },
+  headerContainer: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    paddingHorizontal: 16,
+    paddingBottom: 58,
+    justifyContent: "flex-end",
+    gap: 6,
+  },
+  title: {
+    color: "#0C0A09",
+    fontSize: 28,
+    fontWeight: 700,
+  },
+  subtitle: {
+    color: "#7F909F",
+    fontSize: 12,
+    fontWeight: 400,
+  },
   scrollView: {
     flex: 1,
     paddingHorizontal: 16,
@@ -300,6 +345,8 @@ const styles = StyleSheet.create({
     paddingBottom: 90, // 为底部按钮留出空间
   },
   buttonContainer: {
+    flexDirection: "row",
+    gap: 10,
     position: "absolute",
     bottom: 0,
     left: 0,
@@ -329,12 +376,19 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     fontFamily: "Outfit",
   },
-  buyButton: {
+  button: {
     height: 48,
-    backgroundColor: "#19DBF2",
     borderRadius: 78,
     alignItems: "center",
     justifyContent: "center",
+  },
+  testAgainButton: {
+    flex: 1,
+    backgroundColor: "#19DBF2",
+  },
+  buyButton: {
+    flex: 1,
+    backgroundColor: "#0C0A09",
   },
   buyButtonText: {
     color: "#FFFFFF",

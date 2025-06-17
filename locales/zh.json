@@ -358,9 +358,20 @@
     "your_answer": "您的回答"
   },
   "test": {
+    "next": "下一题",
+    "submit": "提交",
+    "testDetail": "测试详情",
+    "testReport": "测试报告",
+    "testAgain": "重新测试",
+    "advancedReport": "高级报告",
     "total_questions": "共{{count}}道题目",
     "estimated_time": "预计需要{{minutes}}分钟",
     "start": "开始测试",
+    "result": {
+      "title": "发现真实的你",
+      "subtitle": "一个简短而有见地的评估，通过考察你获取能量、处理信息、做出决策和组织生活的方式来揭示你的核心MBTI类型。",
+      "advancedReport": "高级报告"
+    },
     "exit": {
       "title": "确定要退出测试吗？",
       "description": "你可以保存当前的测试进度，下次继续作答。",
@@ -586,6 +597,43 @@
         "name": "趣味类",
         "description": "轻松有趣的性格探索"
       }
+    }
+  },
+  "purchase": {
+    "tabs": {
+      "payment": "支付",
+      "coin": "金币支付"
+    },
+    "coin": {
+      "balance": "我的金币",
+      "recharge": "充值",
+      "illustration": {
+        "title": "说明：",
+        "text": "使用等值于真实货币的虚拟货币"
+      }
+    },
+    "card": {
+      "title": "探索真实的自己",
+      "badge": "高级报告"
+    },
+    "confirm": "确认"
+  },
+  "http": {
+    "errors": {
+      "network": {
+        "unavailable": "网络连接不可用",
+        "requestFailed": "网络请求失败",
+        "timeout": "请求超时"
+      },
+      "business": {
+        "failed": "业务处理失败",
+        "invalidResponse": "无效的响应数据格式",
+        "serverError": "服务器错误"
+      },
+      "auth": {
+        "expired": "登录已过期，请重新登录"
+      },
+      "unknown": "未知错误"
     }
   }
 }

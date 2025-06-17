@@ -9,8 +9,10 @@ import { SingleEmotionChoice } from "@/components/test/start/SingleEmotionChoice
 import { SliderChoice } from "@/components/test/start/SliderChoice";
 import { SortChoice } from "@/components/test/start/SortChoice";
 import { DEFAULT_COLOR_GROUPS } from "@/constants/Colors";
-import { testService } from "@/services/testServices";
-import { padZero } from "@/utils/common";
+import { mockQuestionsFn } from "@/constants/MockData";
+import { Option, Question, testService } from "@/services/testServices";
+import { manualShowNotification } from "@/store/slices/notificationSlice";
+import { imgProxy, padZero } from "@/utils/common";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, usePathname, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -26,210 +28,34 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-const TOTAL_QUESTIONS = 9;
-
-interface Option {
-  content: string;
-  dimension: string;
-  id: number;
-  image?: string;
-  score: number;
-}
-
-interface SingleChoiceQuestion {
-  type: 1;
-  content: string;
-  options: Option[];
-}
-
-interface MultipleChoiceQuestion {
-  type: 2;
-  content: string;
-  options: Option[];
-  maxSelect?: number; // 最大可选数量，可选
-}
-
-interface SliderQuestion {
-  type: 3;
-  content: string;
-  options: Option[];
-}
-
-interface SingleEmotionQuestion {
-  type: 5;
-  content: string;
-  options: Option[];
-}
-
-interface EmotionQuestion {
-  type: 6;
-  content: string;
-  options: Option[];
-}
-
-interface SortQuestion {
-  type: 4;
-  content: string;
-  options: Option[];
-}
-
-interface PercentageQuestion {
-  type: 7;
-  content: string;
-  options: Option[];
-}
-
-interface ColorQuestion {
-  type: 8;
-  content: string;
-  options: Option[];
-}
-
-interface ImageTextQuestion {
-  type: 9;
-  content: string;
-  options: Option[];
-}
-
-interface ImageText2Question {
-  type: 10;
-  content: string;
-  options: Option[];
-}
-
-type Question =
-  | SingleChoiceQuestion
-  | MultipleChoiceQuestion
-  | SliderQuestion
-  | EmotionQuestion
-  | SortQuestion
-  | PercentageQuestion
-  | SingleEmotionQuestion
-  | ColorQuestion
-  | ImageTextQuestion
-  | ImageText2Question;
+import { useDispatch } from "react-redux";
 
 // 更新模拟题目数据
-const mockQuestions: Question[] = [
-  {
-    type: 6,
-    content: "Role Preference Assessment",
-    options: [
-      { id: 1, content: "领导者", dimension: "L", score: 5 },
-      { id: 2, content: "执行者", dimension: "E", score: 4 },
-      { id: 3, content: "思考者", dimension: "T", score: 3 },
-      { id: 4, content: "协调者", dimension: "C", score: 2 },
-    ]
-  },
-  {
-    type: 5,
-    content: "情绪状态评估",
-    options: [
-      { id: 1, content: "高兴", dimension: "P", score: 5 },
-      { id: 2, content: "悲伤", dimension: "N", score: 2 },
-      { id: 3, content: "愤怒", dimension: "N", score: 1 },
-      { id: 4, content: "恐惧", dimension: "N", score: 1 },
-      { id: 5, content: "惊讶", dimension: "N", score: 3 },
-    ],
-  },
-  {
-    type: 2,
-    content: "兴趣爱好评估",
-    options: [
-      { id: 1, content: "艺术与创作", dimension: "A", score: 5 },
-      { id: 2, content: "科技与创新", dimension: "T", score: 5 },
-      { id: 3, content: "运动与健康", dimension: "S", score: 5 },
-      { id: 4, content: "阅读与写作", dimension: "L", score: 5 },
-      { id: 5, content: "音乐与表演", dimension: "M", score: 5 },
-    ],
-    maxSelect: 3,
-  },
-  {
-    type: 7,
-    content: "时间分配评估",
-    options: [
-      { id: 1, content: "工作和学习", dimension: "W", score: 5 },
-      { id: 2, content: "社交娱乐", dimension: "S", score: 4 },
-      { id: 3, content: "个人爱好", dimension: "H", score: 3 },
-      { id: 4, content: "休息放松", dimension: "R", score: 2 },
-    ],
-  },
-  {
-    type: 3,
-    content: "工作动力评估",
-    options: [
-      { id: 1, content: "非常积极", dimension: "M", score: 5 },
-      { id: 2, content: "比较积极", dimension: "M", score: 4 },
-      { id: 3, content: "一般", dimension: "M", score: 3 },
-      { id: 4, content: "比较消极", dimension: "M", score: 2 },
-      { id: 5, content: "非常消极", dimension: "M", score: 1 },
-    ],
-  },
-  {
-    type: 10,
-    content: "情绪色彩测试",
-    options: [
-      { id: 1, content: "热情红", dimension: "E", score: 5 },
-      { id: 2, content: "平静蓝", dimension: "C", score: 4 },
-      { id: 3, content: "自然绿", dimension: "N", score: 3 },
-      { id: 4, content: "智慧蓝", dimension: "W", score: 5 },
-      { id: 5, content: "阳光黄", dimension: "P", score: 4 },
-      { id: 6, content: "梦幻紫", dimension: "D", score: 3 },
-    ],
-  },
-  {
-    type: 9,
-    content: "图形偏好测试",
-    options: [
-      { id: 1, content: "圆形组合", dimension: "C", score: 5 },
-      { id: 2, content: "方形组合", dimension: "S", score: 4 },
-      { id: 3, content: "三角形组合", dimension: "T", score: 3 },
-      { id: 4, content: "菱形组合", dimension: "D", score: 2 },
-    ],
-  },
-  {
-    type: 1,
-    content: "性格类型测试",
-    options: [
-      { id: 1, content: "主动承担领导角色", dimension: "L", score: 5 },
-      { id: 2, content: "积极参与讨论", dimension: "P", score: 4 },
-      { id: 3, content: "默默支持团队", dimension: "S", score: 3 },
-      { id: 4, content: "独立完成任务", dimension: "I", score: 2 },
-    ],
-  },
-  {
-    type: 8,
-    content: "色彩偏好测试",
-    options: [
-      { id: 1, content: "热情红", dimension: "E", score: 5 },
-      { id: 2, content: "平静蓝", dimension: "C", score: 4 },
-      { id: 3, content: "自然绿", dimension: "N", score: 3 },
-      { id: 4, content: "智慧蓝", dimension: "W", score: 5 },
-      { id: 5, content: "阳光黄", dimension: "P", score: 4 },
-      { id: 6, content: "梦幻紫", dimension: "D", score: 3 },
-    ],
-  },
-  {
-    type: 4,
-    content: "工作价值观评估",
-    options: [
-      { id: 1, content: "成就感", dimension: "A", score: 5 },
-      { id: 2, content: "工作稳定性", dimension: "S", score: 4 },
-      { id: 3, content: "团队协作", dimension: "T", score: 3 },
-      { id: 4, content: "创新机会", dimension: "I", score: 2 },
-    ],
-  },
-];
+const mockQuestions = mockQuestionsFn();
 
 interface TestAnswer {
   question_id: number;
   option_ids: number[];
+  score?: number[];
 }
 
 interface TestSubmission {
   user_test_id: number;
   answers: TestAnswer[];
+}
+
+// 添加用户测试进度接口
+interface SavedTestProgress {
+  user_test_id: number;
+  answers: {
+    question_id: number;
+    option_ids: number[];
+  }[];
+}
+
+interface StartTestResponse {
+  user_test_id: number;
+  progress?: SavedTestProgress;
 }
 
 // 组件选项接口
@@ -251,65 +77,58 @@ interface PercentageComponentOption {
 interface ImageTextComponentOption {
   key: string;
   text: string;
-  color: string;
-  shadowColor: string;
-  pattern: "circle" | "square" | "triangle" | "diamond";
+  imageUrl: string;
 }
 
 interface ImageText2ComponentOption {
   key: string;
   title: string;
   subtitle: string;
-  color: string;
-  icon: "heart" | "smile" | "leaf" | "brain" | "sun" | "star";
+  imageUrl: string;
 }
 
 // 转换选项格式的辅助函数
 const mapOptionsToComponentFormat = (options: Option[]): ComponentOption[] => {
-  return options.map(opt => ({
+  return options.map((opt) => ({
     key: String(opt.id),
-    text: opt.content
+    text: opt.content,
   }));
 };
 
 const mapOptionsToSortFormat = (options: Option[]): SortComponentOption[] => {
-  return options.map(opt => ({
+  return options.map((opt) => ({
     id: String(opt.id),
-    text: opt.content
+    text: opt.content,
   }));
 };
 
-const mapOptionsToPercentageFormat = (options: Option[]): PercentageComponentOption[] => {
-  return options.map(opt => ({
+const mapOptionsToPercentageFormat = (
+  options: Option[]
+): PercentageComponentOption[] => {
+  return options.map((opt) => ({
     id: String(opt.id),
-    title: opt.content
+    title: opt.content,
   }));
 };
 
-const mapOptionsToImageTextFormat = (options: Option[]): ImageTextComponentOption[] => {
-  const patterns: ("circle" | "square" | "triangle" | "diamond")[] = ["circle", "square", "triangle", "diamond"];
-  const colors = ["#FB6F7A", "#FED441", "#22C46F", "#C591FF"];
-  const shadowColors = ["rgba(205, 47, 60, 0.48)", "rgba(206, 169, 40, 0.48)", "rgba(34, 196, 111, 0.48)", "rgba(117, 73, 165, 0.48)"];
-  
+const mapOptionsToImageTextFormat = (
+  options: Option[]
+): ImageTextComponentOption[] => {
   return options.map((opt, index) => ({
     key: String(opt.id),
     text: opt.content,
-    color: colors[index % colors.length],
-    shadowColor: shadowColors[index % shadowColors.length],
-    pattern: patterns[index % patterns.length]
+    imageUrl: imgProxy(opt.image),
   }));
 };
 
-const mapOptionsToImageText2Format = (options: Option[]): ImageText2ComponentOption[] => {
-  const icons: ("heart" | "smile" | "leaf" | "brain" | "sun" | "star")[] = ["heart", "smile", "leaf", "brain", "sun", "star"];
-  const colors = ["#F75C5C", "#5FD1E3", "#3EDB7F", "#3A7DFF", "#FFD43B", "#C17CFF"];
-  
+const mapOptionsToImageText2Format = (
+  options: Option[]
+): ImageText2ComponentOption[] => {
   return options.map((opt, index) => ({
     key: String(opt.id),
     title: opt.content,
     subtitle: opt.dimension,
-    color: colors[index % colors.length],
-    icon: icons[index % icons.length]
+    imageUrl: imgProxy(opt.image),
   }));
 };
 
@@ -323,12 +142,56 @@ export default function StartTest() {
     [questionId: string]: {
       type: number;
       option_ids: number[];
+      question_id: number;
     };
   }>({});
   const [isLoading, setIsLoading] = useState(true);
   const insets = useSafeAreaInsets();
   const [showExitModal, setShowExitModal] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [testId, setTestId] = useState<number | null>(null);
+
+  // 转换服务器答案格式为本地状态格式
+  const convertSubmissionToAnswers = (
+    submission: TestSubmission,
+    questions: Question[]
+  ) => {
+    const newAnswers: {
+      [questionId: string]: {
+        type: number;
+        option_ids: number[];
+        question_id: number;
+      };
+    } = {};
+
+    submission.answers.forEach((answer) => {
+      // 找到对应的问题以获取type
+      const question = questions.find((q) => q.id === answer.question_id);
+      if (question) {
+        // 使用问题的索引作为key
+        const questionIndex = questions.findIndex(
+          (q) => q.id === answer.question_id
+        );
+        
+        // 如果是type 7且有score字段，使用score作为option_ids
+        if (question.type === 7 && answer.score) {
+          newAnswers[`question_${questionIndex}`] = {
+            type: question.type,
+            option_ids: answer.score,
+            question_id: answer.question_id,
+          };
+        } else {
+          newAnswers[`question_${questionIndex}`] = {
+            type: question.type,
+            option_ids: answer.option_ids,
+            question_id: answer.question_id,
+          };
+        }
+      }
+    });
+
+    return newAnswers;
+  };
 
   useEffect(() => {
     console.log(answers);
@@ -339,14 +202,32 @@ export default function StartTest() {
     const loadTestProgress = async () => {
       try {
         setIsLoading(true);
-        const [, res] = await Promise.all([
+        const [res1, res2] = await Promise.all([
           await testService.startTest({ test_id: Number(params.id) }),
           // TODO: 从服务器获取测试进度
           await testService.getTestList({ id: Number(params.id) }),
         ]);
-        if (res.code === 200) {
+        if (res1.code === 200) {
+          setTestId(res1.data.user_test_id);
+        } else {
+          return router.replace("/");
         }
-        // 模拟加载完成
+        if (res2.code === 200) {
+          setQuestions(res2.data.questions as Question[]);
+          // setQuestions(mockQuestions);
+          // TODO: 如果有已保存的进度，转换格式并设置
+          // const savedProgress = await testService.getTestProgress(res1.data.user_test_id);
+          // if (savedProgress.code === 200 && savedProgress.data) {
+          //   const convertedAnswers = convertSubmissionToAnswers(
+          //     {
+          //       user_test_id: res1.data.user_test_id,
+          //       answers: savedProgress.data.answers
+          //     },
+          //     res2.data.questions
+          //   );
+          //   setAnswers(convertedAnswers);
+          // }
+        }
         setIsLoading(false);
       } catch (error) {
         console.error("Error loading test progress:", error);
@@ -360,11 +241,22 @@ export default function StartTest() {
   // 格式化答案为提交格式
   const formatAnswersForSubmission = (): TestSubmission => {
     return {
-      user_test_id: Number(params.id),
-      answers: Object.entries(answers).map(([questionId, answer]) => ({
-        question_id: Number(questionId.replace("question_", "")),
-        option_ids: answer.option_ids,
-      })),
+      user_test_id: testId!,
+      answers: Object.entries(answers).map(([questionId, answer]) => {
+        // 对于type 7，添加score字段
+        if (answer.type === 7) {
+          return {
+            question_id: answer.question_id,
+            option_ids: questions[parseInt(questionId.split('_')[1])].options.map(opt => opt.id),
+            score: answer.option_ids
+          };
+        }
+        // 其他类型保持不变
+        return {
+          question_id: answer.question_id,
+          option_ids: answer.option_ids,
+        };
+      }),
     };
   };
 
@@ -372,31 +264,45 @@ export default function StartTest() {
   const updateAnswer = (
     type: number,
     questionId: string,
-    optionIds: number[]
+    optionIds: number[],
+    question_id: number
   ) => {
     setAnswers((prev) => ({
       ...prev,
       [questionId]: {
         type,
         option_ids: optionIds,
+        question_id,
       },
     }));
   };
 
   const handleNextQuestion = async () => {
-    // 保存当前进度
-    await saveProgress();
     // 移动到下一题
-    setCurrentQuestion((prev) => prev + 1);
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion((prev) => prev + 1);
+    } else {
+      handleSubmit();
+    }
   };
 
+  const handleSubmit = async () => {
+    const data = formatAnswersForSubmission();
+    const res = await testService.submitTestAnswer(data);
+    if (res.code === 200) {
+      router.push(`/test/result/${Number(params.id)}`);
+    }
+  };
+  const dispatch = useDispatch()
   const handleExitSave = async () => {
     const saved = await saveProgress();
-    if (saved) {
-      router.back();
-    } else {
-      // TODO: 显示保存失败提示
-    }
+    // if (saved) {
+    //   router.back();
+    // }
+    dispatch(manualShowNotification({
+        type:"error",
+        message: "错误"
+    }))
   };
 
   if (isLoading) {
@@ -413,21 +319,31 @@ export default function StartTest() {
   }
 
   const renderQuestion = () => {
-    const currentQuestionData = mockQuestions[currentQuestion % mockQuestions.length];
+    const currentQuestionData = questions[currentQuestion % questions.length];
     const questionId = `question_${currentQuestion}`;
     const currentAnswer = answers[questionId]?.option_ids || [];
 
     if (currentQuestionData.type === 1) {
       return (
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+        >
           <SingleChoice
             question={currentQuestionData.content}
             options={mapOptionsToComponentFormat(currentQuestionData.options)}
             selectedOption={currentAnswer[0]?.toString()}
             onSelect={(value) => {
-              const selectedOption = currentQuestionData.options.find(opt => String(opt.id) === value);
+              const selectedOption = currentQuestionData.options.find(
+                (opt) => String(opt.id) === value
+              );
               if (selectedOption) {
-                updateAnswer(1, questionId, [selectedOption.id]);
+                updateAnswer(
+                  1,
+                  questionId,
+                  [selectedOption.id],
+                  currentQuestionData.id
+                );
               }
             }}
             multiple={false}
@@ -437,18 +353,28 @@ export default function StartTest() {
       );
     } else if (currentQuestionData.type === 2) {
       return (
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+        >
           <SingleChoice
             question={currentQuestionData.content}
             options={mapOptionsToComponentFormat(currentQuestionData.options)}
             selectedOptions={currentAnswer.map(String)}
             onSelect={(value) => {
-              const selectedOption = currentQuestionData.options.find(opt => String(opt.id) === value);
+              const selectedOption = currentQuestionData.options.find(
+                (opt) => String(opt.id) === value
+              );
               if (selectedOption) {
                 const newSelected = currentAnswer.includes(selectedOption.id)
-                  ? currentAnswer.filter(v => v !== selectedOption.id)
+                  ? currentAnswer.filter((v) => v !== selectedOption.id)
                   : [...currentAnswer, selectedOption.id];
-                updateAnswer(2, questionId, newSelected);
+                updateAnswer(
+                  2,
+                  questionId,
+                  newSelected,
+                  currentQuestionData.id
+                );
               }
             }}
             multiple={true}
@@ -459,7 +385,10 @@ export default function StartTest() {
       );
     } else if (currentQuestionData.type === 7) {
       return (
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+        >
           <PercentageSlider
             question={currentQuestionData.content}
             description=""
@@ -471,8 +400,8 @@ export default function StartTest() {
               ])
             )}
             onValuesChange={(values) => {
-              const optionIds = Object.values(values).map(v => Math.round(v));
-              updateAnswer(7, questionId, optionIds);
+              const optionIds = Object.values(values).map((v) => Math.round(v));
+              updateAnswer(7, questionId, optionIds, currentQuestionData.id);
             }}
           />
           <View style={styles.bottomSpace} />
@@ -484,15 +413,22 @@ export default function StartTest() {
           <EmotionChoice
             question={currentQuestionData.content}
             description=""
-            options={currentQuestionData.options.map(opt => ({
+            options={currentQuestionData.options.map((opt) => ({
               id: String(opt.id),
-              content: opt.content
+              content: opt.content,
             }))}
             selectedEmotion={currentAnswer[0]?.toString()}
             onSelect={(value) => {
-              const selectedOption = currentQuestionData.options.find(opt => String(opt.id) === value);
+              const selectedOption = currentQuestionData.options.find(
+                (opt) => String(opt.id) === value
+              );
               if (selectedOption) {
-                updateAnswer(6, questionId, [selectedOption.id]);
+                updateAnswer(
+                  6,
+                  questionId,
+                  [selectedOption.id],
+                  currentQuestionData.id
+                );
               }
             }}
           />
@@ -500,15 +436,18 @@ export default function StartTest() {
         </>
       );
     } else if (currentQuestionData.type === 4) {
-      const currentSortedOptions = currentAnswer.length > 0
-        ? currentAnswer.map(id => {
-            const option = currentQuestionData.options.find(opt => opt.id === id);
-            return {
-              id: String(id),
-              text: option?.content || ''
-            };
-          })
-        : mapOptionsToSortFormat(currentQuestionData.options);
+      const currentSortedOptions =
+        currentAnswer.length > 0
+          ? currentAnswer.map((id) => {
+              const option = currentQuestionData.options.find(
+                (opt) => opt.id === id
+              );
+              return {
+                id: String(id),
+                text: option?.content || "",
+              };
+            })
+          : mapOptionsToSortFormat(currentQuestionData.options);
 
       return (
         <>
@@ -518,8 +457,8 @@ export default function StartTest() {
             options={mapOptionsToSortFormat(currentQuestionData.options)}
             sortedOptions={currentSortedOptions}
             onSort={(value) => {
-              const optionIds = value.map(v => Number(v.id));
-              updateAnswer(4, questionId, optionIds);
+              const optionIds = value.map((v) => Number(v.id));
+              updateAnswer(4, questionId, optionIds, currentQuestionData.id);
             }}
           />
         </>
@@ -532,7 +471,7 @@ export default function StartTest() {
             description=""
             value={currentAnswer[0] ?? 0}
             onValueChange={(value) => {
-              updateAnswer(3, questionId, [value]);
+              updateAnswer(3, questionId, [value], currentQuestionData.id);
             }}
           />
           <View style={styles.bottomSpace} />
@@ -544,15 +483,23 @@ export default function StartTest() {
           <SingleEmotionChoice
             question={currentQuestionData.content}
             description=""
-            options={currentQuestionData.options.map(opt => ({
+            options={currentQuestionData.options.map((opt) => ({
               id: String(opt.id),
-              content: opt.content
+              content: opt.content,
+              imgUrl: imgProxy(opt.image),
             }))}
             selectedEmotion={currentAnswer[0]?.toString()}
             onSelect={(value) => {
-              const selectedOption = currentQuestionData.options.find(opt => String(opt.id) === value);
+              const selectedOption = currentQuestionData.options.find(
+                (opt) => String(opt.id) === value
+              );
               if (selectedOption) {
-                updateAnswer(5, questionId, [selectedOption.id]);
+                updateAnswer(
+                  5,
+                  questionId,
+                  [selectedOption.id],
+                  currentQuestionData.id
+                );
               }
             }}
           />
@@ -561,26 +508,22 @@ export default function StartTest() {
       );
     } else if (currentQuestionData.type === 8) {
       return (
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+        >
           <ColorChoice
             question={currentQuestionData.content}
             description=""
             colorGroups={DEFAULT_COLOR_GROUPS}
-            selectedColor={
-              currentAnswer[0] !== undefined
-                ? {
-                    groupIndex: currentAnswer[0],
-                    strengthIndex: currentAnswer[1],
-                  }
-                : null
-            }
+            selectedColor={currentAnswer[0] || null}
             onSelect={(value) => {
               // const optionId = value.groupIndex * 10 + value.strengthIndex;
               // const selectedOption = currentQuestionData.options.find(opt => opt.id === optionId);
               // if (selectedOption) {
               //   updateAnswer(8, questionId, [selectedOption.id]);
               // }
-              updateAnswer(8, questionId, [value.groupIndex, value.strengthIndex]);
+              updateAnswer(8, questionId, [value], currentQuestionData.id);
             }}
             lowStrengthLabel="弱"
             highStrengthLabel="强"
@@ -590,16 +533,26 @@ export default function StartTest() {
       );
     } else if (currentQuestionData.type === 9) {
       return (
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+        >
           <ImageTextChoice
             question={currentQuestionData.content}
             description=""
             options={mapOptionsToImageTextFormat(currentQuestionData.options)}
             selectedOption={currentAnswer[0]?.toString()}
             onSelect={(value) => {
-              const selectedOption = currentQuestionData.options.find(opt => String(opt.id) === value);
+              const selectedOption = currentQuestionData.options.find(
+                (opt) => String(opt.id) === value
+              );
               if (selectedOption) {
-                updateAnswer(9, questionId, [selectedOption.id]);
+                updateAnswer(
+                  9,
+                  questionId,
+                  [selectedOption.id],
+                  currentQuestionData.id
+                );
               }
             }}
           />
@@ -608,16 +561,26 @@ export default function StartTest() {
       );
     } else if (currentQuestionData.type === 10) {
       return (
-        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+        >
           <ImageTextChoice2
             question={currentQuestionData.content}
             description=""
             options={mapOptionsToImageText2Format(currentQuestionData.options)}
             selectedOption={currentAnswer[0]?.toString()}
             onSelect={(value) => {
-              const selectedOption = currentQuestionData.options.find(opt => String(opt.id) === value);
+              const selectedOption = currentQuestionData.options.find(
+                (opt) => String(opt.id) === value
+              );
               if (selectedOption) {
-                updateAnswer(10, questionId, [selectedOption.id]);
+                updateAnswer(
+                  10,
+                  questionId,
+                  [selectedOption.id],
+                  currentQuestionData.id
+                );
               }
             }}
           />
@@ -641,7 +604,11 @@ export default function StartTest() {
         disabled={!getCurrentAnswer()}
         onPress={handleNextQuestion}
       >
-        <Text style={[styles.submitButtonText]}>Next</Text>
+        <Text style={[styles.submitButtonText]}>
+          {currentQuestion < questions.length - 1
+            ? t("test.next")
+            : t("test.submit")}
+        </Text>
         <Ionicons
           name="arrow-forward"
           size={20}
@@ -655,7 +622,7 @@ export default function StartTest() {
   const renderProgressBar = () => (
     <View style={styles.progressBarContainer}>
       <View style={styles.progressBarWrapper}>
-        {Array.from({ length: TOTAL_QUESTIONS }).map((_, index) => (
+        {Array.from({ length: questions.length }).map((_, index) => (
           <View
             key={index}
             style={[
@@ -679,7 +646,7 @@ export default function StartTest() {
   };
 
   const getCurrentAnswer = () => {
-    const currentQuestionData = mockQuestions[currentQuestion % mockQuestions.length];
+    const currentQuestionData = questions[currentQuestion % questions.length];
     const questionId = `question_${currentQuestion}`;
     const currentAnswer = answers[questionId];
 
@@ -720,8 +687,11 @@ export default function StartTest() {
     try {
       const submission = formatAnswersForSubmission();
       // TODO: 保存进度到服务器
-      // await api.saveTestProgress(submission);
-      return true;
+      const res = await testService.saveUserTestProgress({...submission, ...{
+        test_id: Number(params.id),
+        progress: currentQuestion + 1,
+      }});
+      return res.code === 200;
     } catch (error) {
       console.error("Error saving test progress:", error);
       return false;
@@ -731,8 +701,7 @@ export default function StartTest() {
   // 检查指定题目是否已回答
   const isQuestionAnswered = (questionIndex: number) => {
     const questionId = `question_${questionIndex}`;
-    const currentQuestionData =
-      mockQuestions[questionIndex % mockQuestions.length];
+    const currentQuestionData = questions[questionIndex % questions.length];
 
     switch (currentQuestionData.type) {
       case 1:
@@ -763,7 +732,7 @@ export default function StartTest() {
   // 检查是否可以前进
   const canGoForward = () => {
     return (
-      currentQuestion < TOTAL_QUESTIONS - 1 &&
+      currentQuestion < questions.length - 1 &&
       isQuestionAnswered(currentQuestion)
     );
   };
@@ -808,7 +777,7 @@ export default function StartTest() {
           <View style={styles.scrollViewContainer}>
             <View style={styles.scrollViewHeader}>
               <Text style={styles.scrollViewTitle} numberOfLines={1}>
-                {mockQuestions[currentQuestion % mockQuestions.length].content}
+                {questions[currentQuestion % questions.length].content}
               </Text>
               <TouchableOpacity
                 activeOpacity={0.7}
@@ -851,7 +820,7 @@ export default function StartTest() {
                   </Text>
                   <Text style={styles.testTitleText}>/</Text>
                   <Text style={styles.testTitleText}>
-                    {padZero(TOTAL_QUESTIONS)}
+                    {padZero(questions.length)}
                   </Text>
                 </View>
                 <TouchableOpacity

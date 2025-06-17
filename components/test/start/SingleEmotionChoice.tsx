@@ -1,16 +1,10 @@
 import React from "react";
-import {
-  StyleSheet,
-  Text,
-  TextStyle,
-  TouchableOpacity,
-  View,
-  ViewStyle
-} from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface EmotionOption {
   id: string;
   content: string;
+  imgUrl: string;
 }
 
 interface SingleEmotionChoiceProps {
@@ -36,43 +30,47 @@ export const SingleEmotionChoice: React.FC<SingleEmotionChoiceProps> = ({
 
       <View style={styles.emotionsContainer}>
         {options.map((emotion) => (
-          <TouchableOpacity
-            key={emotion.id}
-            style={[
-              styles.emotionButton,
-              selectedEmotion === emotion.id && styles.selectedEmotion,
-            ]}
-            activeOpacity={0.7}
-            onPress={() => onSelect?.(emotion.id)}
-          >
-            <Text
+          <View key={emotion.id} style={styles.emotionButtonContainer}>
+            <TouchableOpacity
               style={[
-                styles.emotionText,
-                selectedEmotion === emotion.id && styles.selectedEmotionText,
+                styles.emotionButton,
+                selectedEmotion === emotion.id && styles.selectedEmotion,
               ]}
+              activeOpacity={0.7}
+              onPress={() => onSelect?.(emotion.id)}
             >
-              {emotion.content}
-            </Text>
-          </TouchableOpacity>
+              <View
+                style={[
+                  styles.emotionImageContainer,
+                  {
+                    backgroundColor:
+                      selectedEmotion === emotion.id ? "#fff" : "#E4EBF0",
+                  },
+                ]}
+              >
+                <Image
+                  source={{ uri: emotion.imgUrl }}
+                  style={styles.emotionImage}
+                  resizeMode="cover"
+                />
+              </View>
+              <Text
+                style={[
+                  styles.emotionText,
+                  selectedEmotion === emotion.id && styles.selectedEmotionText,
+                ]}
+              >
+                {emotion.content}
+              </Text>
+            </TouchableOpacity>
+          </View>
         ))}
       </View>
     </View>
   );
 };
 
-type Style = {
-  container: ViewStyle;
-  question: TextStyle;
-  description: TextStyle;
-  content: ViewStyle;
-  emotionsContainer: ViewStyle;
-  emotionButton: ViewStyle;
-  emotionText: TextStyle;
-  selectedEmotion: ViewStyle;
-  selectedEmotionText: TextStyle;
-};
-
-const styles = StyleSheet.create<Style>({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: 24,
@@ -96,13 +94,17 @@ const styles = StyleSheet.create<Style>({
   emotionsContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-between",
-    gap: 16,
+  },
+  emotionButtonContainer: {
+    width: `${100 / 3}%`,
+    aspectRatio: 1,
+    padding: 6,
   },
   emotionButton: {
-    width: 100,
-    height: 100,
-    backgroundColor: "#F6F6F8",
+    width: "100%",
+    height: "100%",
+    gap: 12,
+    backgroundColor: "#fff",
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
@@ -117,6 +119,18 @@ const styles = StyleSheet.create<Style>({
   },
   selectedEmotion: {
     backgroundColor: "#19DBF2",
+  },
+  emotionImageContainer: {
+    width: 48,
+    height: 48,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 100,
+    overflow: "hidden",
+  },
+  emotionImage: {
+    width: "100%",
+    height: "100%",
   },
   emotionText: {
     fontSize: 14,

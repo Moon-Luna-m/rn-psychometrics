@@ -4,8 +4,10 @@ import { TabItem, Tabs } from "@/components/ui/Tabs";
 import { selectUserInfo } from "@/store/slices/userSlice";
 import { formatNumber } from "@/utils/common";
 import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useSelector } from "react-redux";
 
@@ -20,22 +22,24 @@ interface PurchaseSheetProps {
   onClose: () => void;
   price: number;
   onConfirm: (method: string) => void;
+  testName: string;
 }
 
 interface PurchaseSheetContentProps {
   price: number;
   onConfirm: (method: string) => void;
   onClose?: () => void;
+  testName: string;
 }
 
 const paymentTabs: TabItem[] = [
   {
     key: "payment",
-    title: "Payment",
+    title: "purchase.tabs.payment",
   },
   {
     key: "coin",
-    title: "Gold Coin Payment",
+    title: "purchase.tabs.coin",
   },
 ];
 
@@ -56,7 +60,9 @@ function PurchaseSheetContent({
   price,
   onConfirm,
   onClose,
+  testName,
 }: PurchaseSheetContentProps) {
+  const { t } = useTranslation();
   const [selectedMethod, setSelectedMethod] = useState("mastercard");
   const [paymentType, setPaymentType] = useState<"payment" | "coin">("payment");
   const userInfo = useSelector(selectUserInfo);
@@ -71,7 +77,7 @@ function PurchaseSheetContent({
       {/* 支付方式切换 */}
       <View style={styles.tabContainer}>
         <Tabs
-          tabs={paymentTabs}
+          tabs={paymentTabs.map((tab) => ({ ...tab, title: t(tab.title) }))}
           activeKey={paymentType}
           onChange={(key) => setPaymentType(key as "payment" | "coin")}
           containerStyle={styles.tabWrapper}
@@ -86,7 +92,9 @@ function PurchaseSheetContent({
           {/* 金币余额 */}
           <View style={styles.coinBalanceCard}>
             <View style={styles.coinBalanceInfo}>
-              <Text style={styles.coinBalanceTitle}>Your coins</Text>
+              <Text style={styles.coinBalanceTitle}>
+                {t("purchase.coin.balance")}
+              </Text>
               <View style={styles.coinAmount}>
                 <Image
                   source={require("@/assets/images/wallet/coin.png")}
@@ -106,7 +114,9 @@ function PurchaseSheetContent({
               }}
               activeOpacity={0.8}
             >
-              <Text style={styles.rechargeText}>Recharge</Text>
+              <Text style={styles.rechargeText}>
+                {t("purchase.coin.recharge")}
+              </Text>
             </TouchableOpacity>
           </View>
         </>
@@ -122,7 +132,22 @@ function PurchaseSheetContent({
           />
         </View>
         <View style={styles.priceContent}>
-          <Text style={styles.priceTitle}>Discover the real you</Text>
+          <View style={styles.advancedBadgeContainer}>
+            <LinearGradient
+              colors={["#72FFFD", "#69FF7D", "#FFADFB"]}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 0.5 }}
+              locations={[0, 0.476, 0.9856]}
+              style={styles.advancedBadge}
+            >
+              <Text style={styles.advancedText}>
+                {t("purchase.card.badge")}
+              </Text>
+            </LinearGradient>
+          </View>
+          <Text style={styles.priceTitle} numberOfLines={1}>
+            {testName}
+          </Text>
           <View style={styles.priceRow}>
             {paymentType === "coin" ? (
               <>
@@ -179,9 +204,11 @@ function PurchaseSheetContent({
       ) : (
         /* 金币支付说明 */
         <View style={styles.illustrationContainer}>
-          <Text style={styles.illustrationTitle}>illustrate:</Text>
+          <Text style={styles.illustrationTitle}>
+            {t("purchase.coin.illustration.title")}
+          </Text>
           <Text style={styles.illustrationText}>
-            Use virtual currency equivalent to real money
+            {t("purchase.coin.illustration.text")}
           </Text>
         </View>
       )}
@@ -189,9 +216,11 @@ function PurchaseSheetContent({
       {/* 确认按钮 */}
       <TouchableOpacity
         style={styles.confirmButton}
-        onPress={() => onConfirm(selectedMethod)}
+        onPress={() =>
+          onConfirm(paymentType === "payment" ? selectedMethod : "coin")
+        }
       >
-        <Text style={styles.confirmText}>CONFIRM</Text>
+        <Text style={styles.confirmText}>{t("purchase.confirm")}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -202,6 +231,7 @@ export default function PurchaseSheet({
   onClose,
   price,
   onConfirm,
+  testName,
 }: PurchaseSheetProps) {
   return (
     <BottomSheet
@@ -214,6 +244,7 @@ export default function PurchaseSheet({
         price={price}
         onClose={onClose}
         onConfirm={onConfirm}
+        testName={testName}
       />
     </BottomSheet>
   );
@@ -444,5 +475,27 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontWeight: "600",
     textTransform: "uppercase",
+  },
+  advancedBadgeContainer: {
+    height: 24,
+    position: "relative",
+  },
+  advancedBadge: {
+    position: "absolute",
+    top: 0,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 10,
+    padding: 4,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+  },
+  advancedText: {
+    fontFamily: "Outfit",
+    fontSize: 12,
+    fontWeight: "500",
+    lineHeight: 12,
+    color: "#0C0A09",
   },
 });
