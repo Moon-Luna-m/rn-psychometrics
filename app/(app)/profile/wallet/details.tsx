@@ -82,16 +82,18 @@ const ConsumptionList: React.FC<{
   }, [loading, hasMore, currentPage, refreshing, onLoadData]);
 
   const renderFooter = useCallback(() => {
+    const { t } = useTranslation();
+
     if (!hasMore)
       return (
         <View style={styles.footerContainer}>
-          <Text style={styles.noMoreText}>没有更多数据了</Text>
+          <Text style={styles.noMoreText}>{t("common.noMoreData")}</Text>
         </View>
       );
     if (!loading) return <View style={{ height: 40 }}></View>;
     return (
       <View style={styles.footerContainer}>
-        <ActivityIndicator color="#0C0A09" />
+        <ActivityIndicator color="#19DBF2" />
       </View>
     );
   }, [loading, hasMore]);
@@ -195,16 +197,17 @@ const RechargeList: React.FC<{
   }, [loading, hasMore, currentPage, refreshing, onLoadData]);
 
   const renderFooter = useCallback(() => {
+    const { t } = useTranslation();
     if (!hasMore)
       return (
         <View style={styles.footerContainer}>
-          <Text style={styles.noMoreText}>没有更多数据了</Text>
+          <Text style={styles.noMoreText}>{t("common.noMoreData")}</Text>
         </View>
       );
     if (!loading) return <View style={{ height: 40 }}></View>;
     return (
       <View style={styles.footerContainer}>
-        <ActivityIndicator color="#0C0A09" />
+        <ActivityIndicator color="#19DBF2" />
       </View>
     );
   }, [loading, hasMore]);

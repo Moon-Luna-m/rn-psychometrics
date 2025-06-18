@@ -180,7 +180,6 @@ export class HttpRequest {
             config.headers.token = `${token}`;
           }
           const language = await getStoredLanguage();
-          console.log("language", language);
           if (language) {
             config.headers["Accept-Language"] = LANGUAGES[language].code;
           }
@@ -258,7 +257,8 @@ export class HttpRequest {
             eventBus.emit(HTTP_EVENTS.UNAUTHORIZED);
           } else {
             httpError = new HttpError(
-              apiResponse?.message || i18next.t("http.errors.business.serverError"),
+              apiResponse?.message ||
+                i18next.t("http.errors.business.serverError"),
               ErrorType.BUSINESS,
               error.response,
               status,
@@ -395,7 +395,7 @@ export class HttpRequest {
       );
 
       if (!this.isValidResponse(response.data)) {
-        throw new HttpError("无效的响应数据格式", ErrorType.BUSINESS, response);
+        throw new HttpError("", ErrorType.BUSINESS, response);
       }
 
       return response.data;
@@ -433,7 +433,7 @@ export class HttpRequest {
       );
 
       if (!this.isValidResponse(response.data)) {
-        throw new HttpError("无效的响应数据格式", ErrorType.BUSINESS, response);
+        throw new HttpError("", ErrorType.BUSINESS, response);
       }
 
       return response.data;
@@ -445,16 +445,20 @@ export class HttpRequest {
   // DELETE 方法
   public async delete<T = any>(
     url: string,
+    data?: any,
     config: RequestConfig = {}
   ): Promise<ApiResponse<T>> {
     try {
-      const response = await this.axiosInstance.delete<ApiResponse<T>>(
-        url,
-        config
-      );
+      let processedData;
+      let requestConfig = { ...config };
+      processedData = this.sanitizeRequestData(data);
+      const response = await this.axiosInstance.delete<ApiResponse<T>>(url, {
+        ...requestConfig,
+        data: processedData, // 通过 data 配置项传递请求体数据
+      });
 
       if (!this.isValidResponse(response.data)) {
-        throw new HttpError("无效的响应数据格式", ErrorType.BUSINESS, response);
+        throw new HttpError("", ErrorType.BUSINESS, response);
       }
 
       return response.data;

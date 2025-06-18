@@ -33,7 +33,7 @@ interface DatePickerProps {
 }
 
 const ITEM_HEIGHT = 44;
-const VISIBLE_RANGE = 10; // 上下各25个项目
+const VISIBLE_RANGE = 50; // 上下各25个项目
 
 // 默认最小日期：1970年
 const DEFAULT_MIN_DATE = new Date(1970, 0, 1);
@@ -51,6 +51,7 @@ const PickerScrollView: React.FC<{
   const scrollViewRef = useRef<ScrollView>(null);
   const [scrollValue, setScrollValue] = useState(currentValue);
   const [isScrolling, setIsScrolling] = useState(false);
+  const initialScrollDone = useRef(false);
   const [visibleRange, setVisibleRange] = useState(() => {
     const currentIndex = items.findIndex((item) => item === currentValue);
     const start = Math.max(0, currentIndex - VISIBLE_RANGE);
@@ -70,12 +71,31 @@ const PickerScrollView: React.FC<{
     }
   }, []);
 
+  // 初始化滚动位置
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (!initialScrollDone.current && items.includes(currentValue)) {
+        const index = items.findIndex((item) => item === currentValue);
+        if (index !== -1) {
+          scrollToIndex(index, false);
+          initialScrollDone.current = true;
+        }
+      }
+    }, 50); // 给予一个短暂延时确保组件已完全挂载
+
+    return () => clearTimeout(timeoutId);
+  }, [currentValue, items, scrollToIndex]);
+
   // 当外部currentValue改变时，更新scrollValue和滚动位置
   useEffect(() => {
-    if (!isScrolling && items.includes(currentValue)) {
+    if (
+      !isScrolling &&
+      items.includes(currentValue) &&
+      initialScrollDone.current
+    ) {
       setScrollValue(currentValue);
       const index = items.findIndex((item) => item === currentValue);
-      scrollToIndex(index, false);
+      scrollToIndex(index, true);
     }
   }, [currentValue, items, isScrolling, scrollToIndex]);
 
@@ -86,14 +106,12 @@ const PickerScrollView: React.FC<{
       const index = Math.round(y / ITEM_HEIGHT);
 
       if (Platform.OS !== "web") {
-        // 仅在移动端更新可见范围
         setVisibleRange({
           start: Math.max(0, index - VISIBLE_RANGE),
           end: Math.min(items.length, index + VISIBLE_RANGE),
         });
       }
 
-      // 如果不在滚动中，更新选中值
       if (!isScrolling) {
         const value = items[index];
         if (value !== undefined && value !== scrollValue) {
@@ -167,11 +185,11 @@ const PickerScrollView: React.FC<{
     <View style={styles.pickerColumn}>
       <LinearGradient
         colors={[
-          'rgba(245, 247, 250, 1)',
-          'rgba(245, 247, 250, 0.8)',
-          'rgba(245, 247, 250, 0)',
-          'rgba(245, 247, 250, 0.8)',
-          'rgba(245, 247, 250, 1)',
+          "rgba(245, 247, 250, 1)",
+          "rgba(245, 247, 250, 0.8)",
+          "rgba(245, 247, 250, 0)",
+          "rgba(245, 247, 250, 0.8)",
+          "rgba(245, 247, 250, 1)",
         ]}
         locations={[0, 0.2, 0.5, 0.8, 1]}
         style={styles.pickerMaskContainer}
@@ -180,7 +198,7 @@ const PickerScrollView: React.FC<{
       <ScrollView
         ref={scrollViewRef}
         showsVerticalScrollIndicator={false}
-        snapToInterval={ITEM_HEIGHT}
+        snapToInterval={Platform.OS === "android" ? 0 : ITEM_HEIGHT}
         decelerationRate="fast"
         style={styles.scrollView}
         contentContainerStyle={styles.scrollViewContent}

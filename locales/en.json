@@ -27,6 +27,7 @@
       "camera": "Take Photo",
       "gallery": "Choose from Gallery"
     },
+    "allCategories": "All Categories",
     "camera": {
       "switchCamera": "Switch Camera",
       "flash": {
@@ -155,7 +156,7 @@
   },
   "validation": {
     "email": {
-      "invalid": "Please enter a valid email address, e.g., example@domain.com",
+      "invalid": "Please enter a valid email address, e.g. test@gmail.com",
       "required": "Email is required"
     },
     "password": {
@@ -361,6 +362,7 @@
     "your_answer": "Your answer"
   },
   "test": {
+    "saving": "Saving...",
     "next": "Next",
     "submit": "Submit",
     "testDetail": "Test Detail",
@@ -638,5 +640,10 @@
       },
       "unknown": "Unknown error"
     }
+  },
+  "payment": {
+    "success": "Purchase successful",
+    "error": "Payment failed, please try again.",
+    "paying": "Processing payment, please wait..."
   }
 }

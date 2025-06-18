@@ -216,7 +216,7 @@ export default function Search() {
     if (isLoading) {
       return (
         <View style={styles.footer}>
-          <ActivityIndicator color="#0C0A09" />
+          <ActivityIndicator color="#19DBF2" />
         </View>
       );
     }

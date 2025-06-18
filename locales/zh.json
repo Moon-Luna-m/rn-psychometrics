@@ -24,10 +24,11 @@
       "day": "日"
     },
     "avatar": {
-      "title": "选择头像",
+      "title": "选择头像",  
       "camera": "拍照",
       "gallery": "从相册选择"
     },
+    "allCategories": "所有分类",
     "camera": {
       "switchCamera": "切换摄像头",
       "flash": {
@@ -155,7 +156,7 @@
   },
   "validation": {
     "email": {
-      "invalid": "请输入正确的邮箱格式，如：example@domain.com",
+      "invalid": "请输入正确的邮箱格式，如：test@gmail.com",
       "required": "邮箱不能为空"
     },
     "password": {
@@ -358,6 +359,7 @@
     "your_answer": "您的回答"
   },
   "test": {
+    "saving": "保存中...",
     "next": "下一题",
     "submit": "提交",
     "testDetail": "测试详情",
@@ -635,5 +637,10 @@
       },
       "unknown": "未知错误"
     }
+  },
+  "payment": {
+    "success": "购买成功",
+    "error": "购买失败，请稍后再试。",
+    "paying": "支付中，请稍候..."
   }
 }

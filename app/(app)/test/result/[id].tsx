@@ -13,34 +13,36 @@ import TextProgressCard from "@/components/test/TextProgressCard";
 import TraitCard from "@/components/test/TraitCard";
 import VisualDashboard from "@/components/test/VisualDashboard";
 import { mockDataFn } from "@/constants/MockData";
+import { paymentService } from "@/services/paymentServices";
+import { shareService } from "@/services/shareServices";
 import {
-    BlockType,
-    TestReportResponse,
-    testService,
+  BlockType,
+  TestReportResponse,
+  testService,
 } from "@/services/testServices";
-import { px2hp } from "@/utils/common";
+import { px2hp, setLocalCache } from "@/utils/common";
 import { getTransformedReport } from "@/utils/reportTransformer";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import React, { Fragment, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-    ActivityIndicator,
-    Dimensions,
-    ImageBackground,
-    ImageSourcePropType,
-    Platform,
-    Share,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Dimensions,
+  ImageBackground,
+  ImageSourcePropType,
+  Platform,
+  Share,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import Animated, {
-    interpolateColor,
-    useAnimatedScrollHandler,
-    useAnimatedStyle,
-    useSharedValue,
+  interpolateColor,
+  useAnimatedScrollHandler,
+  useAnimatedStyle,
+  useSharedValue,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -56,6 +58,13 @@ export default function TestResultPage() {
   const [testData, setTestData] = useState<TestReportResponse | null>(null);
   const { id } = useLocalSearchParams();
   const [isLoading, setIsLoading] = useState(false);
+  const [toastInfo, setToastInfo] = useState<{
+    visible: boolean;
+    message: string;
+    type: "success" | "error" | "warning" | "info" | "loading";
+    duration: number | null;
+    onDismiss: () => void;
+  }>();
   const [headerBg, setHeaderBg] = useState<{
     normal: ImageSourcePropType;
     high: ImageSourcePropType;
@@ -102,7 +111,7 @@ export default function TestResultPage() {
       case "KeywordTagBlock":
         return <TraitCard traits={data.tags || []} />;
       case "RadarChartBlock":
-        return <RadarCard data={data || []} />;
+        return <RadarCard data={data.dimensions || []} />;
       case "QuoteImageBlock":
         return <SpiritualInspiration inspirations={data?.list || []} />;
       case "RecommendationBox":
@@ -138,34 +147,76 @@ export default function TestResultPage() {
     }
   };
 
-  const handlePurchase = (method: string) => {
+  const handlePurchase = async (method: string) => {
     console.log("Purchase with method:", method);
     if (method === "coin") {
-      
+      setToastInfo({
+        visible: true,
+        message: t("payment.paying"),
+        type: "loading",
+        duration: null,
+        onDismiss: () => {},
+      });
+      const res = await paymentService.createPaymentOrder({
+        payment_gateway: "BALANCE",
+        payment_method: Platform.OS === "web" ? "WEB" : "APP",
+        product_id: Number(id),
+        product_type: 2,
+        desc: "purchase",
+      });
+      if (res.code === 200) {
+        getTestData();
+        setToastInfo(undefined);
+        setShowPurchase(false);
+      } else {
+        setToastInfo({
+          visible: true,
+          message: res.message,
+          type: "error",
+          duration: 3000,
+          onDismiss: () => {
+            setToastInfo(undefined);
+          },
+        });
+      }
     } else {
       setShowPurchase(false);
     }
-    // setShowPurchase(false);
   };
 
   const handleShare = async (method: string) => {
     try {
+      // 先关闭分享面板，避免界面卡住
+      setShowShare(false);
+
+      // 生成分享链接
+      const shareRes = await shareService.generateShareLink({
+        platform: method.toUpperCase(),
+        target_id: testData?.test_id || 0,
+        target_type: "TEST",
+        title: testData?.test_name || "",
+      });
+
+      if (shareRes.code !== 200) {
+        throw new Error(shareRes.message);
+      }
+
+      // 执行系统分享
       const result = await Share.share({
         message: t("test.share.message"),
-        url: "https://example.com/test",
-        title: t("test.share.title"),
+        url: shareRes.data.share_link,
+        title: testData?.test_name || t("test.share.title"),
       });
+
+      // 处理分享结果
       if (result.action === Share.sharedAction) {
-        if (result.activityType) {
-          console.log("Shared with activity type:", result.activityType);
-        } else {
-          console.log("Shared");
-        }
-      } else if (result.action === Share.dismissedAction) {
-        console.log("Share dismissed");
+        // 记录分享点击
+        await shareService.clickShare({
+          share_code: Number(shareRes.data.share_code),
+        });
       }
     } catch (error: any) {
-      console.error(error.message);
+      console.error("Share failed:", error.message);
     }
   };
 
@@ -181,21 +232,20 @@ export default function TestResultPage() {
       }
     }
   };
+  const getTestData = async () => {
+    setIsLoading(true);
+    const response = await testService.getUserTestReport({
+      test_id: Number(id),
+    });
+    if (response.code === 200) {
+      setTestData(response.data);
+    } else {
+      router.replace("/");
+    }
+    setIsLoading(false);
+  };
 
   useEffect(() => {
-    const getTestData = async () => {
-      setIsLoading(true);
-      const response = await testService.getUserTestReport({
-        test_id: Number(id),
-      });
-      if (response.code === 200) {
-        setTestData(response.data);
-        console.log("testData", response.data);
-      } else {
-        router.replace("/");
-      }
-      setIsLoading(false);
-    };
     getTestData();
   }, []);
 
@@ -261,13 +311,14 @@ export default function TestResultPage() {
             <TouchableOpacity
               style={[styles.button, styles.testAgainButton]}
               activeOpacity={0.7}
-              onPress={() => {
+              onPress={async () => {
+                await setLocalCache("user_test_way", "system");
                 router.push(`/test/start/${id}`);
               }}
             >
               <Text style={styles.buyButtonText}>{t("test.testAgain")}</Text>
             </TouchableOpacity>
-            {testData?.has_access ? (
+            {!testData?.has_access ? (
               <TouchableOpacity
                 style={[styles.button, styles.buyButton]}
                 activeOpacity={0.7}
@@ -285,6 +336,7 @@ export default function TestResultPage() {
       )}
 
       <PurchaseSheet
+        toastInfo={toastInfo}
         isVisible={showPurchase}
         testName={testData?.test_name || ""}
         onClose={() => setShowPurchase(false)}

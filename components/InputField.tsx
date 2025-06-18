@@ -1,5 +1,5 @@
 import { px2hp, px2wp } from "@/utils/common";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import React from "react";
 import { Controller } from "react-hook-form";
 import {
@@ -17,6 +17,11 @@ import {
   View,
   ViewStyle,
 } from "react-native";
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  withTiming,
+} from "react-native-reanimated";
 import ErrorMessage from "./ErrorMessage";
 
 interface InputFieldProps {
@@ -34,6 +39,9 @@ interface InputFieldProps {
   containerStyle?: StyleProp<ViewStyle>;
   inputStyle?: StyleProp<TextStyle>;
   disabled?: boolean;
+  onFocusChange?: (focused: boolean) => void;
+  showArrow?: boolean;
+  handleBlur?: () => void;
 }
 
 const InputField: React.FC<InputFieldProps> = ({
@@ -51,12 +59,33 @@ const InputField: React.FC<InputFieldProps> = ({
   containerStyle,
   inputStyle,
   disabled = false,
+  onFocusChange,
+  showArrow = false,
+  handleBlur,
 }) => {
   const [showPassword, setShowPassword] = React.useState(!secureTextEntry);
   const [isFocused, setIsFocused] = React.useState(false);
 
+  const arrowAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          rotate: withTiming(isFocused ? "-90deg" : "90deg", {
+            duration: 300,
+            easing: Easing.bezier(0.4, 0, 0.2, 1),
+          }),
+        },
+      ],
+    };
+  });
+
+  const handleFocusChange = (focused: boolean) => {
+    setIsFocused(focused);
+    onFocusChange?.(focused);
+  };
+
   const content = (
-    <View>
+    <View style={styles.container}>
       {label && <Text style={styles.label}>{label}</Text>}
       <View
         style={[
@@ -75,11 +104,12 @@ const InputField: React.FC<InputFieldProps> = ({
               value={value}
               onChangeText={onChange}
               onBlur={() => {
-                setIsFocused(false);
+                handleFocusChange(false);
                 onBlur();
+                handleBlur?.();
               }}
               onFocus={() => {
-                !disabled && setIsFocused(true);
+                !disabled && handleFocusChange(true);
               }}
               secureTextEntry={!showPassword}
               style={[
@@ -118,11 +148,22 @@ const InputField: React.FC<InputFieldProps> = ({
             />
           </TouchableOpacity>
         )}
+        {showArrow && (
+          <Animated.View style={[styles.eyeIconContainer, arrowAnimatedStyle]}>
+            <MaterialIcons
+              name="arrow-forward-ios"
+              size={24}
+              color="#333333"
+            />
+          </Animated.View>
+        )}
       </View>
-      <ErrorMessage 
-        message={errors[name]?.message} 
-        visible={!!errors[name]} 
-      />
+      <View style={styles.errorContainer}>
+        <ErrorMessage
+          message={errors[name]?.message}
+          visible={!!errors[name]}
+        />
+      </View>
     </View>
   );
 
@@ -137,6 +178,9 @@ const InputField: React.FC<InputFieldProps> = ({
 };
 
 const styles = StyleSheet.create({
+  container: {
+    minHeight: px2hp(80), // 预留错误信息的空间
+  },
   label: {
     fontFamily: "Outfit",
     fontSize: 16,
@@ -176,6 +220,13 @@ const styles = StyleSheet.create({
   eyeIconContainer: {
     marginLeft: px2wp(8),
     padding: 0,
+  },
+  errorContainer: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    top: 40,
+    marginTop: px2hp(4),
   },
 });
 

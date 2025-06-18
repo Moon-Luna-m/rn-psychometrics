@@ -23,6 +23,13 @@ interface PurchaseSheetProps {
   price: number;
   onConfirm: (method: string) => void;
   testName: string;
+  toastInfo?: {
+    visible: boolean;
+    message: string;
+    type: "success" | "error" | "warning" | "info" | "loading";
+    duration: number | null;
+    onDismiss: () => void;
+  };
 }
 
 interface PurchaseSheetContentProps {
@@ -232,6 +239,7 @@ export default function PurchaseSheet({
   price,
   onConfirm,
   testName,
+  toastInfo,
 }: PurchaseSheetProps) {
   return (
     <BottomSheet
@@ -239,6 +247,7 @@ export default function PurchaseSheet({
       onClose={onClose}
       initialY={500}
       containerStyle={{ padding: 12 }}
+      toast={toastInfo}
     >
       <PurchaseSheetContent
         price={price}

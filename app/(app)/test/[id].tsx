@@ -14,12 +14,13 @@ import TextProgressCard from "@/components/test/TextProgressCard";
 import TraitCard from "@/components/test/TraitCard";
 import VisualDashboard from "@/components/test/VisualDashboard";
 import { mockDataFn } from "@/constants/MockData";
+import { shareService } from "@/services/shareServices";
 import {
   BlockType,
   TestDetailResponse,
   testService,
 } from "@/services/testServices";
-import { formatDuration, px2hp } from "@/utils/common";
+import { formatDuration, px2hp, setLocalCache } from "@/utils/common";
 import { getTestTypeKey } from "@/utils/reportTransformer";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
@@ -137,22 +138,37 @@ export default function TestDetailsPage() {
 
   const handleShare = async (method: string) => {
     try {
+      // 先关闭分享面板，避免界面卡住
+      setShowShare(false);
+
+      // 生成分享链接
+      const shareRes = await shareService.generateShareLink({
+        platform: method.toUpperCase(),
+        target_id: testData?.id || 0,
+        target_type: "TEST",
+        title: testData?.name || "",
+      });
+
+      if (shareRes.code !== 200) {
+        throw new Error(shareRes.message);
+      }
+
+      // 执行系统分享
       const result = await Share.share({
         message: t("test.share.message"),
-        url: "https://example.com/test",
-        title: t("test.share.title"),
+        url: shareRes.data.share_link,
+        title: testData?.name || t("test.share.title"),
       });
+
+      // 处理分享结果
       if (result.action === Share.sharedAction) {
-        if (result.activityType) {
-          console.log("Shared with activity type:", result.activityType);
-        } else {
-          console.log("Shared");
-        }
-      } else if (result.action === Share.dismissedAction) {
-        console.log("Share dismissed");
+        // 记录分享点击
+        await shareService.clickShare({
+          share_code: Number(shareRes.data.share_code),
+        });
       }
     } catch (error: any) {
-      console.error(error.message);
+      console.error("Share failed:", error.message);
     }
   };
 
@@ -181,7 +197,6 @@ export default function TestDetailsPage() {
       const response = await testService.getTestList({ id: Number(id) });
       if (response.code === 200) {
         setTestData(response.data);
-        console.log("testData", response.data);
       }
     };
     getTestData();
@@ -207,10 +222,7 @@ export default function TestDetailsPage() {
             title={t("test.testDetail")}
           />
           <Animated.ScrollView
-            style={[
-              styles.scrollView,
-              { marginTop: insets.top + 44, marginBottom: insets.bottom + 50 },
-            ]}
+            style={[styles.scrollView, { marginTop: insets.top + 44 }]}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.content}
             onScroll={scrollHandler}
@@ -249,6 +261,7 @@ export default function TestDetailsPage() {
                   <Fragment key={type}>{renderComponent(type)}</Fragment>
                 ))}
                 <FAQCard faqs={mockData.faqs} />
+                <View style={{ height: 50 + insets.bottom }} />
               </>
             )}
           </Animated.ScrollView>
@@ -261,7 +274,8 @@ export default function TestDetailsPage() {
               style={styles.buyButton}
               underlayColor="#19DBF2"
               activeOpacity={0.5}
-              onPress={() => {
+              onPress={async () => {
+                await setLocalCache("user_test_way", "system");
                 router.push(`/test/start/${testData?.id}`);
               }}
             >

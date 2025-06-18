@@ -8,31 +8,30 @@ import { AntDesign } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { useCallback, useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
   FlatList,
-  Modal,
+  Platform,
   RefreshControl,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Animated, {
   Extrapolation,
   interpolate,
   useAnimatedStyle,
   useSharedValue,
-  withTiming,
 } from "react-native-reanimated";
 import {
-  SafeAreaView,
-  useSafeAreaInsets,
+  useSafeAreaInsets
 } from "react-native-safe-area-context";
 import { Route, TabBar, TabView } from "react-native-tab-view";
+import { useCategoryModal } from "../../../../components/providers/CategoryModalProvider";
 
 interface TabRoute extends Route {
   title: string;
@@ -70,7 +69,7 @@ const TabContent = ({ route }: { route: TabRoute }) => {
   const fetchData = async (page: number, isRefresh = false) => {
     if (isLoading) return;
 
-    !isRefresh &&setIsLoading(true);
+    !isRefresh && setIsLoading(true);
     try {
       const res = await testService.getTestListByType({
         type_id: Number(route.key),
@@ -116,7 +115,7 @@ const TabContent = ({ route }: { route: TabRoute }) => {
   }: {
     item: GetTestListByTypeResponse["list"][0];
   }) => (
-    <View style={[styles.cardContainer, { width: '48%' }]}>
+    <View style={[styles.cardContainer, { width: "48%" }]}>
       <SearchResultCard
         item={item}
         onPress={() => {
@@ -164,11 +163,10 @@ const renderScene = ({ route }: { route: TabRoute }) => (
 );
 
 export default function Category() {
-  const { t } = useTranslation();
   const [index, setIndex] = useState(0);
   const [routes, setRoutes] = useState<TabRoute[]>([]);
-  const [showAllCategories, setShowAllCategories] = useState(false);
   const progress = useSharedValue(0);
+  const { showModal, hideModal, setOnSelect } = useCategoryModal();
   const insets = useSafeAreaInsets();
 
   const getTestTypeList = async () => {
@@ -192,18 +190,10 @@ export default function Category() {
       return () => {
         // 重置分类页的状态
         setIndex(0);
-        setShowAllCategories(false);
         progress.value = 0;
       };
     }, [])
   );
-
-  useEffect(() => {
-    progress.value = withTiming(showAllCategories ? 1 : 0, {
-      duration: 200,
-    });
-  }, [showAllCategories]);
-
   const arrowStyle = useAnimatedStyle(() => ({
     transform: [
       {
@@ -217,18 +207,23 @@ export default function Category() {
     ],
   }));
 
-  const toggleExpand = useCallback(() => {
-    setShowAllCategories((prev) => !prev);
-  }, []);
-
   const handleCategoryPress = useCallback(
     (key: string) => {
       const newIndex = routes.findIndex((route) => route.key === key);
-      setIndex(newIndex);
-      setShowAllCategories(false);
+      if (newIndex !== -1) {
+        setIndex(newIndex);
+      }
     },
-    [routes]
+    [routes, index]
   );
+
+  useEffect(() => {
+    setOnSelect(handleCategoryPress);
+  }, [handleCategoryPress]);
+
+  const handleExpandPress = useCallback(() => {
+    showModal(routes, index);
+  }, [routes, index, showModal]);
 
   const renderTabBar = useCallback(
     (props: any) => (
@@ -255,6 +250,12 @@ export default function Category() {
           pressColor="transparent"
           pressOpacity={1}
           gap={16}
+          onTabPress={({ route }) => {
+            const newIndex = routes.findIndex((r) => r.key === route.key);
+            if (newIndex !== -1) {
+              setIndex(newIndex);
+            }
+          }}
         />
         <LinearGradient
           colors={["rgba(245, 247, 250, 0)", "rgba(245, 247, 250, 1)"]}
@@ -265,7 +266,7 @@ export default function Category() {
         />
         <TouchableOpacity
           style={styles.expandButton}
-          onPress={toggleExpand}
+          onPress={handleExpandPress}
           activeOpacity={0.7}
         >
           <Animated.View style={arrowStyle}>
@@ -274,85 +275,27 @@ export default function Category() {
         </TouchableOpacity>
       </View>
     ),
-    []
+    [routes, index, handleExpandPress, arrowStyle]
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.tabViewContainer}>
-        {routes.length > 0 && (
-          <TabView
-            navigationState={{ index, routes }}
-            renderScene={renderScene}
-            renderTabBar={renderTabBar}
-            onIndexChange={setIndex}
-            initialLayout={initialLayout}
-          />
-        )}
-        <Modal
-          visible={showAllCategories}
-          transparent
-          animationType="fade"
-          onRequestClose={() => setShowAllCategories(false)}
-        >
-          <View style={styles.modalContainer}>
-            <TouchableOpacity
-              style={styles.overlay}
-              activeOpacity={1}
-              onPress={() => setShowAllCategories(false)}
+    <GestureHandlerRootView style={styles.container}>
+      <View style={[styles.container, { paddingTop: insets.top }]}>
+        <View style={styles.tabViewContainer}>
+          {routes.length > 0 && (
+            <TabView
+              navigationState={{ index, routes }}
+              renderScene={renderScene}
+              renderTabBar={renderTabBar}
+              onIndexChange={setIndex}
+              initialLayout={initialLayout}
+              swipeEnabled={false}
+              animationEnabled={false}
             />
-            <Animated.View
-              style={[
-                styles.expandPanel,
-                {
-                  paddingTop: insets.top,
-                },
-              ]}
-            >
-              <View style={styles.expandHeader}>
-                <Text style={styles.expandTitle}>All Categories</Text>
-                <TouchableOpacity
-                  style={styles.expandButton}
-                  onPress={() => setShowAllCategories(false)}
-                  activeOpacity={0.7}
-                >
-                  <Animated.View style={arrowStyle}>
-                    <AntDesign name="down" size={24} color="#333333" />
-                  </Animated.View>
-                </TouchableOpacity>
-              </View>
-              <View style={styles.categoryList}>
-                {routes.map((tab) => {
-                  const isActive =
-                    index ===
-                    routes.findIndex((route) => route.key === tab.key);
-                  return (
-                    <TouchableOpacity
-                      key={tab.key}
-                      style={[
-                        styles.categoryItem,
-                        isActive && styles.categoryItemActive,
-                      ]}
-                      onPress={() => handleCategoryPress(tab.key)}
-                      activeOpacity={0.7}
-                    >
-                      <Text
-                        style={[
-                          styles.categoryText,
-                          isActive && styles.categoryTextActive,
-                        ]}
-                      >
-                        {tab.title}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            </Animated.View>
-          </View>
-        </Modal>
+          )}
+        </View>
       </View>
-    </SafeAreaView>
+    </GestureHandlerRootView>
   );
 }
 
@@ -414,18 +357,59 @@ const styles = StyleSheet.create({
   expandButton: {
     zIndex: 101,
   },
-  modalContainer: {
-    flex: 1,
+  modalWrapper: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: -100, // 确保覆盖住底部 TabBar
+    zIndex: 1000,
+    elevation: 1000,
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
+    zIndex: 1000,
+    elevation: 1000,
+  },
+  overlayTouch: {
+    width: "100%",
+    height: "100%",
+  },
+  expandPanel: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: "#F5F7FA",
+    borderBottomLeftRadius: px2wp(16),
+    borderBottomRightRadius: px2wp(16),
+    maxHeight: "80%",
+    zIndex: 1001,
+    elevation: 1001,
+    ...Platform.select({
+      android: {
+        elevation: 24,
+      },
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: {
+          width: 0,
+          height: 4,
+        },
+        shadowOpacity: 0.3,
+        shadowRadius: 4.65,
+      },
+    }),
   },
   expandHeader: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     paddingHorizontal: px2wp(16),
     height: px2hp(44),
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "rgba(0, 0, 0, 0.1)",
   },
   expandTitle: {
     flex: 1,
@@ -435,12 +419,8 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#0C0A09",
   },
-  expandPanel: {
-    backgroundColor: "#F5F7FA",
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
+  categoryListWrapper: {
+    maxHeight: Dimensions.get("window").height * 0.6,
   },
   categoryList: {
     flexDirection: "row",
@@ -448,7 +428,6 @@ const styles = StyleSheet.create({
     gap: px2wp(12),
     padding: px2wp(16),
     paddingVertical: px2wp(20),
-    backgroundColor: "#F5F7FA",
   },
   categoryItem: {
     backgroundColor: "#FFFFFF",
@@ -478,7 +457,7 @@ const styles = StyleSheet.create({
     // paddingHorizontal: px2wp(8),
   },
   row: {
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
     marginBottom: 0,
   },
   footer: {

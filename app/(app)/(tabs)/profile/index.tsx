@@ -25,7 +25,7 @@ import {
   TouchableHighlight,
   View,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useSelector } from "react-redux";
 
 interface ServiceItem {
@@ -109,7 +109,7 @@ const ServiceSection = memo(({ title, items }: ServiceSectionProps) => (
 export default function Profile() {
   const userInfo = useSelector(selectUserInfo);
   const { t } = useTranslation();
-
+  const insets = useSafeAreaInsets();
   const [completedCount, setCompletedCount] = useState(0);
   const [unCompletedCount, setUnCompletedCount] = useState(0);
 
@@ -200,7 +200,7 @@ export default function Profile() {
   return (
     <View style={styles.container}>
       <LinearGradient colors={["#ABF1FF", "#F5F7FA"]} style={styles.gradient} />
-      <SafeAreaView style={styles.content}>
+      <View style={[styles.content, { paddingTop: insets.top }]}>
         <View style={styles.header}>
           {/* 编辑按钮 */}
           <TouchableHighlight
@@ -239,7 +239,7 @@ export default function Profile() {
             {/* 用户名和性别 */}
             <View style={styles.userInfo}>
               <Text numberOfLines={1} style={styles.username}>
-                {userInfo?.username}
+                {userInfo?.username || `Echo`}
               </Text>
               <View style={styles.genderTag}>
                 {userInfo?.sex === 1 ? (
@@ -327,7 +327,7 @@ export default function Profile() {
             />
           </ScrollView>
         </View>
-      </SafeAreaView>
+      </View>
     </View>
   );
 }
@@ -442,14 +442,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderRadius: px2wp(20),
     padding: px2wp(12),
-    elevation: 1,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
+    boxShadow: "0px 0px 10px 0px rgba(100, 100, 111, 0.1)",
   },
   testCardContent: {
     flexDirection: "row",

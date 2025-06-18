@@ -155,33 +155,37 @@ export default function Wallet() {
           ) : (
             <View style={styles.rechargeGrid}>
               {rechargeOptions.map((option, index) => (
-                <TouchableOpacity
-                  key={index}
-                  style={[
-                    styles.rechargeOption,
-                    selectedOption === index && styles.rechargeOptionSelected,
-                  ]}
-                  activeOpacity={0.8}
-                  onPress={() => handleSelectOption(index)}
-                >
-                  <View style={styles.rechargeContent}>
-                    <View style={styles.coinAmount}>
-                      <Image
-                        source={require("@/assets/images/wallet/coin.png")}
-                        style={styles.smallCoinIcon}
-                      />
-                      <Text style={styles.coinText}>{option.coins_amount}</Text>
+                <View style={styles.rechargeOptionContainer}>
+                  <TouchableOpacity
+                    key={index}
+                    style={[
+                      styles.rechargeOption,
+                      selectedOption === index && styles.rechargeOptionSelected,
+                    ]}
+                    activeOpacity={0.8}
+                    onPress={() => handleSelectOption(index)}
+                  >
+                    <View style={styles.rechargeContent}>
+                      <View style={styles.coinAmount}>
+                        <Image
+                          source={require("@/assets/images/wallet/coin.png")}
+                          style={styles.smallCoinIcon}
+                        />
+                        <Text style={styles.coinText}>
+                          {option.coins_amount}
+                        </Text>
+                      </View>
+                      <View style={styles.priceTag}>
+                        <Text style={styles.priceText}>${option.amount}</Text>
+                      </View>
                     </View>
-                    <View style={styles.priceTag}>
-                      <Text style={styles.priceText}>${option.amount}</Text>
-                    </View>
-                  </View>
-                  {option.is_popular && (
-                    <View style={[styles.tag, styles.limitedTag]}>
-                      <Text style={styles.tagText}>{option.description}</Text>
-                    </View>
-                  )}
-                </TouchableOpacity>
+                    {option.is_popular && (
+                      <View style={[styles.tag, styles.limitedTag]}>
+                        <Text style={styles.tagText}>{option.description}</Text>
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                </View>
               ))}
             </View>
           )}
@@ -255,9 +259,7 @@ export default function Wallet() {
               {instructions.map((instruction, index) => (
                 <View key={index} style={styles.instructionRow}>
                   <View style={styles.instructionDot} />
-                  <Text style={styles.instructionText}>
-                    {instruction}
-                  </Text>
+                  <Text style={styles.instructionText}>{instruction}</Text>
                 </View>
               ))}
             </View>
@@ -423,11 +425,10 @@ const styles = StyleSheet.create({
   rechargeGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: px2wp(12),
     marginTop: 12,
   },
+  rechargeOptionContainer: { width: `${100 / 3}%`, padding: 2 },
   rechargeOption: {
-    width: (px2wp(375) - px2wp(56)) / 3,
     backgroundColor: "#FFFFFF",
     borderRadius: px2wp(12),
     borderWidth: 2,

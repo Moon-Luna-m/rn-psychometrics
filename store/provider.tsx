@@ -6,10 +6,8 @@ import store from "./index";
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <Provider store={store}>
-      <NotificationToast />
-      <InitializationWrapper>
-        {children}
-      </InitializationWrapper>
+      <NotificationToast disabledPath={["/test/start"]} />
+      <InitializationWrapper>{children}</InitializationWrapper>
     </Provider>
   );
 }

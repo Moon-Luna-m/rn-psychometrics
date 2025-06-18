@@ -118,10 +118,17 @@ export const paymentService = {
   // 创建支付订单
   async createPaymentOrder(params: {
     desc: string;
-    payment_gateway: string;
-    payment_method: string;
+    payment_gateway:
+      | "ALIPAY"
+      | "WECHAT"
+      | "PAYPAL"
+      | "BALANCE"
+      | "GOOGLE"
+      | "IOS"
+      | "PIX";
+    payment_method: "WEB" | "APP" | "QRCODE";
     product_id: number;
-    product_type: number;
+    product_type: 1 | 2 | 3; // 1: 充值 2: 购买 3: 订阅
   }): Promise<ApiResponse<CreatePaymentOrderResponse>> {
     return httpClient.post<CreatePaymentOrderResponse>(
       path.CREATE_PAYMENT_ORDER,

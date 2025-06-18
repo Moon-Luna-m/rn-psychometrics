@@ -70,13 +70,7 @@ export default function () {
       />
       <View style={styles.content}>
         <DigitalAssistant onPress={() => {
-          // router.push("/chat")
-          router.push({
-            pathname: "/test/start/[id]",
-            params: {
-              id: "1",
-            },
-          });
+          router.push("/chat")
         }} />
         <View style={styles.searchContainer}>
           <SearchBar handlePress={handlePress} disabled />

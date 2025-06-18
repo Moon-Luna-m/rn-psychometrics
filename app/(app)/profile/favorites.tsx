@@ -158,7 +158,12 @@ function FavoriteCard({
           style={styles.startButton}
           activeOpacity={0.5}
           onPress={() => {
-            console.log("跳转到测试详情页:", item.id);
+            router.push({
+              pathname: "/test/[id]",
+              params: {
+                id: item.id.toString(),
+              },
+            });
           }}
         >
           <AntDesign name="arrowright" size={16} color="#19DBF2" />

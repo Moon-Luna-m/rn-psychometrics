@@ -5,7 +5,7 @@ import {
   ImageSourcePropType,
   StyleSheet,
   Text,
-  View
+  View,
 } from "react-native";
 
 interface Trait {
@@ -17,7 +17,6 @@ interface TraitCardProps {
   traits: Trait[];
 }
 
-
 export default function TraitCard({ traits }: TraitCardProps) {
   const { t } = useTranslation();
 
@@ -25,21 +24,8 @@ export default function TraitCard({ traits }: TraitCardProps) {
     <View style={styles.container}>
       <Text style={styles.title}>{t("test.components.trait.title")}</Text>
       <View style={styles.traitsContainer}>
-        {traits.map((trait, index) => (
-          <View
-            key={index}
-            style={[
-              styles.traitItem,
-              index === traits.length - 1 && {
-                width: "100%",
-                flexDirection: "row",
-                alignItems: "center",
-              },
-              index !== traits.length - 1 && {
-                width: "48.2%",
-              },
-            ]}
-          >
+        {traits.slice(0, traits.length - 1).map((trait, index) => (
+          <View key={index} style={[styles.traitItem, { flex: 1 }]}>
             <View style={styles.iconContainer}>
               <Image source={trait.icon} style={styles.icon} />
             </View>
@@ -49,6 +35,20 @@ export default function TraitCard({ traits }: TraitCardProps) {
             </View>
           </View>
         ))}
+      </View>
+      <View
+        style={[
+          styles.traitItem,
+          { flexDirection: "row", alignItems: "center" },
+        ]}
+      >
+        <View style={styles.iconContainer}>
+          <Image source={traits[traits.length - 1].icon} style={styles.icon} />
+        </View>
+        <View style={styles.traitContent}>
+          <Text style={styles.label}>{traits[traits.length - 1].label}</Text>
+          {/* <Text style={styles.description}>{trait.description}</Text> */}
+        </View>
       </View>
     </View>
   );
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
   },
   traitsContainer: {
     flexDirection: "row",
-    flexWrap: "wrap",
+    // flexWrap: "wrap",
     gap: 11,
   },
   traitItem: {
@@ -87,14 +87,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 12,
     gap: 8,
-    shadowColor: "rgba(100, 100, 111, 0.1)",
-    shadowOffset: {
-      width: 0,
-      height: 8,
-    },
-    shadowRadius: 33,
-    shadowOpacity: 1,
-    elevation: 5,
+    boxShadow: "0px 0px 10px 0px rgba(100, 100, 111, 0.1)",
   },
   iconContainer: {
     width: 48,

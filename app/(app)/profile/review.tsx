@@ -3,7 +3,13 @@ import {
   GetUserTestHistoryResponse,
   testService,
 } from "@/services/testServices";
-import { formatDate, formatDateTime, px2hp, px2wp } from "@/utils/common";
+import {
+  formatDate,
+  formatDateTime,
+  px2hp,
+  px2wp,
+  setLocalCache,
+} from "@/utils/common";
 import { AntDesign, Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
@@ -178,6 +184,7 @@ export default function Review() {
   // 处理 tab 切换
   const handleTabChange = useCallback(
     (key: string) => {
+      if (key === activeTab) return;
       // 重置当前列表状态
       currentList.resetState();
       // 切换标签
@@ -186,6 +193,25 @@ export default function Review() {
       scrollViewRef.current?.scrollTo({ x: 0, y: 0, animated: false });
     },
     [currentList]
+  );
+
+  const handleDelete = useCallback(
+    async (id: number) => {
+      const res = await testService.deleteUserTest({ test_id: id });
+      if (res.code === 200) {
+        currentList.onRefresh(false);
+      }
+    },
+    [currentList]
+  );
+
+  const handleContinue = useCallback(
+    async (item: GetUserTestHistoryResponse["list"][0]) => {
+      await setLocalCache("user_test_way", "user");
+      await setLocalCache("user_test_id", String(item.test_id));
+      router.push(`/test/start/${item.id}`);
+    },
+    []
   );
 
   // 监听标签变化，重新请求数据（仅在非首次加载时执行）
@@ -236,7 +262,17 @@ export default function Review() {
           showsVerticalScrollIndicator={false}
         >
           {currentList.data.map((item) => (
-            <ReviewCard key={item.id} item={item} type={activeTab} />
+            <ReviewCard
+              key={item.id}
+              item={item}
+              type={activeTab}
+              onDelete={() => {
+                handleDelete(item.test_id);
+              }}
+              onContinue={() => {
+                handleContinue(item);
+              }}
+            />
           ))}
           {currentList.loading && (
             <View style={styles.loadingContainer}>
@@ -257,9 +293,13 @@ export default function Review() {
 function ReviewCard({
   item,
   type,
+  onDelete,
+  onContinue,
 }: {
   item: GetUserTestHistoryResponse["list"][0];
   type: "completed" | "incomplete";
+  onDelete: () => void;
+  onContinue: () => void;
 }) {
   const { t } = useTranslation();
 
@@ -282,7 +322,7 @@ function ReviewCard({
               <Text style={styles.timeText}>{time}</Text>
             </View>
           </View>
-          <TouchableOpacity activeOpacity={0.5}>
+          <TouchableOpacity activeOpacity={0.5} onPress={onDelete}>
             <View style={styles.warningIcon}>
               <MaterialIcons name="delete-outline" size={24} color="#EB5735" />
             </View>
@@ -337,7 +377,7 @@ function ReviewCard({
               style={styles.continueButton}
               contentStyle={styles.continueButtonContent}
               labelStyle={styles.continueButtonText}
-              onPress={() => {}}
+              onPress={onContinue}
             >
               {t("review.card.continue")}
             </Button>
@@ -362,7 +402,13 @@ function ReviewCard({
             <Text style={styles.timeText}>{time}</Text>
           </View>
         </View>
-        <TouchableOpacity style={styles.detailsButton} activeOpacity={0.5}>
+        <TouchableOpacity
+          style={styles.detailsButton}
+          activeOpacity={0.5}
+          onPress={() => {
+            router.push(`/test/${item.test_id}`);
+          }}
+        >
           <Text style={styles.detailsText}>{t("review.card.details")}</Text>
           <AntDesign name="arrowright" size={16} color="#19DBF2" />
         </TouchableOpacity>
@@ -385,7 +431,8 @@ function ReviewCard({
           style={styles.testAgainButton}
           contentStyle={styles.buttonContent}
           labelStyle={styles.testAgainButtonText}
-          onPress={() => {
+          onPress={async () => {
+            await setLocalCache("user_test_way", "system");
             router.push(`/test/start/${item.test_id}`);
           }}
         >
@@ -473,7 +520,6 @@ const styles = StyleSheet.create({
   timeContainer: {
     flexDirection: "row",
     gap: px2wp(8),
-    marginTop: px2hp(12),
   },
   timeText: {
     fontFamily: "Outfit",

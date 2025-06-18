@@ -8,6 +8,13 @@ interface ExitTestModalProps {
   onClose: () => void;
   onConfirm: () => void;
   onSave: () => void;
+  toastInfo: {
+    visible: boolean;
+    message: string;
+    type: "success" | "error" | "warning" | "info" | "loading";
+    duration: number | null;
+    onDismiss: () => void;
+  } | undefined;
 }
 
 export function ExitTestModal({
@@ -15,6 +22,7 @@ export function ExitTestModal({
   onClose,
   onConfirm,
   onSave,
+  toastInfo,
 }: ExitTestModalProps) {
   const { t } = useTranslation();
 
@@ -23,6 +31,7 @@ export function ExitTestModal({
       visible={visible}
       onClose={onClose}
       containerStyle={styles.modalWrapper}
+      toast={toastInfo}
     >
       <View style={styles.container}>
         <View style={styles.content}>
@@ -33,12 +42,8 @@ export function ExitTestModal({
               style={styles.image}
             />
             <View style={styles.textContainer}>
-              <Text style={styles.title}>
-                {t("test.exit.title")}
-              </Text>
-              <Text style={styles.desc}>
-                {t("test.exit.description")}
-              </Text>
+              <Text style={styles.title}>{t("test.exit.title")}</Text>
+              <Text style={styles.desc}>{t("test.exit.description")}</Text>
             </View>
           </View>
         </View>

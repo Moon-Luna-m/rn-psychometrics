@@ -32,6 +32,8 @@ const path = {
   SAVE_USER_TEST_PROGRESS: "/api/psychology/test/save",
   // 获取用户测试报告
   GET_USER_TEST_REPORT: "/api/psychology/user/test/report",
+  // 删除用户未完成的测试
+  DELETE_USER_TEST: "/api/psychology/user/test/delete",
 } as const;
 
 // 基础响应类型
@@ -260,10 +262,12 @@ export interface GetTestTypeListResponse {
 // 获取用户心里测试详情
 export interface GetUserTestDetailResponse {
   answers: Array<{
-    option_id: number;
-    option_text: string;
+    id: number;
+    option_texts: string[];
+    option_ids: number[];
     question_id: number;
     question_text: string;
+    score: number[];
   }>;
   discount_price: number;
   end_time: string;
@@ -443,7 +447,14 @@ export const testService = {
       question_id: number;
     }>;
   }): Promise<ApiResponse<EmptyResponse>> {
-    return httpClient.post<EmptyResponse>(path.SAVE_USER_TEST_PROGRESS, params);
+    return httpClient.post<EmptyResponse>(
+      path.SAVE_USER_TEST_PROGRESS,
+      params,
+      {
+        interceptError: false,
+        interceptNetworkError: false,
+      }
+    );
   },
 
   // 获取用户测试报告
@@ -452,5 +463,10 @@ export const testService = {
       path.GET_USER_TEST_REPORT,
       params
     );
+  },
+
+  // 删除用户未完成的测试
+  async deleteUserTest(params: { test_id: number }) {
+    return httpClient.delete<EmptyResponse>(path.DELETE_USER_TEST, params);
   },
 };

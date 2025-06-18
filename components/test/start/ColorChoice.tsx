@@ -44,7 +44,16 @@ export function ColorChoice({
       <View style={styles.colorGrid}>
         {allColors.map((item, index) => (
           <View
-            style={styles.colorBoxContainer}
+            style={[
+              styles.colorBoxContainer,
+              {
+                zIndex: selectedColor
+                  ? selectedColor - 1 === index
+                    ? 10
+                    : 0
+                  : 0,
+              },
+            ]}
             key={`${item.groupIndex}-${item.strengthIndex}`}
           >
             <TouchableOpacity

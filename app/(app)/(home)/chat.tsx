@@ -245,7 +245,6 @@ export default function Chat() {
         id: messages[messages.length - 1]?.testInfo?.id.toString() || "",
       },
     });
-    console.log("Start test:", messages[messages.length - 1]?.testInfo);
   };
 
   const handleClarifyAnswer = async (questionId: string, answer: string) => {

@@ -136,10 +136,6 @@ const WebSortChoice: React.FC<SortChoiceProps> = ({
     setData(sortedOptions || options);
   }, [sortedOptions, options]);
 
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
-
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
 

@@ -1,11 +1,11 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { eventBus } from '../../utils/eventBus';
-import { HTTP_EVENTS } from '../../utils/http/request';
-import { RootState } from '../index';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { eventBus } from "../../utils/eventBus";
+import { HTTP_EVENTS } from "../../utils/http/request";
+import { RootState } from "../index";
 let storeInstance: any = null;
 export interface NotificationState {
   message: string | null;
-  type: 'success' | 'error' | 'info' | 'warning' | 'loading' | null;
+  type: "success" | "error" | "info" | "warning" | "loading" | null;
   visible: boolean;
   duration?: number | null; // null 表示手动控制，不自动隐藏
 }
@@ -18,23 +18,35 @@ const initialState: NotificationState = {
 };
 
 const notificationSlice = createSlice({
-  name: 'notification',
+  name: "notification",
   initialState,
   reducers: {
     showNotification: (
       state,
       action: PayloadAction<{
         message: string;
-        type: 'success' | 'error' | 'info' | 'warning' | 'loading' | 'NETWORK' | 'TIMEOUT' | 'BUSINESS' | 'AUTH';
+        type:
+          | "success"
+          | "error"
+          | "info"
+          | "warning"
+          | "loading"
+          | "NETWORK"
+          | "TIMEOUT"
+          | "BUSINESS"
+          | "AUTH";
         duration?: number | null;
       }>
     ) => {
       state.message = action.payload.message;
-      state.type = action.payload.type === 'NETWORK' || action.payload.type === 'TIMEOUT' || action.payload.type === 'BUSINESS'
-        ? 'error'
-        : action.payload.type === 'AUTH'
-          ? 'warning'
-          : action.payload.type as NotificationState['type'];
+      state.type =
+        action.payload.type === "NETWORK" ||
+        action.payload.type === "TIMEOUT" ||
+        action.payload.type === "BUSINESS"
+          ? "error"
+          : action.payload.type === "AUTH"
+          ? "warning"
+          : (action.payload.type as NotificationState["type"]);
       state.duration = action.payload.duration ?? 3000;
       state.visible = true;
     },
@@ -47,7 +59,7 @@ const notificationSlice = createSlice({
       state,
       action: PayloadAction<{
         message: string;
-        type: 'success' | 'error' | 'info' | 'warning' | 'loading';
+        type: "success" | "error" | "info" | "warning" | "loading";
       }>
     ) => {
       state.message = action.payload.message;
@@ -58,21 +70,25 @@ const notificationSlice = createSlice({
   },
 });
 
-export const { showNotification, hideNotification, manualShowNotification } = notificationSlice.actions;
+export const { showNotification, hideNotification, manualShowNotification } =
+  notificationSlice.actions;
 
 // Selector
-export const selectNotification = (state: RootState) => state.notification || initialState;
+export const selectNotification = (state: RootState) =>
+  state.notification || initialState;
 
 // 监听 HTTP 错误事件
 eventBus.on(HTTP_EVENTS.ERROR, (error) => {
   if (!storeInstance) {
-    storeInstance = require('../index').default;
+    storeInstance = require("../index").default;
   }
-  storeInstance.dispatch(showNotification({
-    message: error.message,
-    type: error.type,
-    duration: 3000
-  }));
+  storeInstance.dispatch(
+    showNotification({
+      message: error.message,
+      type: error.type,
+      duration: 3000,
+    })
+  );
 });
 
-export default notificationSlice.reducer; 
+export default notificationSlice.reducer;

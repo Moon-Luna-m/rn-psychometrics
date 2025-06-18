@@ -1,3 +1,4 @@
+import NotificationToast from "@/components/NotificationToast";
 import { ColorChoice } from "@/components/test/start/ColorChoice";
 import { EmotionChoice } from "@/components/test/start/EmotionChoice";
 import { ExitTestModal } from "@/components/test/start/ExitTestModal";
@@ -11,8 +12,7 @@ import { SortChoice } from "@/components/test/start/SortChoice";
 import { DEFAULT_COLOR_GROUPS } from "@/constants/Colors";
 import { mockQuestionsFn } from "@/constants/MockData";
 import { Option, Question, testService } from "@/services/testServices";
-import { manualShowNotification } from "@/store/slices/notificationSlice";
-import { imgProxy, padZero } from "@/utils/common";
+import { getLocalCache, imgProxy, padZero } from "@/utils/common";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, usePathname, useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -25,9 +25,11 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  useSafeAreaInsets
+} from "react-native-safe-area-context";
 import { useDispatch } from "react-redux";
 
 // 更新模拟题目数据
@@ -150,6 +152,13 @@ export default function StartTest() {
   const [showExitModal, setShowExitModal] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [testId, setTestId] = useState<number | null>(null);
+  const [toastInfo, setToastInfo] = useState<{
+    visible: boolean;
+    message: string;
+    type: "success" | "error" | "warning" | "info" | "loading";
+    duration: number | null;
+    onDismiss: () => void;
+  }>();
 
   // 转换服务器答案格式为本地状态格式
   const convertSubmissionToAnswers = (
@@ -164,6 +173,8 @@ export default function StartTest() {
       };
     } = {};
 
+    let maxQuestionIndex = 0;
+
     submission.answers.forEach((answer) => {
       // 找到对应的问题以获取type
       const question = questions.find((q) => q.id === answer.question_id);
@@ -172,9 +183,12 @@ export default function StartTest() {
         const questionIndex = questions.findIndex(
           (q) => q.id === answer.question_id
         );
-        
+
+        // 更新最大问题索引
+        maxQuestionIndex = Math.max(maxQuestionIndex, questionIndex);
+
         // 如果是type 7且有score字段，使用score作为option_ids
-        if (question.type === 7 && answer.score) {
+        if ([7, 3].includes(question.type) && answer.score) {
           newAnswers[`question_${questionIndex}`] = {
             type: question.type,
             option_ids: answer.score,
@@ -190,22 +204,35 @@ export default function StartTest() {
       }
     });
 
+    // 更新当前问题索引
+    setCurrentQuestion(maxQuestionIndex);
+
     return newAnswers;
   };
-
-  useEffect(() => {
-    console.log(answers);
-  }, [answers]);
 
   // 从服务器加载测试进度
   useEffect(() => {
     const loadTestProgress = async () => {
       try {
         setIsLoading(true);
-        const [res1, res2] = await Promise.all([
-          await testService.startTest({ test_id: Number(params.id) }),
+        const userTestWay = await getLocalCache("user_test_way");
+        const userTestId = await getLocalCache("user_test_id");
+        const [res1, res2, res3] = await Promise.all([
+          userTestWay !== "user"
+            ? await testService.startTest({ test_id: Number(params.id) })
+            : {
+                code: 200,
+                data: {
+                  user_test_id: Number(userTestId),
+                },
+              },
+          await testService.getTestList({
+            id: Number(userTestWay === "user" ? userTestId : params.id),
+          }),
           // TODO: 从服务器获取测试进度
-          await testService.getTestList({ id: Number(params.id) }),
+          userTestWay === "user"
+            ? await testService.getUserTestDetail({ id: Number(params.id) })
+            : null,
         ]);
         if (res1.code === 200) {
           setTestId(res1.data.user_test_id);
@@ -214,19 +241,19 @@ export default function StartTest() {
         }
         if (res2.code === 200) {
           setQuestions(res2.data.questions as Question[]);
+          if (res3) {
+            setAnswers(
+              convertSubmissionToAnswers(
+                {
+                  user_test_id: res1.data.user_test_id,
+                  answers: res3.data.answers,
+                },
+                res2.data.questions as Question[]
+              )
+            );
+          }
           // setQuestions(mockQuestions);
           // TODO: 如果有已保存的进度，转换格式并设置
-          // const savedProgress = await testService.getTestProgress(res1.data.user_test_id);
-          // if (savedProgress.code === 200 && savedProgress.data) {
-          //   const convertedAnswers = convertSubmissionToAnswers(
-          //     {
-          //       user_test_id: res1.data.user_test_id,
-          //       answers: savedProgress.data.answers
-          //     },
-          //     res2.data.questions
-          //   );
-          //   setAnswers(convertedAnswers);
-          // }
         }
         setIsLoading(false);
       } catch (error) {
@@ -244,11 +271,13 @@ export default function StartTest() {
       user_test_id: testId!,
       answers: Object.entries(answers).map(([questionId, answer]) => {
         // 对于type 7，添加score字段
-        if (answer.type === 7) {
+        if ([7, 3].includes(answer.type)) {
           return {
             question_id: answer.question_id,
-            option_ids: questions[parseInt(questionId.split('_')[1])].options.map(opt => opt.id),
-            score: answer.option_ids
+            option_ids: questions[
+              parseInt(questionId.split("_")[1])
+            ].options.map((opt) => opt.id),
+            score: answer.option_ids,
           };
         }
         // 其他类型保持不变
@@ -276,7 +305,7 @@ export default function StartTest() {
       },
     }));
   };
-
+  const dispatch = useDispatch();
   const handleNextQuestion = async () => {
     // 移动到下一题
     if (currentQuestion < questions.length - 1) {
@@ -285,7 +314,6 @@ export default function StartTest() {
       handleSubmit();
     }
   };
-
   const handleSubmit = async () => {
     const data = formatAnswersForSubmission();
     const res = await testService.submitTestAnswer(data);
@@ -293,16 +321,11 @@ export default function StartTest() {
       router.push(`/test/result/${Number(params.id)}`);
     }
   };
-  const dispatch = useDispatch()
   const handleExitSave = async () => {
     const saved = await saveProgress();
-    // if (saved) {
-    //   router.back();
-    // }
-    dispatch(manualShowNotification({
-        type:"error",
-        message: "错误"
-    }))
+    if (saved) {
+      handleExitConfirm();
+    }
   };
 
   if (isLoading) {
@@ -469,9 +492,9 @@ export default function StartTest() {
           <SliderChoice
             question={currentQuestionData.content}
             description=""
-            value={currentAnswer[0] ?? 0}
+            value={currentAnswer[0] ? currentAnswer[0] / 10 : 0}
             onValueChange={(value) => {
-              updateAnswer(3, questionId, [value], currentQuestionData.id);
+              updateAnswer(3, questionId, [value * 10], currentQuestionData.id);
             }}
           />
           <View style={styles.bottomSpace} />
@@ -686,12 +709,35 @@ export default function StartTest() {
   const saveProgress = async () => {
     try {
       const submission = formatAnswersForSubmission();
-      // TODO: 保存进度到服务器
-      const res = await testService.saveUserTestProgress({...submission, ...{
-        test_id: Number(params.id),
-        progress: currentQuestion + 1,
-      }});
-      return res.code === 200;
+      setToastInfo({
+        visible: true,
+        message: t("test.saving"),
+        type: "loading",
+        duration: null,
+        onDismiss: () => {},
+      });
+      const res = await testService.saveUserTestProgress({
+        ...submission,
+        ...{
+          test_id: Number(params.id),
+          progress: currentQuestion + 1,
+        },
+      });
+      if (res.code === 200) {
+        setToastInfo(undefined);
+        return true;
+      } else {
+        setToastInfo({
+          visible: true,
+          message: res.message,
+          type: "error",
+          duration: 3000,
+          onDismiss: () => {
+            setToastInfo(undefined);
+          },
+        });
+      }
+      return false;
     } catch (error) {
       console.error("Error saving test progress:", error);
       return false;
@@ -771,89 +817,110 @@ export default function StartTest() {
 
   return (
     <View style={{ flex: 1, backgroundColor: "#19DBF2" }}>
-      <View style={[styles.container, { marginTop: insets.top + 12 }]}>
-        <View style={{ flex: 1, paddingTop: 12 }}>
-          <View style={styles.bgCard}></View>
-          <View style={styles.scrollViewContainer}>
-            <View style={styles.scrollViewHeader}>
-              <Text style={styles.scrollViewTitle} numberOfLines={1}>
-                {questions[currentQuestion % questions.length].content}
-              </Text>
-              <TouchableOpacity
-                activeOpacity={0.7}
-                style={{
-                  position: "absolute",
-                  top: 22,
-                  right: 16,
-                }}
-                onPress={handleExit}
-              >
-                <Image
-                  source={require("@/assets/images/common/close-circle.png")}
-                  style={{
-                    width: 24,
-                    height: 24,
-                  }}
-                />
-              </TouchableOpacity>
-            </View>
-            <View style={{ flex: 1 }}>
-              <View style={styles.testTitleContainer}>
-                <TouchableOpacity
-                  activeOpacity={0.7}
-                  style={[
-                    styles.iconContainer,
-                    !canGoBack() && styles.iconContainerDisabled,
-                  ]}
-                  onPress={handleBack}
-                  disabled={!canGoBack()}
-                >
-                  <MaterialIcons
-                    name="arrow-back-ios"
-                    size={24}
-                    color={canGoBack() ? "#19DBF2" : "rgba(25, 219, 242, 0.3)"}
-                  />
-                </TouchableOpacity>
-                <View style={styles.testTitleTextContainer}>
-                  <Text style={[styles.testTitleText, { color: "#0C0A09" }]}>
-                    {padZero(currentQuestion + 1)}
+      <NotificationToast />
+      {questions.length ? (
+        <>
+          <View style={[styles.container, { marginTop: insets.top + 12 }]}>
+            <View style={{ flex: 1, paddingTop: 12 }}>
+              <View style={styles.bgCard}></View>
+              <View style={styles.scrollViewContainer}>
+                <View style={styles.scrollViewHeader}>
+                  <Text style={styles.scrollViewTitle} numberOfLines={1}>
+                    {questions[currentQuestion % questions.length].content}
                   </Text>
-                  <Text style={styles.testTitleText}>/</Text>
-                  <Text style={styles.testTitleText}>
-                    {padZero(questions.length)}
-                  </Text>
+                  <TouchableOpacity
+                    activeOpacity={0.7}
+                    style={{
+                      position: "absolute",
+                      top: 22,
+                      right: 16,
+                    }}
+                    onPress={handleExit}
+                  >
+                    <Image
+                      source={require("@/assets/images/common/close-circle.png")}
+                      style={{
+                        width: 24,
+                        height: 24,
+                      }}
+                    />
+                  </TouchableOpacity>
                 </View>
-                <TouchableOpacity
-                  activeOpacity={0.7}
-                  style={[
-                    styles.iconContainer,
-                    !canGoForward() && styles.iconContainerDisabled,
-                  ]}
-                  onPress={handleForward}
-                  disabled={!canGoForward()}
-                >
-                  <MaterialIcons
-                    name="arrow-forward-ios"
-                    size={24}
-                    color={
-                      canGoForward() ? "#19DBF2" : "rgba(25, 219, 242, 0.3)"
-                    }
-                  />
-                </TouchableOpacity>
+                <View style={{ flex: 1 }}>
+                  <View style={styles.testTitleContainer}>
+                    <TouchableOpacity
+                      activeOpacity={0.7}
+                      style={[
+                        styles.iconContainer,
+                        !canGoBack() && styles.iconContainerDisabled,
+                      ]}
+                      onPress={handleBack}
+                      disabled={!canGoBack()}
+                    >
+                      <MaterialIcons
+                        name="arrow-back-ios"
+                        size={24}
+                        color={
+                          canGoBack() ? "#19DBF2" : "rgba(25, 219, 242, 0.3)"
+                        }
+                      />
+                    </TouchableOpacity>
+                    <View style={styles.testTitleTextContainer}>
+                      <Text
+                        style={[styles.testTitleText, { color: "#0C0A09" }]}
+                      >
+                        {padZero(currentQuestion + 1)}
+                      </Text>
+                      <Text style={styles.testTitleText}>/</Text>
+                      <Text style={styles.testTitleText}>
+                        {padZero(questions.length)}
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      activeOpacity={0.7}
+                      style={[
+                        styles.iconContainer,
+                        !canGoForward() && styles.iconContainerDisabled,
+                      ]}
+                      onPress={handleForward}
+                      disabled={!canGoForward()}
+                    >
+                      <MaterialIcons
+                        name="arrow-forward-ios"
+                        size={24}
+                        color={
+                          canGoForward() ? "#19DBF2" : "rgba(25, 219, 242, 0.3)"
+                        }
+                      />
+                    </TouchableOpacity>
+                  </View>
+                  {renderProgressBar()}
+                  {renderQuestion()}
+                </View>
               </View>
-              {renderProgressBar()}
-              {renderQuestion()}
             </View>
+            {renderBottomBar()}
           </View>
+        </>
+      ) : (
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "#fff",
+          }}
+        >
+          <ActivityIndicator size="large" color="#19DBF2" />
         </View>
-        {renderBottomBar()}
-      </View>
+      )}
 
       <ExitTestModal
         visible={showExitModal}
         onClose={() => setShowExitModal(false)}
         onConfirm={handleExitConfirm}
         onSave={handleExitSave}
+        toastInfo={toastInfo}
       />
     </View>
   );
