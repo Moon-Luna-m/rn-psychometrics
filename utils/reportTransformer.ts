@@ -1,4 +1,4 @@
-import { RADAR_COLOR } from "@/constants/Colors";
+import { GROWTH_PATH_COLOR, RADAR_COLOR } from "@/constants/Colors";
 import { imgProxy } from "./common";
 
 // 定义各种组件的数据接口
@@ -211,6 +211,7 @@ export const transformers = {
         status: stage.status,
         tips: stage.tips,
         stage: index + 1,
+        color: GROWTH_PATH_COLOR[index % GROWTH_PATH_COLOR.length],
       })),
     };
   },
