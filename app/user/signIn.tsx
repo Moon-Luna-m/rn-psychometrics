@@ -1,8 +1,8 @@
-import appJson from "@/app.json";
 import LoginForm from "@/components/LoginForm";
 import RegisterForm from "@/components/RegisterForm";
 import { Tabs } from "@/components/ui/Tabs";
 import { px2hp } from "@/utils/common";
+import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -38,7 +38,7 @@ export default function LoginScreen() {
       <SafeAreaView style={styles.content}>
         <View style={styles.header}>
           <Text style={styles.title}>
-            {t("common.welcome", { name: appJson.expo.name })}
+            {t("common.welcome", { name: Constants.expoConfig?.name })}
           </Text>
           <Text style={styles.subtitle}>{t("form.login.subtitle")}</Text>
         </View>

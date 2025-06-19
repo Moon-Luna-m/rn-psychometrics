@@ -1,10 +1,10 @@
-import appJson from "@/app.json";
 import LogoutModal from "@/components/modal/LogoutModal";
 import { showNotification } from "@/store/slices/notificationSlice";
 import { logout } from "@/store/slices/userSlice";
 import { clearCache, getCacheSize, px2hp, px2wp } from "@/utils/common";
 import i18n, { LANGUAGES } from "@/utils/i18n";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
+import Constants from "expo-constants";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -105,7 +105,7 @@ export default function Setting() {
           dispatch(
             showNotification({
               message: t("settings.clearCacheSuccess"),
-              type: "success",
+              type: "default",
             })
           );
           getCacheLocalCache();
@@ -172,8 +172,10 @@ export default function Setting() {
               resizeMode="contain"
             />
             <View style={styles.logoTextContainer}>
-              <Text style={styles.logoText}>{appJson.expo.name}</Text>
-              <Text style={styles.versionText}>v{appJson.expo.version}</Text>
+              <Text style={styles.logoText}>{Constants.expoConfig?.name}</Text>
+              <Text style={styles.versionText}>
+                v{Constants.expoConfig?.version}
+              </Text>
             </View>
           </View>
         </View>

@@ -2,6 +2,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import CryptoJS from "crypto-js";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import Constants from "expo-constants";
 import * as FileSystem from "expo-file-system";
 import { deleteItemAsync, getItemAsync, setItemAsync } from "expo-secure-store";
 import i18next from "i18next";
@@ -164,7 +165,7 @@ export async function clearLocalCache(key: string): Promise<void> {
 export const imgProxy = (url?: string) => {
   if (!url) return "";
   if (/http/.test(url)) return url;
-  return process.env.EXPO_PUBLIC_IMG_HOST + url;
+  return Constants.expoConfig?.extra?.imgHost + url;
 };
 
 /**
@@ -220,7 +221,9 @@ export const parseDate = (dateStr: string, format?: string): Date | null => {
  * @param date 日期对象或字符串或时间戳
  * @returns 相对时间字符串，如"3分钟前"、"2小时前"等
  */
-export const getRelativeTime = (date?: Date | string | number | null): string => {
+export const getRelativeTime = (
+  date?: Date | string | number | null
+): string => {
   if (!date) return "";
   return dayjs(date).fromNow();
 };
@@ -337,7 +340,10 @@ export const formatNumber = (number?: number | null): string => {
  * @param decimals 小数位数，默认为2
  * @returns 格式化后的字符串，如 "1,234,567.89"
  */
-export const formatDecimal = (number?: number | null, decimals: number = 2): string => {
+export const formatDecimal = (
+  number?: number | null,
+  decimals: number = 2
+): string => {
   if (number == null) return "0.00";
   return numeral(number).format(`0,0.${"0".repeat(decimals)}`);
 };
@@ -360,7 +366,10 @@ export const formatCompact = (number?: number | null): string => {
  * @param symbol 货币符号，默认为 "$"
  * @returns 格式化后的字符串，如 "$1,234.56"
  */
-export const formatCurrency = (amount?: number | null, symbol: string = "$"): string => {
+export const formatCurrency = (
+  amount?: number | null,
+  symbol: string = "$"
+): string => {
   if (amount == null) return `${symbol}0.00`;
   return `${symbol}${numeral(amount).format("0,0.00")}`;
 };
@@ -371,7 +380,10 @@ export const formatCurrency = (amount?: number | null, symbol: string = "$"): st
  * @param decimals 小数位数，默认为2
  * @returns 格式化后的字符串，如 "12.34%"
  */
-export const formatPercent = (number?: number | null, decimals: number = 2): string => {
+export const formatPercent = (
+  number?: number | null,
+  decimals: number = 2
+): string => {
   if (number == null) return "0%";
   return numeral(number / 100).format(`0.${"0".repeat(decimals)}%`);
 };
@@ -401,14 +413,19 @@ export const randomInt = (min: number, max: number): number => {
  * // 生成1到10之间的3个不重复随机整数
  * const numbers = randomUniqueInts(1, 10, 3);
  */
-export const randomUniqueInts = (min: number, max: number, count: number): number[] => {
+export const randomUniqueInts = (
+  min: number,
+  max: number,
+  count: number
+): number[] => {
   min = Math.ceil(min);
   max = Math.floor(max);
-  
+
   // 如果要生成的数量大于可能的范围，返回全部数字的随机排序
   if (count >= max - min + 1) {
-    return Array.from({ length: max - min + 1 }, (_, i) => min + i)
-      .sort(() => Math.random() - 0.5);
+    return Array.from({ length: max - min + 1 }, (_, i) => min + i).sort(
+      () => Math.random() - 0.5
+    );
   }
 
   const result = new Set<number>();
@@ -444,7 +461,7 @@ export const randomPicks = <T>(array: T[], count: number): T[] => {
   if (count > array.length) {
     return [...array].sort(() => Math.random() - 0.5);
   }
-  
+
   const shuffled = [...array].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, count);
 };
@@ -462,22 +479,22 @@ export const randomPicks = <T>(array: T[], count: number): T[] => {
  */
 export const formatDuration = (
   seconds?: number | null,
-  format: 'auto' | 'minutes' | 'hours' = 'auto'
+  format: "auto" | "minutes" | "hours" = "auto"
 ): string => {
   if (seconds == null || seconds < 0) {
-    return `0 ${i18next.t('common.time.minutes')}`;
+    return `0 ${i18next.t("common.time.minutes")}`;
   }
 
   // 转换秒为分钟
   const minutes = Math.round(seconds / 60);
 
-  if (format === 'minutes' || (format === 'auto' && minutes < 60)) {
-    return `${minutes} ${i18next.t('common.time.minutes')}`;
+  if (format === "minutes" || (format === "auto" && minutes < 60)) {
+    return `${minutes} ${i18next.t("common.time.minutes")}`;
   }
 
   // 转换分钟为小时
   const hours = minutes / 60;
-  return `${hours.toFixed(1)} ${i18next.t('common.time.hours')}`;
+  return `${hours.toFixed(1)} ${i18next.t("common.time.hours")}`;
 };
 
 /**
@@ -492,6 +509,9 @@ export const formatDuration = (
  * // 补零到3位
  * padZero(5, 3) // 返回 "005"
  */
-export const padZero = (number: number | string, length: number = 2): string => {
-  return String(number).padStart(length, '0');
+export const padZero = (
+  number: number | string,
+  length: number = 2
+): string => {
+  return String(number).padStart(length, "0");
 };

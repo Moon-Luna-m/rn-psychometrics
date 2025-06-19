@@ -20,7 +20,7 @@ import {
   TestReportResponse,
   testService,
 } from "@/services/testServices";
-import { px2hp, setLocalCache } from "@/utils/common";
+import { px2hp } from "@/utils/common";
 import { getTransformedReport } from "@/utils/reportTransformer";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
@@ -251,7 +251,7 @@ export default function TestResultPage() {
 
   return (
     <View style={styles.container}>
-      {isLoading ? (
+      {!testData ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#19DBF2" />
         </View>
@@ -281,12 +281,15 @@ export default function TestResultPage() {
             }
           />
           <Animated.ScrollView
-            style={[
-              styles.scrollView,
-              { marginTop: insets.top + 44, marginBottom: insets.bottom + 50 },
-            ]}
+            style={[styles.scrollView, { marginTop: insets.top + 44 }]}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.content}
+            contentContainerStyle={[
+              styles.content,
+              {
+                paddingBottom:
+                  insets.bottom + (!testData?.has_access ? 224 : 140),
+              },
+            ]}
             onScroll={scrollHandler}
             scrollEventThrottle={16}
           >
@@ -303,12 +306,13 @@ export default function TestResultPage() {
               </>
             )}
           </Animated.ScrollView>
-          <LinearGradient
-            colors={["rgba(255,255,255,1)", "#FFFFFF"]}
-            style={styles.buttonContainer}
-            locations={[0, 0.7]}
-          >
-            <TouchableOpacity
+          {!testData?.has_access ? (
+            <LinearGradient
+              colors={["rgba(255,255,255,1)", "#FFFFFF"]}
+              style={styles.buttonContainer}
+              locations={[0, 0.7]}
+            >
+              {/* <TouchableOpacity
               style={[styles.button, styles.testAgainButton]}
               activeOpacity={0.7}
               onPress={async () => {
@@ -317,21 +321,22 @@ export default function TestResultPage() {
               }}
             >
               <Text style={styles.buyButtonText}>{t("test.testAgain")}</Text>
-            </TouchableOpacity>
-            {!testData?.has_access ? (
-              <TouchableOpacity
-                style={[styles.button, styles.buyButton]}
-                activeOpacity={0.7}
-                onPress={() => {
-                  setShowPurchase(true);
-                }}
-              >
-                <Text style={styles.buyButtonText}>
-                  {t("test.result.advancedReport")}
-                </Text>
-              </TouchableOpacity>
-            ) : null}
-          </LinearGradient>
+            </TouchableOpacity> */}
+              {!testData?.has_access ? (
+                <TouchableOpacity
+                  style={[styles.button, styles.buyButton]}
+                  activeOpacity={0.7}
+                  onPress={() => {
+                    setShowPurchase(true);
+                  }}
+                >
+                  <Text style={styles.buyButtonText}>
+                    {t("test.result.advancedReport")}
+                  </Text>
+                </TouchableOpacity>
+              ) : null}
+            </LinearGradient>
+          ) : null}
         </>
       )}
 
@@ -394,7 +399,7 @@ const styles = StyleSheet.create({
   },
   content: {
     gap: px2hp(20),
-    paddingBottom: 90, // 为底部按钮留出空间
+    // paddingBottom: 90, // 为底部按钮留出空间
   },
   buttonContainer: {
     flexDirection: "row",

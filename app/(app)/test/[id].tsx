@@ -205,7 +205,7 @@ export default function TestDetailsPage() {
 
   return (
     <View style={styles.container}>
-      {isLoading ? (
+      {!testData ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#19DBF2" />
         </View>
@@ -224,46 +224,43 @@ export default function TestDetailsPage() {
           <Animated.ScrollView
             style={[styles.scrollView, { marginTop: insets.top + 44 }]}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.content}
+            contentContainerStyle={[
+              styles.content,
+              { paddingBottom: 110 + insets.bottom },
+            ]}
             onScroll={scrollHandler}
             scrollEventThrottle={16}
           >
-            {testData && (
-              <>
-                {
-                  <SearchResultCard
-                    showIcon={false}
-                    item={{
-                      id: testData?.id,
-                      type_id: testData?.type_id,
-                      name: testData?.name,
-                      desc: testData?.desc,
-                      image: testData?.image,
-                      price: testData?.price,
-                      discount_price: testData?.discount_price,
-                      question_count: testData?.question_count,
-                      answer_time: testData?.answer_time,
-                      star: testData?.star,
-                      total: testData?.total,
-                      user_avatars: testData?.user_avatars,
-                    }}
-                    disabled={true}
-                  />
-                }
-                <TestInfoCard
-                  questionCount={testData?.question_count}
-                  estimatedTime={formatDuration(testData?.answer_time)}
-                  tags={[
-                    t(`test.types.${getTestTypeKey(testData?.type_id)}.name`),
-                  ]}
-                />
-                {testData?.component_types.map((type) => (
-                  <Fragment key={type}>{renderComponent(type)}</Fragment>
-                ))}
-                <FAQCard faqs={mockData.faqs} />
-                <View style={{ height: 50 + insets.bottom }} />
-              </>
-            )}
+            {
+              <SearchResultCard
+                showIcon={false}
+                item={{
+                  id: testData?.id,
+                  type_id: testData?.type_id,
+                  name: testData?.name,
+                  desc: testData?.desc,
+                  image: testData?.image,
+                  price: testData?.price,
+                  discount_price: testData?.discount_price,
+                  question_count: testData?.question_count,
+                  answer_time: testData?.answer_time,
+                  star: testData?.star,
+                  total: testData?.total,
+                  user_avatars: testData?.user_avatars,
+                }}
+                disabled={true}
+              />
+            }
+            <TestInfoCard
+              questionCount={testData?.question_count}
+              estimatedTime={formatDuration(testData?.answer_time)}
+              tags={[t(`test.types.${getTestTypeKey(testData?.type_id)}.name`)]}
+            />
+            {testData?.component_types.map((type) => (
+              <Fragment key={type}>{renderComponent(type)}</Fragment>
+            ))}
+            <FAQCard faqs={mockData.faqs} />
+            <View style={{ height: 50 + insets.bottom }} />
           </Animated.ScrollView>
           <LinearGradient
             colors={["rgba(255,255,255,0)", "#FFFFFF"]}
@@ -311,7 +308,7 @@ const styles = StyleSheet.create({
   },
   content: {
     gap: px2hp(20),
-    paddingBottom: 90, // 为底部按钮留出空间
+    // paddingBottom: 90, // 为底部按钮留出空间
   },
   buttonContainer: {
     position: "absolute",

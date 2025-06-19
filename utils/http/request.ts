@@ -6,6 +6,7 @@ import axios, {
   AxiosResponse,
   InternalAxiosRequestConfig,
 } from "axios";
+import Constants from "expo-constants";
 import { deleteItemAsync, getItemAsync, setItemAsync } from "expo-secure-store";
 import i18next from "i18next";
 import qs from "qs";
@@ -48,7 +49,7 @@ export class HttpRequest {
   private static instance: HttpRequest;
   private axiosInstance: AxiosInstance;
   private globalConfig: GlobalConfig = {
-    baseURL: process.env.EXPO_PUBLIC_API_URL,
+    baseURL: Constants.expoConfig?.extra?.apiUrl,
     interceptBusinessError: true,
     interceptNetworkError: true,
     successCode: 200,
@@ -387,7 +388,6 @@ export class HttpRequest {
         // 处理普通 JSON 数据
         processedData = this.sanitizeRequestData(data);
       }
-
       const response = await this.axiosInstance.post<ApiResponse<T>>(
         url,
         processedData,

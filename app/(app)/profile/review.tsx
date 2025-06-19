@@ -426,7 +426,7 @@ function ReviewCard({
         >
           {t("review.card.generateReport")}
         </Button>
-        <Button
+        {/* <Button
           mode="contained"
           style={styles.testAgainButton}
           contentStyle={styles.buttonContent}
@@ -437,7 +437,7 @@ function ReviewCard({
           }}
         >
           {t("review.card.testAgain")}
-        </Button>
+        </Button> */}
       </View>
     </View>
   );

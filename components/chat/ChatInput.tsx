@@ -39,7 +39,7 @@ export default function ChatInput({ onSend, loading, disabled }: ChatInputProps)
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      behavior={"padding"}
       keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
       style={[styles.container, { marginBottom: insets.bottom }]}
     >

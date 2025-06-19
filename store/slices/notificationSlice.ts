@@ -5,14 +5,14 @@ import { RootState } from "../index";
 let storeInstance: any = null;
 export interface NotificationState {
   message: string | null;
-  type: "success" | "error" | "info" | "warning" | "loading" | null;
+  type: "success" | "error" | "info" | "warning" | "loading" | "default" | null;
   visible: boolean;
   duration?: number | null; // null 表示手动控制，不自动隐藏
 }
 
 const initialState: NotificationState = {
   message: null,
-  type: null,
+  type: null, 
   visible: false,
   duration: 3000, // 默认显示3秒
 };
@@ -34,7 +34,8 @@ const notificationSlice = createSlice({
           | "NETWORK"
           | "TIMEOUT"
           | "BUSINESS"
-          | "AUTH";
+          | "AUTH"
+          | "default";
         duration?: number | null;
       }>
     ) => {
@@ -59,7 +60,7 @@ const notificationSlice = createSlice({
       state,
       action: PayloadAction<{
         message: string;
-        type: "success" | "error" | "info" | "warning" | "loading";
+        type: "success" | "error" | "info" | "warning" | "loading" | "default";
       }>
     ) => {
       state.message = action.payload.message;

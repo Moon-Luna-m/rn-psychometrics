@@ -152,6 +152,7 @@ export default function StartTest() {
   const [showExitModal, setShowExitModal] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [testId, setTestId] = useState<number | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [toastInfo, setToastInfo] = useState<{
     visible: boolean;
     message: string;
@@ -316,9 +317,11 @@ export default function StartTest() {
   };
   const handleSubmit = async () => {
     const data = formatAnswersForSubmission();
+    setIsSubmitting(true);
     const res = await testService.submitTestAnswer(data);
+    setIsSubmitting(false);
     if (res.code === 200) {
-      router.push(`/test/result/${Number(params.id)}`);
+      router.replace(`/test/result/${Number(params.id)}`);
     }
   };
   const handleExitSave = async () => {
@@ -624,7 +627,7 @@ export default function StartTest() {
             ? styles.submitButtonActive
             : styles.submitButtonInactive,
         ]}
-        disabled={!getCurrentAnswer()}
+        disabled={!getCurrentAnswer() || isSubmitting}
         onPress={handleNextQuestion}
       >
         <Text style={[styles.submitButtonText]}>

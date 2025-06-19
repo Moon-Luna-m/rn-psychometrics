@@ -1,10 +1,9 @@
 import React from "react";
 import {
-  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 
 interface Option {
@@ -113,20 +112,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
     marginBottom: 12,
-    ...Platform.select({
-      ios: {
-        shadowColor: "rgba(36, 164, 179, 0.12)",
-        shadowOffset: {
-          width: 0,
-          height: 4,
-        },
-        shadowOpacity: 1,
-        shadowRadius: 11,
-      },
-      android: {
-        elevation: 4,
-      },
-    }),
+    boxShadow: "0px 4px 11px 0px rgba(36, 164, 179, 0.12)",
   },
   optionItemSelected: {
     backgroundColor: "#19DBF2",

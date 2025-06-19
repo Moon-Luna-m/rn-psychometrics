@@ -1,6 +1,6 @@
 import { usePathname } from "expo-router";
 import React, { useCallback, useEffect, useRef } from "react";
-import { Dimensions, Platform, StyleSheet, Text, View } from "react-native";
+import { Dimensions, StyleSheet, Text, View } from "react-native";
 import Animated, {
   runOnJS,
   useAnimatedStyle,
@@ -147,11 +147,13 @@ const NotificationToast: React.FC<NotificationToastProps> = ({ disabledPath = []
           { backgroundColor: getBackgroundColor() },
         ]}
       >
-        <View style={styles.iconContainer}>
-          <NotificationIcon type={notification.type || "info"} />
-        </View>
+        {notification.type !== "default" ? (
+          <View style={styles.iconContainer}>
+            <NotificationIcon type={notification.type || "info"} />
+          </View>
+        ) : null}
         <Text
-          style={[styles.message, { color: getTextColor() }]}
+          style={[styles.message, { color: getTextColor(), textAlign: "center" }]}
           numberOfLines={2}
         >
           {notification.message}
@@ -180,19 +182,9 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 50,
     marginHorizontal: 16,
+    paddingHorizontal: 20,
     maxWidth: Math.min(width - 32, 400),
-    minWidth: Math.min(width - 32, 280),
-    ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-      },
-      android: {
-        elevation: 6,
-      },
-    }),
+    boxShadow: "0px 4px 11px 0px rgba(36, 164, 179, 0.12)",
   },
   iconContainer: {
     width: 24,
@@ -208,6 +200,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "500",
     lineHeight: 18,
-    flex: 1,
   },
 });

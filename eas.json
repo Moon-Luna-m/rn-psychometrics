@@ -6,13 +6,28 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "http://192.168.5.180:9999",
+        "EXPO_PUBLIC_IMG_HOST": "http://192.168.5.201:9000/echomind/",
+        "EXPO_PUBLIC_GOOGLE_AUTH_CALLBACK": "http://localhost:8081/oauth2/callback/google"
+      }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "http://192.168.5.180:9999",
+        "EXPO_PUBLIC_IMG_HOST": "http://192.168.5.201:9000/echomind/",
+        "EXPO_PUBLIC_GOOGLE_AUTH_CALLBACK": "http://192.168.5.180:9999/oauth2/callback/google"
+      }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_API_URL": "http://192.168.5.180:9999",
+        "EXPO_PUBLIC_IMG_HOST": "http://192.168.5.201:9000/echomind/",
+        "EXPO_PUBLIC_GOOGLE_AUTH_CALLBACK": "http://192.168.5.180:9999/oauth2/callback/google"
+      }
     }
   },
   "submit": {

@@ -31,11 +31,13 @@ export default function DigitalAssistant({
       {showAskButton && (
         <>
           <View style={[styles.robotIconContainer, { top: insets.top + 20 }]}>
-            <Image
-              source={require("@/assets/images/home/robot.png")}
-              style={styles.robotIcon}
-              resizeMode="contain"
-            />
+            <Pressable onPress={onPress}>
+              <Image
+                source={require("@/assets/images/home/robot.png")}
+                style={styles.robotIcon}
+                resizeMode="contain"
+              />
+            </Pressable>
           </View>
 
           {/* 文字内容 */}

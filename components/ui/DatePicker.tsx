@@ -37,8 +37,8 @@ const VISIBLE_RANGE = 50; // 上下各25个项目
 
 // 默认最小日期：1970年
 const DEFAULT_MIN_DATE = new Date(1970, 0, 1);
-// 默认最大日期：2100年
-const DEFAULT_MAX_DATE = new Date(2100, 11, 31);
+// 默认最大日期：当前年份减一年
+const DEFAULT_MAX_DATE = new Date(new Date().getFullYear() - 1, 11, 31);
 
 // 滚动视图组件
 const PickerScrollView: React.FC<{

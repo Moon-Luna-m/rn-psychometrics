@@ -1,23 +1,37 @@
-import { AUTH_CONFIG, GOOGLE_SCOPES } from "@/config/auth";
 import { makeRedirectUri } from "expo-auth-session";
 import * as Google from "expo-auth-session/providers/google";
-import * as WebBrowser from 'expo-web-browser';
+import Constants from "expo-constants";
+import * as WebBrowser from "expo-web-browser";
 import { useState } from "react";
 import { Alert, Platform } from "react-native";
-import appJson from "../app.json";
+import appJson from "../app.config";
 
 if (Platform.OS === "web") {
   WebBrowser.maybeCompleteAuthSession();
 }
+
+const AUTH_CONFIG = {
+  google: {
+    // 在 Google Cloud Console 中获取
+    appClientId: Constants.expoConfig?.extra?.google?.appClientId || "",
+    webClientId: Constants.expoConfig?.extra?.google?.webClientId || "",
+    // clientId: "204762997801-pnlmu8l3akspfebcvdua8furtine204n.apps.googleusercontent.com",
+    appClientSecret: Constants.expoConfig?.extra?.google?.appClientSecret || "",
+    webClientSecret: Constants.expoConfig?.extra?.google?.webClientSecret || "",
+  },
+} as const;
+
+// 配置 Google OAuth 2.0 scope
+const GOOGLE_SCOPES = ["profile", "email"] as const;
 
 // 获取 OAuth 回调地址
 const getOAuthRedirectUri = () => {
   if (__DEV__) {
     // 使用 ngrok URL 作为回调地址
     if (Platform.OS === "web") {
-      return process.env.EXPO_PUBLIC_GOOGLE_AUTH_CALLBACK || "";
+      return Constants.expoConfig?.extra?.google?.authCallback || "";
     } else {
-      const ngrokUrl = process.env.EXPO_PUBLIC_NGROK_URL;
+      const ngrokUrl = Constants.expoConfig?.extra?.google?.ngrokUrl;
       const redirectUri = `${ngrokUrl}/oauth2/callback/google`;
       console.log("开发环境重定向 URI:", redirectUri);
       return redirectUri;
@@ -47,7 +61,7 @@ export function useGoogleAuth() {
   const [error, setError] = useState<Error | null>(null);
 
   const redirectUri = getOAuthRedirectUri();
-  
+
   const [request, response, promptAsync] = Google.useAuthRequest({
     androidClientId: AUTH_CONFIG.google.appClientId,
     iosClientId: AUTH_CONFIG.google.appClientId,
@@ -100,7 +114,9 @@ export function useGoogleAuth() {
       if (!response.ok) {
         const errorData = await response.text();
         console.error("Token exchange error response:", errorData);
-        throw new Error(`Token exchange failed: ${response.status} ${errorData}`);
+        throw new Error(
+          `Token exchange failed: ${response.status} ${errorData}`
+        );
       }
 
       const data = await response.json();
@@ -177,7 +193,7 @@ export function useGoogleAuth() {
     try {
       setError(null);
       console.log("重定向 URI:", redirectUri);
-      
+
       if (!request) {
         throw new Error("认证请求未准备好");
       }

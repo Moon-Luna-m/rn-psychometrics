@@ -45,3 +45,6 @@ app-example
 server.js
 
 auth.ts
+
+android/
+ios/
