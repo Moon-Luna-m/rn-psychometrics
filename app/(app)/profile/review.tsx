@@ -70,7 +70,7 @@ const useReviewList = (
       } catch (error) {
         console.error(`Refresh error for ${type}:`, error);
       } finally {
-        setRefreshing(loading ?? true);
+        setRefreshing(false);
       }
     },
     [type, loading, onCountChange]
