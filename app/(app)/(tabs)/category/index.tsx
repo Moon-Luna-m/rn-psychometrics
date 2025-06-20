@@ -292,7 +292,6 @@ export default function Category() {
               onIndexChange={setIndex}
               initialLayout={initialLayout}
               swipeEnabled={false}
-              animationEnabled={false}
             />
           )}
         </View>
