@@ -27,9 +27,7 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from "react-native-reanimated";
-import {
-  useSafeAreaInsets
-} from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Route, TabBar, TabView } from "react-native-tab-view";
 import { useCategoryModal } from "../../../../components/providers/CategoryModalProvider";
 
@@ -218,7 +216,11 @@ export default function Category() {
   );
 
   useEffect(() => {
-    setOnSelect(handleCategoryPress);
+    setOnSelect((index: string) => {
+      setTimeout(() => {
+        handleCategoryPress(index);
+      }, 100);
+    });
   }, [handleCategoryPress]);
 
   const handleExpandPress = useCallback(() => {

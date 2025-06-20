@@ -13,6 +13,7 @@ import {
 import Animated, {
   Extrapolation,
   interpolate,
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -105,7 +106,10 @@ export const CategoryModalProvider: React.FC<{ children: React.ReactNode }> = ({
         showModal,
         hideModal,
         onSelect: selectCallback,
-        setOnSelect: (callback) => setSelectCallback(() => callback),
+        setOnSelect: (callback) => {
+          console.log("callback", callback);
+          runOnJS(setSelectCallback)(() => callback);
+        },
       }}
     >
       {children}
