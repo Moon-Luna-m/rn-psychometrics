@@ -107,7 +107,6 @@ export const CategoryModalProvider: React.FC<{ children: React.ReactNode }> = ({
         hideModal,
         onSelect: selectCallback,
         setOnSelect: (callback) => {
-          console.log("callback", callback);
           runOnJS(setSelectCallback)(() => callback);
         },
       }}

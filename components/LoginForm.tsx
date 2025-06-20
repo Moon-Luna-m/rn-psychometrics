@@ -56,7 +56,9 @@ export default function LoginForm() {
   const [isSelectingEmail, setIsSelectingEmail] = useState(false);
   const dispatch = useDispatch();
   const router = useRouter();
-  const [userList, setUserList] = useState<Record<string, ExtendedUserInfo>>({});
+  const [userList, setUserList] = useState<Record<string, ExtendedUserInfo>>(
+    {}
+  );
   const dropdownRef = useRef<View>(null);
 
   // 创建一个对象schema来包装email字段
@@ -151,25 +153,25 @@ export default function LoginForm() {
   useEffect(() => {
     const getUserList = async () => {
       try {
-      const userInfoList = await getLocalCache("user_info");
+        const userInfoList = await getLocalCache("user_info");
         if (!userInfoList) {
           return;
         }
 
         try {
           const decryptedData = JSON.parse(decrypt(userInfoList));
-          if (typeof decryptedData !== 'object' || decryptedData === null) {
-            throw new Error('Invalid user data format');
+          if (typeof decryptedData !== "object" || decryptedData === null) {
+            throw new Error("Invalid user data format");
           }
           setUserList(decryptedData);
         } catch (decryptError) {
-          console.error('Failed to decrypt or parse user data:', decryptError);
+          console.error("Failed to decrypt or parse user data:", decryptError);
           // 清除损坏的数据
           await setLocalCache("user_info", "");
           setUserList({});
         }
       } catch (error) {
-        console.error('Failed to get user list from cache:', error);
+        console.error("Failed to get user list from cache:", error);
         setUserList({});
       }
     };
@@ -197,7 +199,7 @@ export default function LoginForm() {
       }, {} as Record<string, ExtendedUserInfo>);
 
       setFilteredUserList(filtered);
-      
+
       // 如果有匹配项且输入框聚焦，显示下拉列表
       if (Object.keys(filtered).length > 0) {
         setShowEmailDropdown(true);
@@ -205,7 +207,7 @@ export default function LoginForm() {
         setShowEmailDropdown(false);
       }
     } catch (error) {
-      console.error('Failed to filter email list:', error);
+      console.error("Failed to filter email list:", error);
       setFilteredUserList({});
       setShowEmailDropdown(false);
     }
@@ -218,7 +220,7 @@ export default function LoginForm() {
       setValue("password", password, { shouldValidate: true });
       setShowEmailDropdown(false);
     } catch (error) {
-      console.error('Failed to select email:', error);
+      console.error("Failed to select email:", error);
       setIsSelectingEmail(false);
       setShowEmailDropdown(false);
     }
@@ -293,40 +295,37 @@ export default function LoginForm() {
   };
 
   return (
-    <TouchableWithoutFeedback
-      onPress={() => Platform.OS !== "web" && setShowEmailDropdown(false)}
-    >
     <View style={styles.formContainer}>
-        <View style={[styles.inputGroup, { zIndex: 10 }]}>
+      <View style={[styles.inputGroup, { zIndex: 10 }]}>
         <Text style={styles.inputLabel}>{t("form.email.label")}</Text>
-          <TouchableWithoutFeedback>
-            <View ref={dropdownRef}>
-        <InputField
-          control={control}
-          name="email"
-          placeholder={t("form.email.placeholder")}
-          errors={errors}
-          returnKeyType="next"
-          blurOnSubmit={false}
-                containerStyle={[
-                  styles.inputContainer,
-                  showEmailDropdown && styles.inputContainerActive,
-                ]}
-          inputStyle={styles.input}
-                onFocusChange={(focused) => {
-                  if (focused && Object.keys(userList).length > 0) {
-                    setShowEmailDropdown(true);
-                    setIsSelectingEmail(false);
-                  }
-                }}
-                handleBlur={() => {
-                  setShowEmailDropdown(false);
-                }}
-                showArrow={Object.keys(userList).length > 0}
-              />
-              {renderEmailDropdown()}
-            </View>
-          </TouchableWithoutFeedback>
+        <TouchableWithoutFeedback>
+          <View ref={dropdownRef}>
+            <InputField
+              control={control}
+              name="email"
+              placeholder={t("form.email.placeholder")}
+              errors={errors}
+              returnKeyType="next"
+              blurOnSubmit={false}
+              containerStyle={[
+                styles.inputContainer,
+                showEmailDropdown && styles.inputContainerActive,
+              ]}
+              inputStyle={styles.input}
+              onFocusChange={(focused) => {
+                if (focused && Object.keys(userList).length > 0) {
+                  setShowEmailDropdown(true);
+                  setIsSelectingEmail(false);
+                }
+              }}
+              handleBlur={() => {
+                setShowEmailDropdown(false);
+              }}
+              showArrow={Object.keys(userList).length > 0}
+            />
+            {renderEmailDropdown()}
+          </View>
+        </TouchableWithoutFeedback>
       </View>
 
       <View style={styles.inputGroup}>
@@ -364,10 +363,7 @@ export default function LoginForm() {
         onPress={handleSubmit(onSubmit)}
         style={[
           styles.submitButton,
-            (isLoading ||
-              !watch("email") ||
-              !watch("password") ||
-              !isAgreed) && {
+          (isLoading || !watch("email") || !watch("password") || !isAgreed) && {
             opacity: 0.5,
           },
         ]}
@@ -407,7 +403,6 @@ export default function LoginForm() {
 
       <SocialLogin />
     </View>
-    </TouchableWithoutFeedback>
   );
 }
 
