@@ -226,7 +226,14 @@ export default function TestDetailsPage() {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={[
               styles.content,
-              { paddingBottom: 110 + insets.bottom },
+              {
+                paddingBottom:
+                  (Platform.OS === "android"
+                    ? 110
+                    : Platform.OS === "ios"
+                    ? -30
+                    : 0) + insets.bottom,
+              },
             ]}
             onScroll={scrollHandler}
             scrollEventThrottle={16}

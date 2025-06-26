@@ -287,7 +287,12 @@ export default function TestResultPage() {
               styles.content,
               {
                 paddingBottom:
-                  insets.bottom + (!testData?.has_access ? 224 : 140),
+                  insets.bottom +
+                  (!testData?.has_access
+                    ? Platform.OS === "android"
+                      ? 224
+                      : 100
+                    : 0),
               },
             ]}
             onScroll={scrollHandler}

@@ -3,6 +3,7 @@ import {
   GetTestListByTypeResponse,
   testService,
 } from "@/services/testServices";
+import { showNotification } from "@/store/slices/notificationSlice";
 import { formatCurrency, formatDuration, px2hp, px2wp } from "@/utils/common";
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -21,6 +22,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useDispatch } from "react-redux";
 
 type FavoriteItem = GetTestListByTypeResponse["list"][0];
 
@@ -97,6 +99,21 @@ function FavoriteCard({
   onRefresh: (loading?: boolean) => void;
 }) {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
+
+  const handleDelete = useCallback(() => {
+    testService.deleteTestFromFavorite({ test_id: item.id }).then((res) => {
+      if (res.code === 200) {
+        dispatch(
+          showNotification({
+            message: t("favorites.card.deleteSuccess"),
+            type: "default",
+          })
+        );
+        onRefresh(false);
+      }
+    });
+  }, [item.id, onRefresh]);
 
   return (
     <View style={styles.card}>
@@ -128,15 +145,7 @@ function FavoriteCard({
         <TouchableOpacity
           style={styles.deleteButton}
           activeOpacity={0.5}
-          onPress={() => {
-            testService
-              .deleteTestFromFavorite({ test_id: item.id })
-              .then((res) => {
-                if (res.code === 200) {
-                  onRefresh(false);
-                }
-              });
-          }}
+          onPress={handleDelete}
         >
           <Collect />
         </TouchableOpacity>

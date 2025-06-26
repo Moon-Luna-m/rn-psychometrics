@@ -15,11 +15,12 @@ import { useEffect, useRef, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import {
   ImageBackground,
+  Keyboard,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -36,12 +37,42 @@ export default function VerifyScreen() {
   const [focusIndex, setFocusIndex] = useState<number>(0);
   const inputRef = useRef<TextInput>(null);
   const [error, setError] = useState<string>("");
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const { from } = useLocalSearchParams();
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      () => {
+        setIsKeyboardVisible(true);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setIsKeyboardVisible(false);
+      }
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   // 点击某个输入框
   const handleBoxPress = (index: number) => {
     setFocusIndex(index);
-    inputRef.current?.focus();
+    if (!isKeyboardVisible) {
+      // 键盘隐藏时才执行重新聚焦逻辑
+      inputRef.current?.blur();
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50);
+    } else {
+      // 键盘显示时直接聚焦
+      inputRef.current?.focus();
+    }
   };
 
   // 处理验证码输入
@@ -236,6 +267,9 @@ export default function VerifyScreen() {
               onKeyPress={handleKeyPress}
               style={styles.hiddenInput}
               keyboardType="number-pad"
+              autoFocus={true}
+              showSoftInputOnFocus={true}
+              caretHidden={true}
               onFocus={() => {
                 // 如果没有输入任何内容，从第一个开始
                 if (!code) {

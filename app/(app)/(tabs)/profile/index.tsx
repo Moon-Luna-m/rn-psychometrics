@@ -231,7 +231,10 @@ export default function Profile() {
               />
               {userInfo?.is_vip_active && (
                 <View style={styles.editButton}>
-                  <Image source={require("@/assets/images/profile/vip.png")} />
+                  <Image
+                    source={require("@/assets/images/profile/vip.png")}
+                    style={styles.editButtonImage}
+                  />
                 </View>
               )}
             </View>
@@ -405,6 +408,10 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 0,
     bottom: 0,
+    width: px2wp(20),
+    height: px2wp(20),
+  },
+  editButtonImage: {
     width: px2wp(20),
     height: px2wp(20),
   },

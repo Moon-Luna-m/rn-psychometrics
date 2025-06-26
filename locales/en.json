@@ -182,7 +182,8 @@
     "title": "Favorites",
     "card": {
       "questionCount": "Question Count",
-      "timeTaken": "Time Taken"
+      "timeTaken": "Time Taken",
+      "deleteSuccess": "Unfavorites Successfully"
     }
   },
   "faq": {

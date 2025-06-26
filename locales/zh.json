@@ -182,7 +182,8 @@
     "title": "我的收藏",
     "card": {
       "questionCount": "题目数量",
-      "timeTaken": "测试时长"
+      "timeTaken": "测试时长",
+      "deleteSuccess": "取消收藏成功"
     }
   },
   "faq": {
