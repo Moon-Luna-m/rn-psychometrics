@@ -23,6 +23,7 @@ import {
   Text,
   TextStyle,
   TouchableHighlight,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -222,7 +223,13 @@ export default function Profile() {
 
           <View style={styles.avatarContainer}>
             {/* 头像容器 */}
-            <View style={styles.avatarWrapper}>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => {
+                router.push("/profile/vip");
+              }}
+              style={styles.avatarWrapper}
+            >
               <ExpoImage
                 source={{ uri: imgProxy(userInfo?.avatar) }}
                 style={styles.avatar}
@@ -237,7 +244,7 @@ export default function Profile() {
                   />
                 </View>
               )}
-            </View>
+            </TouchableOpacity>
 
             {/* 用户名和性别 */}
             <View style={styles.userInfo}>

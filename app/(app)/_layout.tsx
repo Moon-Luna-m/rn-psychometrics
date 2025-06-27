@@ -8,7 +8,7 @@ export default function AppLayout() {
   const loading = useSelector(selectIsLoading);
 
   if (loading) {
-    return <Text>Loading...</Text>;
+    return <Text></Text>;
   }
 
   if (!userInfo) {

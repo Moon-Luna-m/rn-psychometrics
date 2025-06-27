@@ -10,6 +10,11 @@ export default {
     userInterfaceStyle: "light",
     newArchEnabled: true,
     platforms: ["ios", "android", "web"],
+    updates: {
+      fallbackToCacheTimeout: 0,
+      url: "https://u.expo.dev/de0c84ec-d1cd-4234-8c87-dba484ca91a6",
+    },
+    runtimeVersion: "1.0.0",
     ios: {
       supportsTablet: true,
       backgroundColor: "#ffffff",
@@ -35,11 +40,12 @@ export default {
     },
     plugins: [
       "expo-router",
+      "expo-updates",
       [
         "expo-splash-screen",
         {
           image: "./assets/images/logo.png",
-          backgroundColor: "#FFF",
+          backgroundColor: "#ffffff",
           imageWidth: 200,
         },
       ],
@@ -87,7 +93,7 @@ export default {
         projectId: "de0c84ec-d1cd-4234-8c87-dba484ca91a6",
       },
       apiUrl: "http://192.168.5.180:9999",
-      imgHost: "http://192.168.5.201:9000/echomind/",
+      imgHost: process.env.EXPO_PUBLIC_IMG_HOST,
       google: {
         appClientId: process.env.EXPO_PUBLIC_GOOGLE_APP_CLIENTID,
         webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENTID,
@@ -95,6 +101,11 @@ export default {
         webClientSecret: process.env.EXPO_PUBLIC_GOOGLE_WEB_SECRET,
         authCallback: process.env.EXPO_PUBLIC_GOOGLE_AUTH_CALLBACK,
       },
+      stripe: {
+        publidKey: "pk_test_51RbJXwDFkjX6iOeluEQIiqWJJfjdocFOMiwzdbOul5tkDoa4ZLIGMCeoabi4phY9tA7XjFusDX65S2Oo0O3nHnqu00jMi4EQYK",
+      },
+      branchName: "preview", 
+      channel: "preview",
     },
   },
 };

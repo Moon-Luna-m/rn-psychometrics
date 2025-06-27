@@ -18,6 +18,8 @@ const path = {
   GET_VIP_LIST: "/api/vip/plans/pricing",
   // vip套餐列表(不带价格)
   GET_VIP_LIST_NO_PRICE: "/api/vip/plans",
+  // vip订阅
+  SUBSCRIBE_VIP: "/api/vip/payment",
 } as const;
 
 // 基础响应类型
@@ -30,10 +32,25 @@ interface BaseResponse {
 interface EmptyResponse extends BaseResponse {}
 
 // 创建支付订单响应类型
-interface CreatePaymentOrderResponse {
+export interface CreatePaymentOrderResponse {
   order_id: number;
   out_trade_no: string;
   payment_url: string;
+  customer: string;
+  ephemeralKey: string;
+  sk: string;
+}
+
+// vip订阅返回类型
+export interface SubscribeResponse {
+  amount: number;
+  expire_time: number;
+  pay_url: string;
+  payment_id: number;
+  trade_no: string;
+  customer: string;
+  ephemeralKey: string;
+  sk: string;
 }
 
 // 获取支付订单详情响应类型
@@ -60,6 +77,7 @@ interface GetRechargeListResponse
     coins_amount: number;
     bonus: number;
     is_popular: boolean;
+    id: number;
   }> {}
 
 // 搜索支付记录响应类型
@@ -82,7 +100,7 @@ interface SearchPaymentRecordResponse {
 }
 
 // vip套餐列表响应类型
-interface GetVipListResponse {
+export interface GetVipListResponse {
   created_at: string;
   duration: number;
   features: string;
@@ -125,7 +143,8 @@ export const paymentService = {
       | "BALANCE"
       | "GOOGLE"
       | "IOS"
-      | "PIX";
+      | "PIX"
+      | "STRIPE";
     payment_method: "WEB" | "APP" | "QRCODE";
     product_id: number;
     product_type: 1 | 2 | 3; // 1: 充值 2: 购买 3: 订阅
@@ -175,9 +194,26 @@ export const paymentService = {
   },
 
   // vip套餐列表(不带价格)
-  async getVipListNoPrice(): Promise<ApiResponse<GetVipListNoPriceResponse>> {
-    return httpClient.get<GetVipListNoPriceResponse>(
-      path.GET_VIP_LIST_NO_PRICE
-    );
+  async getVipListNoPrice(): Promise<ApiResponse<GetVipListResponse[]>> {
+    return httpClient.get<GetVipListResponse[]>(path.GET_VIP_LIST_NO_PRICE);
+  },
+
+  // vip订阅
+  async subscribeVip(params: {
+    auto_renew: boolean;
+    payment_gateway:
+      | "ALIPAY"
+      | "WECHAT"
+      | "PAYPAL"
+      | "BALANCE"
+      | "GOOGLE"
+      | "IOS"
+      | "PIX"
+      | "STRIPE";
+    payment_method: "WEB" | "APP" | "QRCODE";
+    subscription_type: string;
+    vip_level: number;
+  }): Promise<ApiResponse<SubscribeResponse>> {
+    return httpClient.post<SubscribeResponse>(path.SUBSCRIBE_VIP, params);
   },
 };

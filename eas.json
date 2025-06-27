@@ -7,26 +7,35 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
+      "channel": "dev",
       "env": {
+        "EAS_UPDATE_BRANCH": "dev",
         "EXPO_PUBLIC_API_URL": "http://192.168.5.180:9999",
         "EXPO_PUBLIC_IMG_HOST": "http://192.168.5.201:9000/echomind/",
-        "EXPO_PUBLIC_GOOGLE_AUTH_CALLBACK": "http://localhost:8081/oauth2/callback/google"
+        "EXPO_PUBLIC_GOOGLE_AUTH_CALLBACK": "http://localhost:8081/oauth2/callback/google",
+        "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_test_51RbJXwDFkjX6iOeluEQIiqWJJfjdocFOMiwzdbOul5tkDoa4ZLIGMCeoabi4phY9tA7XjFusDX65S2Oo0O3nHnqu00jMi4EQYK"
       }
     },
     "preview": {
       "distribution": "internal",
+      "channel": "preview",
       "env": {
+        "EAS_UPDATE_BRANCH": "preview",
         "EXPO_PUBLIC_API_URL": "http://192.168.5.180:9999",
         "EXPO_PUBLIC_IMG_HOST": "http://192.168.5.201:9000/echomind/",
-        "EXPO_PUBLIC_GOOGLE_AUTH_CALLBACK": "http://192.168.5.180:9999/oauth2/callback/google"
+        "EXPO_PUBLIC_GOOGLE_AUTH_CALLBACK": "http://192.168.5.180:9999/oauth2/callback/google",
+        "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_test_51RbJXwDFkjX6iOeluEQIiqWJJfjdocFOMiwzdbOul5tkDoa4ZLIGMCeoabi4phY9tA7XjFusDX65S2Oo0O3nHnqu00jMi4EQYK"
       }
     },
     "production": {
       "autoIncrement": true,
+      "channel": "prod",
       "env": {
+        "EAS_UPDATE_BRANCH": "prod",
         "EXPO_PUBLIC_API_URL": "http://192.168.5.180:9999",
         "EXPO_PUBLIC_IMG_HOST": "http://192.168.5.201:9000/echomind/",
-        "EXPO_PUBLIC_GOOGLE_AUTH_CALLBACK": "http://192.168.5.180:9999/oauth2/callback/google"
+        "EXPO_PUBLIC_GOOGLE_AUTH_CALLBACK": "http://192.168.5.180:9999/oauth2/callback/google",
+        "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY": "pk_test_51RbJXwDFkjX6iOeluEQIiqWJJfjdocFOMiwzdbOul5tkDoa4ZLIGMCeoabi4phY9tA7XjFusDX65S2Oo0O3nHnqu00jMi4EQYK"
       }
     }
   },

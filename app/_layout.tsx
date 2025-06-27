@@ -1,8 +1,8 @@
+import StripeProvider from "@/components/wallet/StripeProvider";
 import { Providers } from "@/store/provider";
 import i18n from "@/utils/i18n";
 import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
 import { useFonts } from "expo-font";
-import { Slot } from "expo-router";
 import { I18nContext } from "react-i18next";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { PaperProvider } from "react-native-paper";
@@ -32,7 +32,7 @@ export default function RootLayout() {
                   },
                 })}
               >
-                <Slot />
+                <StripeProvider />
               </ThemeProvider>
             </PaperProvider>
           </Providers>

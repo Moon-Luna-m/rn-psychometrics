@@ -7,9 +7,16 @@ import { AntDesign, Ionicons } from "@expo/vector-icons";
 import Constants from "expo-constants";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
+import * as Updates from "expo-updates";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from "react-native";
 import { Button } from "react-native-paper";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useDispatch } from "react-redux";
@@ -49,6 +56,7 @@ export default function Setting() {
   const [logoutVisible, setLogoutVisible] = useState(false);
   const [cacheSize, setCacheSize] = useState<string>("0.00M");
   const dispatch = useDispatch();
+  const [error, setError] = useState<string | null>(null);
 
   const handleLogout = useCallback(() => {
     setLogoutVisible(true);
@@ -97,6 +105,30 @@ export default function Setting() {
         break;
       case "update":
         // 处理检查更新
+        try {
+          const res = await Updates.checkForUpdateAsync();
+          if (res.isAvailable) {
+            dispatch(
+              showNotification({
+                message: t("settings.updateAvailable"),
+                type: "loading",
+                duration: null,
+              })
+            );
+            await Updates.fetchUpdateAsync();
+            Updates.reloadAsync();
+          } else {
+            dispatch(
+              showNotification({
+                message: t("settings.noUpdate"),
+                type: "default",
+                duration: 1000,
+              })
+            );
+          }
+        } catch (error) {
+          setError((error as Error).message);
+        }
         break;
       case "cache":
         // 处理清除缓存
@@ -106,6 +138,7 @@ export default function Setting() {
             showNotification({
               message: t("settings.clearCacheSuccess"),
               type: "default",
+              duration: 1000,
             })
           );
           getCacheLocalCache();
@@ -114,6 +147,7 @@ export default function Setting() {
             showNotification({
               message: t("settings.clearCacheFailed"),
               type: "error",
+              duration: 1000,
             })
           );
         }

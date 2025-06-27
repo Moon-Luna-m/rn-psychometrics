@@ -144,6 +144,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   resultTitle: {
+    maxWidth: "80%",
     fontSize: 16,
     fontFamily: "Outfit",
     fontWeight: "600",

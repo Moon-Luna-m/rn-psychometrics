@@ -6,22 +6,22 @@ import { ImageManipulator, SaveFormat } from "expo-image-manipulator";
 import React, { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
-    Dimensions,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import {
-    Gesture,
-    GestureDetector,
-    GestureHandlerRootView,
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
 } from "react-native-gesture-handler";
 import Animated, {
-    runOnJS,
-    useAnimatedStyle,
-    useSharedValue,
-    withSpring,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -395,7 +395,6 @@ export default function CustomCamera({ onClose, onCapture }: Props) {
         style={styles.camera} 
           facing={type}
         flash={flash}
-          ratio="1:1"
         />
       </View>
 
@@ -584,32 +583,34 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     backgroundColor: "transparent",
-    borderWidth: 3,
-    borderColor: "white",
   },
   topLeftHandle: {
     top: 0,
     left: 0,
-    borderBottomColor: "transparent",
-    borderRightColor: "transparent",
+    borderLeftWidth: 3,
+    borderTopWidth: 3,
+    borderColor: "white",
   },
   topRightHandle: {
     top: 0,
     right: 0,
-    borderBottomColor: "transparent",
-    borderLeftColor: "transparent",
+    borderRightWidth: 3,
+    borderTopWidth: 3,
+    borderColor: "white",
   },
   bottomLeftHandle: {
     bottom: 0,
     left: 0,
-    borderTopColor: "transparent",
-    borderRightColor: "transparent",
+    borderLeftWidth: 3,
+    borderBottomWidth: 3,
+    borderColor: "white",
   },
   bottomRightHandle: {
     bottom: 0,
     right: 0,
-    borderTopColor: "transparent",
-    borderLeftColor: "transparent",
+    borderRightWidth: 3,
+    borderBottomWidth: 3,
+    borderColor: "white",
   },
   previewControls: {
     flexDirection: "row",

@@ -215,7 +215,9 @@
       "confirm": "Confirm"
     },
     "clearCacheSuccess": "Cache cleared successfully",
-    "clearCacheFailed": "Cache clearing failed"
+    "clearCacheFailed": "Cache clearing failed",
+    "updateAvailable": "Update available, Updating...",
+    "noUpdate": "Already the latest version"
   },
   "privacy": {
     "terms": {
@@ -263,6 +265,8 @@
     }
   },
   "wallet": {
+    "success": "Purchase successful",
+    "cancelPay": "Cancel Payment",
     "title": "My Wallet",
     "currentBalance": "Current Balance",
     "coinDetails": "Coin Details",
@@ -288,11 +292,16 @@
     "title": "Coin Details"
   },
   "vip": {
+    "quarterly": "{{n}}/quarter",
+    "monthly": "{{n}}/month",
+    "yearly": "{{n}}/year",
+    "lifetime": "One-time payment",
     "title": "VIP",
     "balance": "Balance",
     "recharge": "Recharge",
     "withdraw": "Withdraw",
     "notActivated": "Not Activated",
+    "expires": "Expires on ",
     "subscriptions": {
       "monthly": {
         "title": "Monthly Membership",

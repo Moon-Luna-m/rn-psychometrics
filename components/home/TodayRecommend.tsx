@@ -92,10 +92,12 @@ const RecommendCard: React.FC<RecommendCardProps> = ({ item, onPress }) => {
               >
                 {item.discount_price === 0
                   ? t("home.recommend.free")
-                  : `${formatCurrency(item.discount_price)}`}
+                  : `${formatCurrency(item.discount_price / 100)}`}
               </Text>
               {item.discount_price !== 0 && (
-                <Text style={styles.originalPrice}>${item.price}</Text>
+                <Text style={styles.originalPrice}>
+                  {formatCurrency(item.price / 100)}
+                </Text>
               )}
             </View>
             <View style={styles.rating}>
@@ -116,10 +118,12 @@ const RecommendCard: React.FC<RecommendCardProps> = ({ item, onPress }) => {
               >
                 {item.discount_price === 0
                   ? t("home.recommend.free")
-                  : `${formatCurrency(item.discount_price)}`}
+                  : `${formatCurrency(item.discount_price / 100)}`}
               </Text>
               {item.discount_price !== 0 && (
-                <Text style={styles.originalPrice}>${item.price}</Text>
+                <Text style={styles.originalPrice}>
+                  {formatCurrency(item.price / 100)}
+                </Text>
               )}
             </View>
             <View style={styles.rating}>

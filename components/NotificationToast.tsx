@@ -72,7 +72,7 @@ const NotificationToast: React.FC<NotificationToastProps> = ({ disabledPath = []
               }
             }
           );
-        }, notification.duration || 3000);
+        }, notification.duration || 2000);
       }
     } else {
       // 当 visible 变为 false 时，执行隐藏动画

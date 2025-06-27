@@ -116,7 +116,11 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
             onDismiss={toast?.onDismiss}
           />
           <Animated.View style={[styles.content, containerStyle, modalStyle]}>
-            <TouchableOpacity activeOpacity={1}>{children}</TouchableOpacity>
+            <TouchableOpacity
+              activeOpacity={1}
+            >
+              {children}
+            </TouchableOpacity>
           </Animated.View>
         </TouchableOpacity>
       </Animated.View>

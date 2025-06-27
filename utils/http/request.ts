@@ -50,6 +50,7 @@ export class HttpRequest {
   private axiosInstance: AxiosInstance;
   private globalConfig: GlobalConfig = {
     baseURL: Constants.expoConfig?.extra?.apiUrl,
+    // baseURL: "http://192.168.5.68:3999/dev",
     interceptBusinessError: true,
     interceptNetworkError: true,
     successCode: 200,
