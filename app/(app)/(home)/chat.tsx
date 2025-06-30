@@ -208,7 +208,7 @@ export default function Chat() {
     {
       id: "1",
       message: t("chat.hello"),
-      timestamp: formatDate(date, "MMM d, YYYY hh:mm:ss"),
+      timestamp: formatDate(date, "MMM DD, YYYY hh:mm:ss"),
       isUser: false,
     },
   ]);
