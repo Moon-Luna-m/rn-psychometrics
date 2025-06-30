@@ -49,7 +49,10 @@ export class HttpRequest {
   private static instance: HttpRequest;
   private axiosInstance: AxiosInstance;
   private globalConfig: GlobalConfig = {
-    baseURL: Constants.expoConfig?.extra?.apiUrl,
+    baseURL:
+      Constants.expoConfig?.extra?.apiUrl ||
+      process.env.EXPO_PUBLIC_API_URL ||
+      "",
     // baseURL: "http://192.168.5.68:3999/dev",
     interceptBusinessError: true,
     interceptNetworkError: true,
@@ -79,7 +82,6 @@ export class HttpRequest {
           }),
       },
     };
-
     // 初始化 axios 实例
     this.axiosInstance = axios.create(axiosConfig);
 

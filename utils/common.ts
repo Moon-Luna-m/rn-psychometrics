@@ -165,7 +165,11 @@ export async function clearLocalCache(key: string): Promise<void> {
 export const imgProxy = (url?: string) => {
   if (!url) return "";
   if (/http/.test(url)) return url;
-  return Constants.expoConfig?.extra?.imgHost + url;
+  return (
+    (Constants.expoConfig?.extra?.imgHost ||
+      process.env.EXPO_PUBLIC_IMG_HOST ||
+      "") + url
+  );
 };
 
 /**

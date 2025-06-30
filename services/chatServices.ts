@@ -64,6 +64,13 @@ export const chatServices = {
   currentSessionId: "",
 
   /**
+   * 清除当前会话ID
+   */
+  clearSession: () => {
+    chatServices.currentSessionId = "";
+  },
+
+  /**
    * 创建心理测试
    * @param params 创建测试的参数
    * @returns 创建测试的响应

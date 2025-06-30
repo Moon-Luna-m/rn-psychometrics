@@ -6,6 +6,7 @@ import DigitalAssistant from "@/components/home/DigitalAssistant";
 import { chatServices } from "@/services/chatServices";
 import { formatDate, px2hp, px2wp } from "@/utils/common";
 import { Ionicons } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 import { router } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -190,6 +191,16 @@ export default function Chat() {
   const scrollViewRef = useRef<ScrollView | null>(null);
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
+
+  // 在页面失焦时清除会话ID
+  useFocusEffect(
+    React.useCallback(() => {
+      return () => {
+        chatServices.clearSession();
+      };
+    }, [])
+  );
+
   const [date, setDate] = useState(new Date());
   const [loading, setLoading] = useState(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);

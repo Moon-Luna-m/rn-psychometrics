@@ -13,11 +13,23 @@ if (Platform.OS === "web") {
 const AUTH_CONFIG = {
   google: {
     // 在 Google Cloud Console 中获取
-    appClientId: Constants.expoConfig?.extra?.google?.appClientId || "",
-    webClientId: Constants.expoConfig?.extra?.google?.webClientId || "",
+    appClientId:
+      Constants.expoConfig?.extra?.google?.appClientId ||
+      process.env.EXPO_PUBLIC_GOOGLE_APP_CLIENTID ||
+      "",
+    webClientId:
+      Constants.expoConfig?.extra?.google?.webClientId ||
+      process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENTID ||
+      "",
     // clientId: "204762997801-pnlmu8l3akspfebcvdua8furtine204n.apps.googleusercontent.com",
-    appClientSecret: Constants.expoConfig?.extra?.google?.appClientSecret || "",
-    webClientSecret: Constants.expoConfig?.extra?.google?.webClientSecret || "",
+    appClientSecret:
+      Constants.expoConfig?.extra?.google?.appClientSecret ||
+      process.env.EXPO_PUBLIC_GOOGLE_APP_SECRET ||
+      "",
+    webClientSecret:
+      Constants.expoConfig?.extra?.google?.webClientSecret ||
+      process.env.EXPO_PUBLIC_GOOGLE_WEB_SECRET ||
+      "",
   },
 } as const;
 
@@ -29,9 +41,16 @@ const getOAuthRedirectUri = () => {
   if (__DEV__) {
     // 使用 ngrok URL 作为回调地址
     if (Platform.OS === "web") {
-      return Constants.expoConfig?.extra?.google?.authCallback || "";
+      return (
+        Constants.expoConfig?.extra?.google?.authCallback ||
+        process.env.EXPO_PUBLIC_GOOGLE_AUTH_CALLBACK ||
+        ""
+      );
     } else {
-      const ngrokUrl = Constants.expoConfig?.extra?.google?.ngrokUrl;
+      const ngrokUrl =
+        Constants.expoConfig?.extra?.google?.ngrokUrl ||
+        process.env.EXPO_PUBLIC_NGROK_URL ||
+        "";
       const redirectUri = `${ngrokUrl}/oauth2/callback/google`;
       console.log("开发环境重定向 URI:", redirectUri);
       return redirectUri;
